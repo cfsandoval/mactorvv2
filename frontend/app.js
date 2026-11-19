@@ -2092,7 +2092,11 @@ function renderQuadrantChart() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
+      aspectRatio: 1,
+      layout: {
+        padding: 10
+      },
       scales: {
         x: {
           title: { display: true, text: 'Dependencia Directa (D_i)', font: { weight: 'bold', size: 11 } },
