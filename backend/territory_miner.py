@@ -1067,21 +1067,83 @@ def extract_detailed_actors_and_postures(territory: str, news_items: List[Dict[s
     N = len(detailed_actors)
     M = len(objectives)
 
-    # Base MID matrix
+    # Base MID matrix rigurosa según la metodología de Michel Godet:
+    # 1. Uso de la escala completa (0 a 4).
+    # 2. Asimetría estructural: Regulador -> Regulado > Regulado -> Regulador.
+    # 3. Presencia realista de relaciones nulas (0) entre actores sin canal directo.
     mid = [[0 for _ in range(N)] for _ in range(N)]
     for i in range(N):
         for j in range(N):
             if i == j:
                 mid[i][j] = 0
             else:
+                cat_i = detailed_actors[i].get("category", "")
+                cat_j = detailed_actors[j].get("category", "")
                 p_i = detailed_actors[i].get("base_power", 3)
                 p_j = detailed_actors[j].get("base_power", 3)
-                if p_i >= 4:
-                    mid[i][j] = 3 if p_j >= 3 else 4
-                elif p_i == 3:
-                    mid[i][j] = 2 if p_j >= 4 else 3
+
+                # Regla 1: Autoridad Pública / Órgano Regulador sobre Sector Privado o Ejecutores
+                if "Gobierno" in cat_i or "Autoridad" in cat_i or "Judicial" in cat_i:
+                    if "Empresarial" in cat_j or "Productivo" in cat_j or "Gremial" in cat_j:
+                        mid[i][j] = 4 if p_i >= 4 else 3 # Poder de sanción, licencia y tributación
+                    elif "Comunidades" in cat_j or "Sindical" in cat_j:
+                        mid[i][j] = 2 if p_i >= 4 else 1 # Control de orden público, programas sociales
+                    elif "Académico" in cat_j:
+                        mid[i][j] = 1 # Financiamiento o regulación universitaria
+                    else:
+                        mid[i][j] = 2
+
+                # Regla 2: Sector Empresarial / Privado sobre otros
+                elif "Empresarial" in cat_i or "Productivo" in cat_i:
+                    if "Gobierno" in cat_j:
+                        mid[i][j] = 1 if p_i < 4 else 2 # Presión fiscal o lobby (no vinculante directo)
+                    elif "Sindical" in cat_j:
+                        mid[i][j] = 3 # Poder de contratación, salarios y despidos
+                    elif "Comunidades" in cat_j:
+                        mid[i][j] = 2 # Impacto económico directo o inversión comunitaria
+                    elif "Académico" in cat_j:
+                        mid[i][j] = 1 # Convenios de I+D
+                    else:
+                        mid[i][j] = 1
+
+                # Regla 3: Comunidades, Ciudadanía y Sindicatos
+                elif "Comunidades" in cat_i or "Sindical" in cat_i:
+                    if "Empresarial" in cat_j:
+                        mid[i][j] = 2 if p_i >= 3 else 1 # Bloqueos, huelgas, paralizaciones
+                    elif "Gobierno" in cat_j:
+                        mid[i][j] = 2 # Presión electoral, marchas, tutelas
+                    elif "Académico" in cat_j:
+                        mid[i][j] = 0 # Sin relación de mando directa
+                    else:
+                        mid[i][j] = 0
+
+                # Regla 4: Medios de Prensa y Comunicación
+                elif "Prensa" in cat_i or "Medios" in cat_i or "Comunicaciones" in cat_i:
+                    if "Gobierno" in cat_j or "Empresarial" in cat_j:
+                        mid[i][j] = 2 # Influencia en opinión pública y reputación
+                    else:
+                        mid[i][j] = 1
+
+                # Regla 5: Sector Académico / Científico
+                elif "Académico" in cat_i or "Ciencia" in cat_i:
+                    if "Gobierno" in cat_j:
+                        mid[i][j] = 2 if p_i >= 4 else 1 # Informes periciales, consultoría técnica
+                    elif "Empresarial" in cat_j:
+                        mid[i][j] = 1 # Formación de profesionales
+                    else:
+                        mid[i][j] = 0 # Sin influencia directa sobre comunidades o sindicatos
+
+                # Regla general de contraste según diferencia de poder
                 else:
-                    mid[i][j] = 1 if p_j >= 4 else 2
+                    diff = p_i - p_j
+                    if diff >= 2:
+                        mid[i][j] = 3
+                    elif diff == 1:
+                        mid[i][j] = 2
+                    elif diff == 0:
+                        mid[i][j] = 1
+                    else:
+                        mid[i][j] = 0
 
     # Base 2MAO matrix
     mao2 = []
