@@ -1,11 +1,16 @@
 """
 Territory Miner Avanzado: Extracción granular y específica de actores reales.
-Amplía el rango a TODO el ecosistema de Google (Prensa, Gacetas Oficiales .gov/.gob, Decretos, Documentos Públicos)
-y Redes Sociales (X/Twitter, debates en YouTube, denuncias ciudadanas).
-Genera actores territoriales específicos (con nombres propios de alcaldes, gobernadores,
-empresas concretas, cabildos reales y corporaciones ambientales locales), evitando nombres genéricos.
+Integra fuentes en tiempo real:
+1. NewsData.io (API segura en backend con token protegido)
+2. Google News LatAm / CL (Prensa regional y nacional)
+3. Business & Human Rights Resource Centre (BHRRC)
+4. Documentos Públicos Oficiales (.gov / .gob, decretos y gacetas)
+5. Redes Sociales (X/Twitter, debates comunitarios, YouTube)
+Genera actores territoriales específicos (con nombres propios de autoridades, empresas,
+cabildos reales y corporaciones ambientales locales), evitando nombres genéricos.
 """
 
+import os
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
@@ -13,6 +18,27 @@ import re
 import json
 from typing import List, Dict, Any, Tuple
 from bs4 import BeautifulSoup
+
+def _load_env_fallback():
+    for env_path in [".env", "../.env", os.path.join(os.path.dirname(__file__), "..", ".env"), os.path.join(os.path.dirname(__file__), ".env")]:
+        if os.path.exists(env_path):
+            try:
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k = k.strip()
+                            v = v.strip().strip("'\"")
+                            if k not in os.environ:
+                                os.environ[k] = v
+            except Exception:
+                pass
+
+_load_env_fallback()
+
+# Secure default fallback on server (never sent or exposed to frontend client)
+NEWSDATA_SERVER_KEY = os.environ.get("NEWSDATA_API_KEY", "pub_215f7b1e3dba4376bb012dd9026cc34d")
 
 def clean_html(text: str) -> str:
     if not text:
@@ -22,6 +48,15 @@ def clean_html(text: str) -> str:
 def classify_source_channel(title: str, summary: str, source: str, link: str) -> Tuple[str, str, str, str]:
     combined = f"{title} {summary} {source} {link}".lower()
     
+    # 0. NewsData.io API (Server-side real-time news)
+    if "newsdata" in source.lower() or "newsdata.io" in combined:
+        return (
+            "newsdata",
+            "NewsData.io LatAm",
+            "fa-solid fa-bolt",
+            "bg-emerald-100 text-emerald-900 border-emerald-300"
+        )
+
     # 1. Business & Human Rights Resource Centre (BHRRC)
     if "business-humanrights.org" in combined or "business and human rights" in combined or "bhrrc" in combined:
         return (
@@ -152,6 +187,74 @@ def fetch_bhrrc_feed(territory: str, sector: str = "") -> List[Dict[str, Any]]:
 
     return items
 
+def fetch_newsdata_articles(territory: str, sector: str = "", country: str = "", api_key: str = None) -> List[Dict[str, Any]]:
+    """
+    Fetches real-time news articles from NewsData.io (https://newsdata.io).
+    Secure server-side API query with protected key (never exposed on client frontend).
+    Automatically corrects prefix if passed as 'ub_...' -> 'pub_...'.
+    """
+    raw_key = api_key or os.environ.get("NEWSDATA_API_KEY") or NEWSDATA_SERVER_KEY
+    if not raw_key:
+        return []
+    
+    key = raw_key.strip()
+    if key.startswith("ub_"):
+        key = "p" + key
+
+    clean_t = territory.strip()
+    clean_s = sector.strip()
+    query = f"{clean_t} {clean_s}".strip() if clean_s else clean_t
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
+    items = []
+
+    # Candidates to query (most specific first, then territory, then country)
+    candidates = [query]
+    if clean_s and clean_t not in candidates:
+        candidates.append(clean_t)
+    if country and country.strip() and country.strip() not in candidates:
+        candidates.append(country.strip())
+
+    for q_cand in candidates:
+        if not q_cand:
+            continue
+        try:
+            encoded_q = urllib.parse.quote(q_cand)
+            url = f"https://newsdata.io/api/1/latest?apikey={key}&q={encoded_q}&language=es"
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=6) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if data.get("status") == "success":
+                    for art in data.get("results", []):
+                        title = clean_html(art.get("title", ""))
+                        if not title or any(x["title"] == title for x in items):
+                            continue
+                        
+                        desc = clean_html(art.get("description") or art.get("content") or "")
+                        src_name = art.get("source_name") or art.get("source_id") or "Prensa"
+                        link = art.get("link") or art.get("source_url") or ""
+                        pub_date = art.get("pubDate") or ""
+
+                        items.append({
+                            "title": title,
+                            "summary": desc,
+                            "link": link,
+                            "date": pub_date,
+                            "source": f"NewsData.io / {src_name}",
+                            "channel": "newsdata",
+                            "channel_label": "NewsData.io LatAm",
+                            "channel_icon": "fa-solid fa-bolt",
+                            "channel_badge_class": "bg-emerald-100 text-emerald-900 border-emerald-300"
+                        })
+                    if items:
+                        break  # Stop after finding matches for specific query
+        except Exception:
+            continue
+
+    return items
+
 def fetch_newsapi_articles(territory: str, sector: str = "", api_key: str = "") -> List[Dict[str, Any]]:
     """
     Fetches articles from NewsAPI (https://newsapi.org/docs) if an API key is provided.
@@ -190,12 +293,12 @@ def fetch_newsapi_articles(territory: str, sector: str = "", api_key: str = "") 
 
     return items
 
-def fetch_multi_angle_news(territory: str, sector: str = "", newsapi_key: str = "") -> List[Dict[str, Any]]:
+def fetch_multi_angle_news(territory: str, sector: str = "", country: str = "", newsapi_key: str = "", newsdata_key: str = None) -> List[Dict[str, Any]]:
     """
-    Captures the full spectrum of information requested:
-    1. Google News CL & LatAm (https://news.google.com/home?hl=es-419&gl=CL&ceid=CL:es-419)
-    2. Business & Human Rights Resource Centre (https://www.business-humanrights.org/es/feeds/latest-news/3/)
-    3. NewsAPI (https://newsapi.org/docs) when API key is provided
+    Captures the full spectrum of information:
+    1. NewsData.io (API Segura en backend sin exponer credenciales)
+    2. Google News CL & LatAm (https://news.google.com/home?hl=es-419&gl=CL&ceid=CL:es-419)
+    3. Business & Human Rights Resource Centre (https://www.business-humanrights.org/es/feeds/latest-news/3/)
     4. Official government gazettes (.gov/.gob) and Social Networks (X/Twitter/YouTube)
     """
     clean_terr = territory.strip().title()
@@ -204,14 +307,21 @@ def fetch_multi_angle_news(territory: str, sector: str = "", newsapi_key: str = 
     all_items = []
     seen_titles = set()
 
-    # 1. Fetch from Business & Human Rights Resource Centre (BHRRC)
+    # 1. Fetch from NewsData.io (Secure Server-Side API)
+    newsdata_items = fetch_newsdata_articles(clean_terr, clean_sector, country=country, api_key=newsdata_key)
+    for it in newsdata_items:
+        if it["title"] not in seen_titles:
+            seen_titles.add(it["title"])
+            all_items.append(it)
+
+    # 2. Fetch from Business & Human Rights Resource Centre (BHRRC)
     bhrrc_items = fetch_bhrrc_feed(clean_terr, clean_sector)
     for it in bhrrc_items:
         if it["title"] not in seen_titles:
             seen_titles.add(it["title"])
             all_items.append(it)
 
-    # 2. Fetch from NewsAPI if key is provided
+    # 3. Fetch from NewsAPI if optional key provided
     if newsapi_key:
         napi_items = fetch_newsapi_articles(clean_terr, clean_sector, newsapi_key)
         for it in napi_items:
@@ -434,6 +544,114 @@ def build_specific_actors_for_territory(territory: str, sector: str, news_items:
                     "O4": {"score": 2, "rationale": "Control del tráfico ilegal de madera y persecución de la minería ilegal contaminante con mercurio."},
                     "O5": {"score": 4, "rationale": "Pilar central: ordenamiento del territorio en torno al agua y conservación de corredores biológicos."}
                 }
+            },
+            {
+                "id": "A7",
+                "name": "Universidad de Antioquia, UNAL Medellín & Centros de Pensamiento Científico",
+                "short_name": "UdeA, UNAL & Sector Científico",
+                "category": "Sector Académico y Ciencia",
+                "role_description": "Principales universidades públicas y centros de investigación tecnológica que modelan el cambio climático, calidad del aire y políticas públicas.",
+                "explicit_objective": "Aportar investigación basada en evidencia, exigir mayor presupuesto para ciencia y liderar debates de equidad territorial.",
+                "implicit_objective": "Defender la autonomía universitaria, vincular graduados a proyectos de desarrollo regional y evitar la politización de la educación superior.",
+                "base_power": 3,
+                "power_rationale": "Poder Nivel 3: Autoridad moral, técnica y científica sobre la toma de decisiones públicas e impacto en la opinión ciudadana.",
+                "postures": {
+                    "O1": {"score": 2, "rationale": "Favorece infraestructura tecnológica y científica sin depredación ambiental."},
+                    "O2": {"score": 4, "rationale": "Investigación activa en descontaminación del Río Medellín y modelación climática del Valle."},
+                    "O3": {"score": 4, "rationale": "Prioridad máxima en educación superior gratuita, inclusión social y reducción de desigualdades."},
+                    "O4": {"score": 2, "rationale": "Enfoque de seguridad humana, derechos fundamentales y resolución pacífica de conflictos."},
+                    "O5": {"score": 4, "rationale": "Liderazgo en transición energética, hidrógeno verde e innovación urbana sostenible."}
+                }
+            },
+            {
+                "id": "A8",
+                "name": "Centrales Obreras, CUT Antioquia & Sindicatos de Servicios Públicos (Sintraemsdes)",
+                "short_name": "CUT Antioquia & Sintraemsdes",
+                "category": "Movimiento Sindical y Laboral",
+                "role_description": "Organizaciones de trabajadores de servicios públicos, construcción y manufactura que defienden el carácter público y laboral de las empresas.",
+                "explicit_objective": "Defender el carácter 100% público de EPM, exigir estabilidad laboral, salarios justos y tarifas accesibles a los estratos populares.",
+                "implicit_objective": "Frenar intentos de privatización, tercerización o despidos masivos y consolidar fuerza política obrera.",
+                "base_power": 3,
+                "power_rationale": "Poder Nivel 3: Capacidad de huelga legal, movilización en calles y negociación de convenciones colectivas.",
+                "postures": {
+                    "O1": {"score": 2, "rationale": "Apoya obras públicas siempre que generen empleo formal digno y no precarizado."},
+                    "O2": {"score": 3, "rationale": "Promueve transición justa protegiendo la salud ocupacional y el entorno ecológico."},
+                    "O3": {"score": 4, "rationale": "Pilar existencial: defensa de tarifas sociales de servicios públicos y mínimo vital de agua."},
+                    "O4": {"score": 1, "rationale": "Rechaza la estigmatización de la protesta social legítima."},
+                    "O5": {"score": 3, "rationale": "Exige que la transición energética no destruya empleos del sector tradicional sin reconversión."}
+                }
+            },
+            {
+                "id": "A9",
+                "name": "Personería Distrital de Medellín & Defensoría del Pueblo Regional Antioquia",
+                "short_name": "Personería Medellín & Defensoría",
+                "category": "Ministerio Público y Órganos de Control",
+                "role_description": "Organismos constitucionales garantes de los derechos humanos, la moralidad administrativa y el debido proceso de las comunidades.",
+                "explicit_objective": "Proteger los derechos de víctimas, vigilar la prestación de servicios esenciales y verificar el cumplimiento de garantías en protestas.",
+                "implicit_objective": "Fiscalizar actuaciones indebidas de funcionarios públicos y mantener independencia frente a los gobernantes de turno.",
+                "base_power": 3,
+                "power_rationale": "Poder Nivel 3: Capacidad de emitir alertas tempranas vinculantes, sanciones disciplinarias e interponer acciones de tutela.",
+                "postures": {
+                    "O1": {"score": 1, "rationale": "Vigila que las obras públicas no vulneren derechos fundamentales ni generen desalojos forzados."},
+                    "O2": {"score": 3, "rationale": "Fiscaliza vertimientos ilegales y la afectación al derecho al medio ambiente sano."},
+                    "O3": {"score": 4, "rationale": "Defensa irrestricta de derechos humanos, salud, niñez y poblaciones vulnerables."},
+                    "O4": {"score": 3, "rationale": "Monitoreo constante de derechos humanos en cárceles y en operativos de seguridad distrital."},
+                    "O5": {"score": 3, "rationale": "Acompañamiento a comunidades en mesas de concertación de planes de ordenamiento."}
+                }
+            },
+            {
+                "id": "A10",
+                "name": "Asociaciones Campesinas de Antioquia & Productores Agropecuarios Subregionales",
+                "short_name": "Asociaciones Campesinas de Antioquia",
+                "category": "Comunidades Rurales y Agrarias",
+                "role_description": "Pequeños y medianos agricultores de las subregiones de Oriente, Suroeste, Norte y Urabá que abastecen de alimentos al Valle de Aburrá.",
+                "explicit_objective": "Vías terciarias transitables, precios justos para cosechas, créditos rurales y protección contra el despojo de tierras.",
+                "implicit_objective": "Frenar la especulación inmobiliaria en zonas rurales y resistir la expansión minera que contamina sus aguas de riego.",
+                "base_power": 2,
+                "power_rationale": "Poder Nivel 2: Abastecimiento alimentario del departamento, paros agrarios y bloqueos de arterias viales.",
+                "postures": {
+                    "O1": {"score": 2, "rationale": "Demanda urgente de placas huellas y vías campesinas, pero rechaza peajes abusivos."},
+                    "O2": {"score": 4, "rationale": "El agua limpia es vida para los cultivos; rechazo rotundo a contaminación minera."},
+                    "O3": {"score": 4, "rationale": "Exige salud rural, escuelas veredales dignas y subsidios a insumos agrícolas."},
+                    "O4": {"score": 2, "rationale": "Reclama protección estatal frente a grupos armados ilegales que cobran extorsiones."},
+                    "O5": {"score": 3, "rationale": "Ordenamiento territorial que proteja la vocación agrícola del suelo frente a urbanizaciones."}
+                }
+            },
+            {
+                "id": "A11",
+                "name": "Metro de Medellín & Operadores de Movilidad y Transporte Masivo",
+                "short_name": "Metro de Medellín & Transportadores",
+                "category": "Infraestructura & Movilidad Pública",
+                "role_description": "Empresa de transporte masivo (trenes, cables, tranvía, Metroplús) y cooperativas de buses que movilizan a más de 1.2 millones de personas al día.",
+                "explicit_objective": "Expandir el sistema masivo con el Metro de la 80, asegurar sostenibilidad tarifaria y modernizar la flota hacia buses eléctricos.",
+                "implicit_objective": "Garantizar aportes financieros del Gobierno Nacional y Distrital para amortizar la deuda histórica y mantener calidad de servicio.",
+                "base_power": 4,
+                "power_rationale": "Poder Nivel 4: Eje vertebrador del funcionamiento diario de la economía distrital y metropolitana.",
+                "postures": {
+                    "O1": {"score": 4, "rationale": "Máxima prioridad: construcción del Metro de la 80 y corredores masivos metropolitanos."},
+                    "O2": {"score": 4, "rationale": "Reducción masiva de huella de carbono y emisiones vehiculares en el Valle de Aburrá."},
+                    "O3": {"score": 3, "rationale": "Tarifas integradas y accesibles para estudiantes y adultos mayores."},
+                    "O4": {"score": 3, "rationale": "Cultura Metro, convivencia ciudadana y seguridad en estaciones."},
+                    "O5": {"score": 4, "rationale": "Pilar de la transición energética del transporte y ordenamiento urbano alrededor de las estaciones."}
+                }
+            },
+            {
+                "id": "A12",
+                "name": "Sector Financiero Regional, Cooperativas de Ahorro y Crédito (Confiar, Cotrafa) y Fondos de Inversión",
+                "short_name": "Sector Financiero & Cooperativo",
+                "category": "Sector Financiero e Inversionista",
+                "role_description": "Entidades bancarias regionales, fondos de capital privado y cooperativas financieras que apalancan la vivienda, microempresas y megaproyectos.",
+                "explicit_objective": "Colocar créditos con tasas competitivas, mantener bajo índice de mora, financiar vivienda social y obras públicas con respaldo soberano.",
+                "implicit_objective": "Asegurar rentabilidad y retorno de cartera, mitigando riesgos de impago por crisis económicas o incertidumbre política.",
+                "base_power": 3,
+                "power_rationale": "Poder Nivel 3: Canalización del flujo de capital necesario para cualquier desarrollo inmobiliario o de infraestructura.",
+                "postures": {
+                    "O1": {"score": 4, "rationale": "Financiamiento de concesiones 4G/5G, obras distritales y compra de vivienda."},
+                    "O2": {"score": 2, "rationale": "Adopción de bonos verdes y criterios ESG (Ambiental, Social y Gobernanza)."},
+                    "O3": {"score": 2, "rationale": "Líneas de microcrédito productivo para emprendimientos y sectores populares."},
+                    "O4": {"score": 3, "rationale": "Exige estabilidad institucional, seguridad jurídica y respeto a los contratos financieros."},
+                    "O5": {"score": 3, "rationale": "Financiamiento de proyectos de eficiencia energética y paneles solares."}
+                }
             }
         ]
 
@@ -499,6 +717,90 @@ def build_specific_actors_for_territory(territory: str, sector: str, news_items:
                 "base_power": 2,
                 "power_rationale": "Poder Nivel 2: Litigio estratégico y suspensión de licencias ante anomalías.",
                 "postures": {"O1": {"score": 1, "rationale": "Condiciona las obras al cumplimiento de licencias."}, "O2": {"score": 4, "rationale": "Protección de flora y fauna desértica y acuíferos."}, "O3": {"score": 4, "rationale": "Cumplimiento obligatorio de sentencias judiciales."}, "O4": {"score": 2, "rationale": "Seguridad comunitaria."}, "O5": {"score": 3, "rationale": "Vigilancia de pasivos ambientales eólicos."}}
+            },
+            {
+                "id": "A6",
+                "name": "Universidad de La Guajira (UniGuajira) & Centros de Pensamiento Regional",
+                "short_name": "UniGuajira & Sector Científico",
+                "category": "Sector Académico y Ciencia",
+                "role_description": "Principal claustro universitario público del departamento con sedes en Riohacha, Maicao, Manaure y Villanueva; forma profesionales wayúu.",
+                "explicit_objective": "Aportar estudios de impacto social y ambiental, defender la investigación etnoeducativa y exigir inversión en ciencia regional.",
+                "implicit_objective": "Superar la precariedad presupuestal histórica y posicionarse como veedor técnico indispensable en las consultas de transición eólica.",
+                "base_power": 3,
+                "power_rationale": "Poder Nivel 3: Autoridad técnica, etnoeducativa y de formación de la juventud del departamento.",
+                "postures": {"O1": {"score": 2, "rationale": "Apoyo a energía limpia con transferencia tecnológica al departamento."}, "O2": {"score": 4, "rationale": "Estudios científicos de impacto sobre fauna y acuíferos desérticos."}, "O3": {"score": 4, "rationale": "Prioridad máxima en educación superior, salud y saneamiento básico."}, "O4": {"score": 2, "rationale": "Enfoque de seguridad humana y mediación comunitaria."}, "O5": {"score": 4, "rationale": "Transición energética justa con cátedra indígena y centros de I+D local."}}
+            },
+            {
+                "id": "A7",
+                "name": "Veedurías Ciudadanas, Colectivos de Niñez Wayúu & Comisión Sentencia T-302",
+                "short_name": "Veedurías Sentencia T-302 & DDHH",
+                "category": "Sociedad Civil & DDHH",
+                "role_description": "Organizaciones ciudadanas y de derechos humanos que monitorean el Estado de Cosas Inconstitucional declarado por la Corte Constitucional.",
+                "explicit_objective": "Hacer cumplir la Sentencia T-302 para frenar la muerte de niños wayúu por desnutrición y sed en rancherías.",
+                "implicit_objective": "Evitar que los fondos de regalías o compensaciones de empresas eólicas se desvíen por corrupción política.",
+                "base_power": 3,
+                "power_rationale": "Poder Nivel 3: Capacidad de incidente de desacato judicial ante la Corte Suprema y litigio internacional.",
+                "postures": {"O1": {"score": 1, "rationale": "Los aerogeneradores no valen nada si al lado mueren niños de sed."}, "O2": {"score": 4, "rationale": "Preservación estricta de fuentes de agua dulce subterránea."}, "O3": {"score": 4, "rationale": "Pilar existencial: agua potable diaria y soberanía alimentaria infantil."}, "O4": {"score": 2, "rationale": "Protección para líderes amenazados por denunciar corrupción de aguas."}, "O5": {"score": 3, "rationale": "Transición energética con plantas de desalinización de agua para comunidades."}}
+            },
+            {
+                "id": "A8",
+                "name": "Defensoría del Pueblo Regional La Guajira & Procuraduría para Asuntos Étnicos",
+                "short_name": "Defensoría & Procuraduría Étnica",
+                "category": "Ministerio Público y Control",
+                "role_description": "Órganos estatales de control y garantía de derechos de los pueblos indígenas y vigilancia de la contratación pública.",
+                "explicit_objective": "Garantizar el debido proceso en consultas previas, vigilar el suministro de agua y mediar en conflictos territoriales entre clanes.",
+                "implicit_objective": "Mantener neutralidad y evitar connivencia con autoridades políticas locales cuestionadas.",
+                "base_power": 3,
+                "power_rationale": "Poder Nivel 3: Emisión de informes de advertencia, alertas tempranas vinculantes y solicitudes de medidas cautelares.",
+                "postures": {"O1": {"score": 2, "rationale": "Exige que los contratos cumplan estándares de consulta y convenios OIT."}, "O2": {"score": 3, "rationale": "Vigilancia de pasivos ambientales en el territorio desértico."}, "O3": {"score": 4, "rationale": "Protección prioritaria de la vida y la salud en comunidades rurales dispersas."}, "O4": {"score": 3, "rationale": "Acompañamiento en mesas de diálogo y prevención de bloqueos viales."}, "O5": {"score": 3, "rationale": "Verificación de acuerdos económicos justos entre clanes y multinacionales."}}
+            },
+            {
+                "id": "A9",
+                "name": "Comercio de Frontera, Cooperativas Aduaneras y Gremios del Transporte de Maicao",
+                "short_name": "Comercio de Frontera & Transporte",
+                "category": "Sector Privado Comercial Local",
+                "role_description": "Empresarios comerciales de Maicao y transportadores terrestres de carga y pasajeros hacia la Alta y Media Guajira.",
+                "explicit_objective": "Reactivar el régimen aduanero especial, libre tránsito sin peajes ilegales y reactivación del comercio fronterizo.",
+                "implicit_objective": "Asegurar contratos locales de acarreo de materiales para los parques eólicos frente a consorcios foráneos.",
+                "base_power": 2,
+                "power_rationale": "Poder Nivel 2: Control logístico del transporte por carretera y abastecimiento de insumos.",
+                "postures": {"O1": {"score": 3, "rationale": "Favorece obras que demanden transporte pesado y compra local de insumos."}, "O2": {"score": 1, "rationale": "Prioriza dinamismo comercial sobre restricciones severas de tránsito."}, "O3": {"score": 3, "rationale": "Exige servicios básicos para sus centros urbanos comerciales."}, "O4": {"score": 4, "rationale": "Seguridad en carreteras contra atracos y peajes extorsivos en trochas."}, "O5": {"score": 2, "rationale": "Demanda electrificación estable para bodegas y almacenes."}}
+            },
+            {
+                "id": "A10",
+                "name": "Cooperación Internacional y Agencias Humanitarias (PNUD, UNICEF, PMA, OIM)",
+                "short_name": "Cooperación Internacional (ONU)",
+                "category": "Organismos Multilaterales",
+                "role_description": "Agencias multilaterales que financian plantas desalinizadoras, comedores escolares y proyectos de energía solar en comunidades wayúu.",
+                "explicit_objective": "Disminuir la mortalidad materno-infantil, proveer agua potable y fortalecer capacidades de gobernanza comunitaria.",
+                "implicit_objective": "Canalizar recursos de donantes internacionales con rendición de cuentas transparente evitando intermediarios políticos.",
+                "base_power": 3,
+                "power_rationale": "Poder Nivel 3: Financiamiento no reembolsable en dólares y asistencia técnica neutral aceptada por los clanes.",
+                "postures": {"O1": {"score": 2, "rationale": "Apoya transición energética si incluye transferencia comunitaria real."}, "O2": {"score": 4, "rationale": "Mitigación del cambio climático y resiliencia en zonas de sequía extrema."}, "O3": {"score": 4, "rationale": "Razón de ser: erradicación del hambre y provisión de agua segura."}, "O4": {"score": 3, "rationale": "Protección humanitaria a refugiados y migrantes en zona de frontera."}, "O5": {"score": 4, "rationale": "Sistemas comunitarios descentralizados de agua y energía limpia."}}
+            },
+            {
+                "id": "A11",
+                "name": "Asociaciones de Pescadores Artesanales y Productores de Sal Marina (Manaure)",
+                "short_name": "Pescadores y Salineros de Manaure",
+                "category": "Economía Tradicional y Popular",
+                "role_description": "Comunidades costeras dedicadas a la pesca artesanal en el Caribe y explotación de las salinas marítimas ancestrales de Manaure.",
+                "explicit_objective": "Proteger las zonas marinas de pesca, rehabilitar las salinas de Manaure (Sama) y asegurar empleo local.",
+                "implicit_objective": "Evitar que las plataformas eólicas offshore o puertos de desembarque de turbinas destruyan sus caladeros de pesca.",
+                "base_power": 2,
+                "power_rationale": "Poder Nivel 2: Sustento alimentario costero y capacidad de parálisis de puertos y salineras.",
+                "postures": {"O1": {"score": 1, "rationale": "Exige que los muelles de descarga eólica no bloqueen el acceso de lanchas pesqueras."}, "O2": {"score": 4, "rationale": "Defensa del ecosistema marino y de manglares costeros."}, "O3": {"score": 4, "rationale": "Ingresos dignos para familias salineras y pescadoras."}, "O4": {"score": 2, "rationale": "Seguridad marítima y apoyo contra el contrabando."}, "O5": {"score": 2, "rationale": "Electrificación de plantas de hielo y procesamiento de pescado con energía solar."}}
+            },
+            {
+                "id": "A12",
+                "name": "Sindicato de Trabajadores del Carbón y la Energía de La Guajira (Sintracarbón)",
+                "short_name": "Sindicato Energético Sintracarbón",
+                "category": "Movimiento Sindical y Energético",
+                "role_description": "Organización sindical histórica de trabajadores mineros y energéticos del departamento.",
+                "explicit_objective": "Exigir una reconversión laboral real ante el cierre progresivo de minas de carbón y estabilidad en empresas eólicas.",
+                "implicit_objective": "Sindicalizar a los trabajadores de los nuevos parques eólicos y evitar que las multinacionales reduzcan masa salarial.",
+                "base_power": 3,
+                "power_rationale": "Poder Nivel 3: Capacidad de huelga legal en el sector energético y representación en mesas de concertación nacional.",
+                "postures": {"O1": {"score": 3, "rationale": "Apoya la industria renovable siempre que contrate mano de obra guajira sindicalizada."}, "O2": {"score": 3, "rationale": "Reclamación histórica de pasivos ambientales en cuencas de ríos afectados por minería."}, "O3": {"score": 4, "rationale": "Defensa de empleo formal con salarios dignos y salud para trabajadores."}, "O4": {"score": 2, "rationale": "Respeto a las libertades sindicales y seguridad de dirigentes obreros."}, "O5": {"score": 4, "rationale": "Transición energética justa centrada en los trabajadores y no solo en las ganancias corporativas."}}
             }
         ]
 
@@ -575,6 +877,90 @@ def build_specific_actors_for_territory(territory: str, sector: str, news_items:
             "base_power": 3,
             "power_rationale": "Poder Nivel 3: Facultades legales de imposición de medidas sancionatorias y demandas judiciales.",
             "postures": {"O1": {"score": -2, "rationale": "Oposición a proyectos invasivos en áreas de reserva protegida."}, "O2": {"score": 4, "rationale": "Pilar existencial: preservación estricta de fuentes de agua y biodiversidad."}, "O3": {"score": 4, "rationale": "Acompañamiento a comunidades en sus reclamos de derechos ambientales."}, "O4": {"score": 2, "rationale": "Combate a la minería ilegal y deforestación."}, "O5": {"score": 4, "rationale": "Ordenamiento territorial basado en la estructura ecológica principal."}}
+        },
+        {
+            "id": "A6",
+            "name": f"Sector Académico, Universidades Públicas y Centros de Pensamiento de {clean_t}",
+            "short_name": f"Universidades & Academia {clean_t}",
+            "category": "Sector Académico y Ciencia",
+            "role_description": f"Instituciones de educación superior y centros científicos con presencia e investigación en {clean_t}.",
+            "explicit_objective": "Aportar diagnósticos técnicos rigurosos, formar talento profesional local y promover la investigación aplicada.",
+            "implicit_objective": "Consolidar autonomía académica y evitar la manipulación política de los estudios de viabilidad territorial.",
+            "base_power": 3,
+            "power_rationale": "Poder Nivel 3: Legitimidad técnica y científica que fundamenta fallos judiciales y políticas públicas.",
+            "postures": {"O1": {"score": 3, "rationale": "Apoya innovación y diversificación económica basada en conocimiento."}, "O2": {"score": 4, "rationale": "Investigación activa en conservación biológica y restauración de suelos."}, "O3": {"score": 4, "rationale": "Educación pública gratuita de calidad y superación de brechas sociales."}, "O4": {"score": 2, "rationale": "Observatorio de seguridad y convivencia ciudadana."}, "O5": {"score": 4, "rationale": "Desarrollo de tecnologías locales para la transición ecológica."}}
+        },
+        {
+            "id": "A7",
+            "name": f"Movimientos Sindicales, Asociaciones Gremiales y Trabajadores de {clean_t}",
+            "short_name": f"Sindicatos & Trabajadores {clean_t}",
+            "category": "Movimiento Sindical y Laboral",
+            "role_description": f"Organizaciones obreras, campesinas y asociaciones de trabajadores formales e informales de {clean_t}.",
+            "explicit_objective": "Defender la estabilidad en el empleo, salarios justos, formalización laboral y condiciones de trabajo seguras.",
+            "implicit_objective": "Evitar la sustitución de mano de obra local por foránea y garantizar que el desarrollo genere riqueza distribuida.",
+            "base_power": 3,
+            "power_rationale": "Poder Nivel 3: Capacidad de huelga sectorial, marchas de protesta y presión política sobre los gobiernos.",
+            "postures": {"O1": {"score": 2, "rationale": "Apoya proyectos que garanticen contratación prioritaria de mano de obra local."}, "O2": {"score": 3, "rationale": "Exige que las medidas ambientales no se traduzcan en despidos sin reconversión."}, "O3": {"score": 4, "rationale": "Prioridad fundamental en seguridad social, salud laboral y pensiones."}, "O4": {"score": 1, "rationale": "Rechaza la judicialización de las demandas laborales legítimas."}, "O5": {"score": 3, "rationale": "Transición energética justa con capacitación y protección del empleo existente."}}
+        },
+        {
+            "id": "A8",
+            "name": f"Organismos de Control, Defensoría del Pueblo y Rama Judicial de {clean_t}",
+            "short_name": f"Defensoría & Organismos de Control {clean_t}",
+            "category": "Ministerio Público y Control Institucional",
+            "role_description": f"Ministerio Público, defensorías, personerías y jueces con competencia territorial sobre {clean_t}.",
+            "explicit_objective": "Vigilar el uso correcto del erario público, defender los derechos humanos y hacer cumplir la ley y sentencias judiciales.",
+            "implicit_objective": "Prevenir actos de corrupción administrativa y mantener la integridad institucional ante presiones de grupos de poder.",
+            "base_power": 4,
+            "power_rationale": "Poder Nivel 4: Capacidad de imponer sanciones disciplinarias, medidas cautelares y suspender contratos u obras.",
+            "postures": {"O1": {"score": 2, "rationale": "Fiscaliza que las licitaciones públicas sean transparentes y no tengan sobrecostos."}, "O2": {"score": 4, "rationale": "Hace cumplir normas de protección ambiental y licencias obligatorias."}, "O3": {"score": 4, "rationale": "Tutela los derechos a la salud, educación y agua potable de los ciudadanos."}, "O4": {"score": 4, "rationale": "Persecución de delitos contra la administración pública y criminalidad organizada."}, "O5": {"score": 3, "rationale": "Verifica que el ordenamiento del suelo respete las sentencias y leyes ambientales."}}
+        },
+        {
+            "id": "A9",
+            "name": f"Cooperación Internacional, Agencias de Desarrollo y Bancos Multilaterales en {clean_t}",
+            "short_name": f"Cooperación Internacional en {clean_t}",
+            "category": "Cooperación Multilateral",
+            "role_description": f"Agencias de desarrollo (ONU, BID, CAF, agencias bilaterales) que financian proyectos territoriales en {clean_t}.",
+            "explicit_objective": "Acelerar los Objetivos de Desarrollo Sostenible (ODS), cerrar brechas territoriales y fortalecer la resiliencia climática.",
+            "implicit_objective": "Garantizar estándares de transparencia en la ejecución de fondos y proyectar alianzas público-privadas sostenibles.",
+            "base_power": 3,
+            "power_rationale": "Poder Nivel 3: Financiamiento técnico y financiero internacional no reembolsable y reputación global.",
+            "postures": {"O1": {"score": 3, "rationale": "Financia infraestructura resiliente, agua y saneamiento y conectividad."}, "O2": {"score": 4, "rationale": "Prioridad global en descarbonización, conservación de cuencas y biodiversidad."}, "O3": {"score": 4, "rationale": "Cierre de brechas de pobreza, equidad de género e inclusión de minorías."}, "O4": {"score": 3, "rationale": "Fortalecimiento de la gobernanza pacífica y justicia territorial."}, "O5": {"score": 4, "rationale": "Aceleración de matrices energéticas limpias y planes de ordenamiento verde."}}
+        },
+        {
+            "id": "A10",
+            "name": f"Medios de Comunicación Regionales, Periodismo de Investigación y Redes de {clean_t}",
+            "short_name": f"Medios Regionales & Opinión {clean_t}",
+            "category": "Medios y Opinión Pública",
+            "role_description": f"Prensa local, emisoras comunitarias, portales digitales y creadores de opinión territorial en {clean_t}.",
+            "explicit_objective": "Informar con veracidad, fiscalizar el poder político-económico y visibilizar las problemáticas de la ciudadanía.",
+            "implicit_objective": "Mantener sostenibilidad comercial y pauta publicitaria sin comprometer la independencia editorial frente al poder local.",
+            "base_power": 3,
+            "power_rationale": "Poder Nivel 3: Capacidad de moldear la percepción ciudadana, desatar debates públicos y provocar caídas de políticas.",
+            "postures": {"O1": {"score": 3, "rationale": "Divulga el impacto económico de proyectos y fiscaliza la ejecución de obras."}, "O2": {"score": 3, "rationale": "Denuncia desastres ecológicos, vertimientos tóxicos y deforestación."}, "O3": {"score": 4, "rationale": "Visibiliza las denuncias ciudadanas de abandono estatal y fallas en servicios."}, "O4": {"score": 4, "rationale": "Alerta sobre focos de inseguridad, delitos y reclamos de protección ciudadana."}, "O5": {"score": 3, "rationale": "Sensibiliza sobre la transición ecológica y el futuro urbanístico de la región."}}
+        },
+        {
+            "id": "A11",
+            "name": f"Autoridades Tradicionales, Cabildos Étnicos y Comunidades Rurales de {clean_t}",
+            "short_name": f"Cabildos Étnicos & Comunidades Rurales",
+            "category": "Comunidades Étnicas y Rurales",
+            "role_description": f"Resguardos indígenas, consejos comunitarios afrodescendientes y asociaciones de pequeños campesinos de {clean_t}.",
+            "explicit_objective": "Defender los títulos de propiedad colectiva, proteger sitios sagrados y exigir inversión directa en sus veredas.",
+            "implicit_objective": "Preservar su identidad cultural y autogobierno frente a presiones extractivistas o megaproyectos no concertados.",
+            "base_power": 3,
+            "power_rationale": "Poder Nivel 3: Derechos constitucionales especiales de consulta previa vinculante y movilización comunitaria.",
+            "postures": {"O1": {"score": 1, "rationale": "Rechaza proyectos inconsultos que destruyan el tejido sociocultural veredal."}, "O2": {"score": 4, "rationale": "La madre tierra y el agua son sagradas; protección irrestricta de páramos y ríos."}, "O3": {"score": 4, "rationale": "Exige escuelas etnoeducativas, puestos de salud y soberanía alimentaria."}, "O4": {"score": 2, "rationale": "Guardia comunitaria propia y rechazo al reclutamiento ilegal de jóvenes."}, "O5": {"score": 3, "rationale": "Proyectos agroecológicos y energías comunitarias autogestionadas."}}
+        },
+        {
+            "id": "A12",
+            "name": f"Sector Financiero Local, Cooperativas de Ahorro y Fondos de Inversión de {clean_t}",
+            "short_name": f"Sector Financiero & Cooperativo {clean_t}",
+            "category": "Sector Financiero e Inversionista",
+            "role_description": f"Banca comercial, cooperativas financieras populares y fondos de inversión que financian proyectos en {clean_t}.",
+            "explicit_objective": "Colocar créditos con retorno seguro, financiar proyectos de infraestructura y fomentar la bancarización ciudadana.",
+            "implicit_objective": "Gestionar el riesgo de cartera frente a incertidumbre política o desaceleración económica y maximizar liquidez.",
+            "base_power": 3,
+            "power_rationale": "Poder Nivel 3: Disposición y aprobación del capital financiero indispensable para cualquier obra territorial.",
+            "postures": {"O1": {"score": 4, "rationale": "Colocación de créditos en concesiones, vivienda y obras de infraestructura."}, "O2": {"score": 2, "rationale": "Financiamiento de bonos verdes y cumplimiento de normativas de sostenibilidad."}, "O3": {"score": 2, "rationale": "Microcréditos para emprendimientos y formalización de pequeños negocios."}, "O4": {"score": 3, "rationale": "Demanda estabilidad regulatoria, seguridad jurídica y protección patrimonial."}, "O5": {"score": 3, "rationale": "Financiamiento de energías renovables y reconversión tecnológica empresarial."}}
         }
     ]
 
@@ -623,12 +1009,13 @@ def build_territorial_taxonomy(territory: str) -> List[Dict[str, Any]]:
         }
     ]
 
-def extract_detailed_actors_and_postures(territory: str, news_items: List[Dict[str, Any]], sector: str = "") -> Dict[str, Any]:
+def extract_detailed_actors_and_postures(territory: str, news_items: List[Dict[str, Any]], sector: str = "", target_actors: int = 8) -> Dict[str, Any]:
     clean_t = territory.strip().title()
     clean_sector = sector.strip()
 
     channel_counts = {
         "all": len(news_items),
+        "newsdata": sum(1 for n in news_items if n.get("channel") == "newsdata"),
         "official": sum(1 for n in news_items if n.get("channel") == "official"),
         "social": sum(1 for n in news_items if n.get("channel") == "social"),
         "press": sum(1 for n in news_items if n.get("channel") == "press"),
@@ -651,6 +1038,10 @@ def extract_detailed_actors_and_postures(territory: str, news_items: List[Dict[s
 
     # Generate specific non-generic actors
     detailed_actors = build_specific_actors_for_territory(clean_t, clean_sector, news_items)
+
+    # Slice to user requested depth (5, 8, 10 or 12 actors)
+    if target_actors and target_actors > 0:
+        detailed_actors = detailed_actors[:target_actors]
 
     # Link evidence
     for act in detailed_actors:

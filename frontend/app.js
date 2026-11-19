@@ -554,7 +554,7 @@ async function analyzeTerritoryLive() {
   const territory = territoryInput ? territoryInput.value.trim() : "";
   const country = document.getElementById("input-country") ? document.getElementById("input-country").value : "Colombia";
   const sector = document.getElementById("input-sector") ? document.getElementById("input-sector").value.trim() : "";
-  const newsapiKey = document.getElementById("input-newsapi-key") ? document.getElementById("input-newsapi-key").value.trim() : "";
+  const targetActors = parseInt(document.getElementById("input-target-actors")?.value, 10) || 8;
   
   if (!territory) {
     alert("Por favor ingrese el nombre de un territorio real (ej. Medellín, Antioquia, La Guajira, Salar de Atacama).");
@@ -598,11 +598,11 @@ async function analyzeTerritoryLive() {
 
   if (dockProgress) {
     dockProgress.style.width = "15%";
-    dockProgress.className = "bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 h-2 rounded-full transition-all duration-300";
+    dockProgress.className = "bg-gradient-to-r from-emerald-500 via-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300";
   }
   if (dockPercent) dockPercent.textContent = "15%";
   if (dockStatus) {
-    dockStatus.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-blue-400"></i><span>Buscando noticias en Google News CL, BHRRC y Redes...</span>`;
+    dockStatus.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-blue-400"></i><span>Buscando noticias en NewsData.io, Google News LatAm, BHRRC y Redes...</span>`;
   }
 
   function addDockLog(msg, colorClass = "text-slate-300") {
@@ -616,34 +616,34 @@ async function analyzeTerritoryLive() {
   }
 
   if (dockLogs) dockLogs.innerHTML = "";
-  addDockLog(`🚀 <strong>Iniciando rastreo territorial para:</strong> "${territory}" (${country}) | Sector: "${sector || 'General'}"`, "text-cyan-300");
+  addDockLog(`🚀 <strong>Iniciando rastreo territorial para:</strong> "${territory}" (${country}) | Sector: "${sector || 'General'}" | Profundidad: ${targetActors} Actores`, "text-cyan-300");
 
   const stageTimeouts = [
     setTimeout(() => {
-      if (dockProgress) dockProgress.style.width = "30%";
-      if (dockPercent) dockPercent.textContent = "30%";
-      addDockLog(`📰 <strong>Google News CL:</strong> Rastreando feed en español regional (hl=es-419&gl=CL)...`, "text-blue-300");
-    }, 400),
+      if (dockProgress) dockProgress.style.width = "25%";
+      if (dockPercent) dockPercent.textContent = "25%";
+      addDockLog(`⚡ <strong>NewsData.io API:</strong> Rastreando despachos de noticias en vivo y reportes sectoriales...`, "text-emerald-300");
+    }, 300),
     setTimeout(() => {
-      if (dockProgress) dockProgress.style.width = "52%";
-      if (dockPercent) dockPercent.textContent = "52%";
-      addDockLog(`⚖️ <strong>BHRRC:</strong> Consultando base de datos de Empresas & Derechos Humanos (/es/feeds/latest-news/3/)...`, "text-amber-300");
-    }, 1100),
+      if (dockProgress) dockProgress.style.width = "48%";
+      if (dockPercent) dockPercent.textContent = "48%";
+      addDockLog(`📰 <strong>Google News LatAm:</strong> Rastreando medios de prensa regional y nacional...`, "text-blue-300");
+    }, 900),
     setTimeout(() => {
-      if (dockProgress) dockProgress.style.width = "72%";
-      if (dockPercent) dockPercent.textContent = "72%";
-      addDockLog(`📱 <strong>Redes & Foros:</strong> Monitoreando X/Twitter, debates comunitarios y YouTube...`, "text-purple-300");
-    }, 1900),
+      if (dockProgress) dockProgress.style.width = "68%";
+      if (dockPercent) dockPercent.textContent = "68%";
+      addDockLog(`⚖️ <strong>BHRRC:</strong> Consultando base de Empresas & Derechos Humanos...`, "text-amber-300");
+    }, 1600),
     setTimeout(() => {
-      if (dockProgress) dockProgress.style.width = "86%";
-      if (dockPercent) dockPercent.textContent = "86%";
-      addDockLog(`🏛️ <strong>Documentos Públicos:</strong> Explorando gacetas oficiales y resoluciones (.gov/.gob)...`, "text-emerald-300");
-    }, 2800),
+      if (dockProgress) dockProgress.style.width = "84%";
+      if (dockPercent) dockPercent.textContent = "84%";
+      addDockLog(`📱 <strong>Redes & Gacetas:</strong> Monitoreando X/Twitter, debates comunitarios y documentos oficiales (.gov/.gob)...`, "text-purple-300");
+    }, 2400),
     setTimeout(() => {
-      if (dockProgress) dockProgress.style.width = "94%";
-      if (dockPercent) dockPercent.textContent = "94%";
-      addDockLog(`🧠 <strong>Extracción Inteligente:</strong> Identificando actores locales no genéricos y deduciendo objetivos implícitos...`, "text-sky-200");
-    }, 3800)
+      if (dockProgress) dockProgress.style.width = "95%";
+      if (dockPercent) dockPercent.textContent = "95%";
+      addDockLog(`🧠 <strong>Extracción Inteligente MACTOR (${targetActors} Actores):</strong> Deduciendo matrices de influencias y objetivos implícitos...`, "text-sky-200");
+    }, 3400)
   ];
 
   try {
@@ -654,7 +654,7 @@ async function analyzeTerritoryLive() {
         territory, 
         country,
         sector,
-        newsapi_key: newsapiKey,
+        target_actors: targetActors,
         max_news: 45 
       })
     });

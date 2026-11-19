@@ -53,6 +53,7 @@ class TerritoryRequest(BaseModel):
     newsapi_key: Optional[str] = None
     custom_keywords: Optional[str] = None
     max_news: Optional[int] = 40
+    target_actors: Optional[int] = 8
 
 class MactorCalculationRequest(BaseModel):
     actors: List[Dict[str, Any]]
@@ -86,8 +87,18 @@ def analyze_territory(req: TerritoryRequest):
         raise HTTPException(status_code=400, detail="Debe ingresar el nombre de un territorio real.")
         
     try:
-        news_items = fetch_multi_angle_news(territory, sector=sector, newsapi_key=newsapi_key)
-        analysis = extract_detailed_actors_and_postures(territory, news_items, sector=sector)
+        news_items = fetch_multi_angle_news(
+            territory, 
+            sector=sector, 
+            country=req.country or "Colombia", 
+            newsapi_key=newsapi_key
+        )
+        analysis = extract_detailed_actors_and_postures(
+            territory, 
+            news_items, 
+            sector=sector, 
+            target_actors=req.target_actors or 8
+        )
         return {
             "status": "success",
             "data": analysis

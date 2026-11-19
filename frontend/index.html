@@ -167,7 +167,7 @@
           </p>
         </div>
 
-        <!-- Inputs: País, Territorio, Sector -->
+        <!-- Inputs: País, Territorio, Sector, Profundidad de Actores -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
           
           <!-- País -->
@@ -188,39 +188,70 @@
           </div>
 
           <!-- Territorio Real -->
-          <div class="md:col-span-5">
+          <div class="md:col-span-3">
             <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
               <i class="fa-solid fa-location-dot text-blue-600 text-xs"></i>
               <span>2. Territorio Real Específico</span>
             </label>
             <input id="input-territory" type="text" placeholder="Ej: Medellín, Antioquia, La Guajira, Salar de Atacama, Bogotá..." value="Medellín" class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
-            <span class="text-[10px] text-slate-400 mt-1 block">Municipio, departamento, provincia o cuenca hidrográfica.</span>
+            <span class="text-[10px] text-slate-400 mt-1 block">Municipio, departamento, cuenca, etc.</span>
           </div>
 
           <!-- Sector o Eje en Disputa -->
-          <div class="md:col-span-4">
+          <div class="md:col-span-3">
             <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
               <i class="fa-solid fa-industry text-emerald-600 text-xs"></i>
-              <span>3. Sector / Eje Estratégico en Conflicto</span>
+              <span>3. Sector / Eje Estratégico</span>
             </label>
-            <input id="input-sector" type="text" placeholder="Ej: Servicios Públicos, Transición Energética, Minería, POT..." value="Servicios Públicos e Infraestructura" class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
-            <span class="text-[10px] text-slate-400 mt-1 block">Eje temático prioritario sobre el cual compiten los actores.</span>
+            <input id="input-sector" type="text" placeholder="Ej: Servicios Públicos, Transición Energética..." value="Servicios Públicos e Infraestructura" class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+            <span class="text-[10px] text-slate-400 mt-1 block">Eje temático prioritario de competencia.</span>
+          </div>
+
+          <!-- Profundidad del Mapeo de Actores -->
+          <div class="md:col-span-3">
+            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
+              <i class="fa-solid fa-users-gear text-indigo-600 text-xs"></i>
+              <span>4. Profundidad del Mapeo</span>
+            </label>
+            <select id="input-target-actors" class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl bg-slate-50 font-bold text-indigo-950 focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition-all">
+              <option value="5">🎯 5 Actores (Focalizado / Clave)</option>
+              <option value="8" selected>⚖️ 8 Actores (Recomendado MACTOR)</option>
+              <option value="10">🌐 10 Actores (Mapeo Estratégico)</option>
+              <option value="12">🏛️ 12 Actores (Sistémico Exhaustivo)</option>
+            </select>
+            <span class="text-[10px] text-slate-400 mt-1 block">Rango metodológico Godet (5 a 12 actores).</span>
           </div>
 
         </div>
 
-        <!-- Fuentes Conectadas & NewsAPI Key Opcional -->
+        <!-- Fuentes Conectadas en Servidor Seguro (Sin exponer claves en frontend) -->
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
-          <div class="flex items-center space-x-2 text-slate-600">
-            <i class="fa-solid fa-link text-blue-600"></i>
-            <span class="font-semibold text-slate-800">Fuentes Conectadas en Vivo:</span>
-            <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[10px]">Google News CL (LatAm)</span>
-            <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-[10px]">Empresas & DDHH (BHRRC)</span>
-            <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-900 font-bold text-[10px]">Redes (X / YouTube)</span>
+          <div class="flex items-center space-x-2 text-slate-600 flex-wrap gap-y-1.5">
+            <i class="fa-solid fa-satellite-dish text-blue-600"></i>
+            <span class="font-semibold text-slate-800">Fuentes en Tiempo Real:</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold text-[10px] flex items-center space-x-1">
+              <i class="fa-solid fa-bolt text-emerald-600"></i>
+              <span>NewsData.io API</span>
+            </span>
+            <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[10px] flex items-center space-x-1">
+              <i class="fa-regular fa-newspaper text-blue-600"></i>
+              <span>Google News LatAm</span>
+            </span>
+            <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-[10px] flex items-center space-x-1">
+              <i class="fa-solid fa-hand-holding-heart text-amber-600"></i>
+              <span>Empresas & DDHH (BHRRC)</span>
+            </span>
+            <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-900 font-bold text-[10px] flex items-center space-x-1">
+              <i class="fa-brands fa-x-twitter text-purple-600"></i>
+              <span>Redes & Gacetas (.gov)</span>
+            </span>
           </div>
           <div class="flex items-center space-x-2 shrink-0">
-            <label class="text-[10px] font-bold text-slate-500 uppercase">NewsAPI Key (Opcional):</label>
-            <input id="input-newsapi-key" type="password" placeholder="Clave de newsapi.org..." class="text-xs px-2.5 py-1 border border-slate-300 rounded-lg w-44 focus:ring-1 focus:ring-blue-500 focus:outline-none bg-white">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+              <i class="fa-solid fa-shield-halved mr-1 text-emerald-600"></i>
+              API Backend Segura (Protegida)
+            </span>
           </div>
         </div>
 
