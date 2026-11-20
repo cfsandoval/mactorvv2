@@ -2120,6 +2120,83 @@ function renderQuadrantChart() {
       }
     }
   });
+
+  // Renderizar también las métricas de red y centralización
+  renderNetworkCentralityMetrics();
+}
+
+// Renderizar Métricas de Centralidad de Red (SNA sobre MID)
+function renderNetworkCentralityMetrics() {
+  if (!state.results || !state.results.network_metrics) return;
+  const net = state.results.network_metrics;
+  const actors = state.actors || [];
+
+  // Tarjetas Macro
+  const elOut = document.getElementById("net-centralization-out");
+  const elIn = document.getElementById("net-centralization-in");
+  const elDensity = document.getElementById("net-density");
+  const elMean = document.getElementById("net-mean-intensity");
+
+  if (elOut) elOut.textContent = `${(net.centralization_out * 100).toFixed(1)}%`;
+  if (elIn) elIn.textContent = `${(net.centralization_in * 100).toFixed(1)}%`;
+  if (elDensity) elDensity.textContent = `${(net.density * 100).toFixed(1)}%`;
+  if (elMean) elMean.textContent = `${net.mean_intensity.toFixed(2)}`;
+
+  // Tabla por Actor
+  const tbody = document.getElementById("network-centrality-tbody");
+  if (!tbody) return;
+
+  const rowsHtml = actors.map((act, i) => {
+    const cOut = net.out_centrality[i] || 0;
+    const cIn = net.in_centrality[i] || 0;
+
+    let role = "Intermediario";
+    let roleBadge = "bg-slate-100 text-slate-700";
+    if (cOut >= 0.35 && cIn <= 0.2) {
+      role = "Emisor Dominante (Líder)";
+      roleBadge = "bg-indigo-100 text-indigo-800 font-bold";
+    } else if (cOut >= 0.3 && cIn >= 0.25) {
+      role = "Nodo de Alta Tensión / Puente";
+      roleBadge = "bg-amber-100 text-amber-800 font-bold";
+    } else if (cOut < 0.2 && cIn >= 0.25) {
+      role = "Receptor Dependiente";
+      roleBadge = "bg-rose-100 text-rose-800 font-bold";
+    } else if (cOut < 0.15 && cIn < 0.15) {
+      role = "Actor Periférico";
+      roleBadge = "bg-slate-100 text-slate-500";
+    }
+
+    return `
+      <tr class="hover:bg-slate-50 transition-colors">
+        <td class="p-2.5 font-semibold text-slate-800">
+          <span class="font-mono text-indigo-600 mr-1">${act.id || 'A' + (i + 1)}</span>
+          ${act.short_name || act.name}
+        </td>
+        <td class="p-2.5 text-center font-mono font-bold text-indigo-700">
+          ${(cOut * 100).toFixed(1)}%
+        </td>
+        <td class="p-2.5 text-center">
+          <div class="w-24 bg-slate-200 h-2 rounded-full mx-auto overflow-hidden">
+            <div class="bg-indigo-600 h-2 rounded-full" style="width: ${Math.min(100, cOut * 100 * 2)}%"></div>
+          </div>
+        </td>
+        <td class="p-2.5 text-center font-mono font-bold text-blue-700">
+          ${(cIn * 100).toFixed(1)}%
+        </td>
+        <td class="p-2.5 text-center">
+          <div class="w-24 bg-slate-200 h-2 rounded-full mx-auto overflow-hidden">
+            <div class="bg-blue-600 h-2 rounded-full" style="width: ${Math.min(100, cIn * 100 * 2)}%"></div>
+          </div>
+        </td>
+        <td class="p-2.5 text-center">
+          <span class="px-2 py-0.5 rounded-full text-[10px] ${roleBadge}">${role}</span>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  tbody.innerHTML = rowsHtml;
+}
 }
 
 // Vis.js: Interactive Network Graph

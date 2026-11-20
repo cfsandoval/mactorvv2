@@ -474,10 +474,64 @@ class MactorEngine:
             "max_distance": round(max_val, 2)
         }
 
+    def calculate_network_centrality(self) -> Dict[str, Any]:
+        """
+        Calcula indicadores topológicos de Análisis de Redes Sociales (SNA)
+        sobre la Matriz de Influencia Directa (MID):
+          1. Centralidad de Grado de Salida (Out-Degree / Motricidad normalizada): C_out(i)
+          2. Centralidad de Grado de Entrada (In-Degree / Dependencia normalizada): C_in(i)
+          3. Índice de Centralización de la Red (Freeman Centralization Index) para salida y entrada.
+          4. Densidad de la Red (Density).
+        """
+        mid_diag_zero = self.mid.copy()
+        np.fill_diagonal(mid_diag_zero, 0)
+        
+        N = self.N
+        max_possible_per_node = max(1.0, 4.0 * (N - 1)) # Máximo flujo que un nodo puede emitir/recibir (escala 0-4)
+        
+        # Grados ponderados
+        out_degree = np.sum(mid_diag_zero, axis=1) # Influencia que emite
+        in_degree = np.sum(mid_diag_zero, axis=0)  # Dependencia que absorbe
+        
+        # Centralidades normalizadas de 0 a 1 (o 0% a 100%)
+        out_centrality = out_degree / max_possible_per_node
+        in_centrality = in_degree / max_possible_per_node
+        
+        # Índice de Centralización de Freeman:
+        # C_net = sum(max(C) - C(i)) / [ (N - 2) * max_possible ] o normalizado sobre la red estrella
+        max_out = np.max(out_degree)
+        max_in = np.max(in_degree)
+        
+        # Denominador teórico máximo para grafo dirigido ponderado estrella
+        denom_freeman = (N - 1) * max_possible_per_node if N > 1 else 1.0
+        
+        centralization_out = float(np.sum(max_out - out_degree) / denom_freeman) if denom_freeman > 0 else 0.0
+        centralization_in = float(np.sum(max_in - in_degree) / denom_freeman) if denom_freeman > 0 else 0.0
+        
+        # Densidad de red (proporción de relaciones activas > 0)
+        total_possible_edges = N * (N - 1) if N > 1 else 1
+        active_edges = int(np.count_nonzero(mid_diag_zero))
+        density = float(active_edges / total_possible_edges) if total_possible_edges > 0 else 0.0
+        
+        # Intensidad media de la red
+        mean_intensity = float(np.sum(mid_diag_zero) / total_possible_edges) if total_possible_edges > 0 else 0.0
+
+        return {
+            "out_centrality": [round(float(x), 3) for x in out_centrality],
+            "in_centrality": [round(float(x), 3) for x in in_centrality],
+            "centralization_out": round(max(0.0, min(1.0, centralization_out)), 3),
+            "centralization_in": round(max(0.0, min(1.0, centralization_in)), 3),
+            "density": round(density, 3),
+            "mean_intensity": round(mean_intensity, 2),
+            "active_edges": active_edges,
+            "total_possible_edges": total_possible_edges
+        }
+
     def run_all(self) -> Dict[str, Any]:
         """Runs the complete MACTOR workflow and returns comprehensive prospective results."""
         # Step 1: Direct Influence / Dependence
         mid_metrics = self.calculate_mid_metrics()
+        network_metrics = self.calculate_network_centrality()
         
         # Step 2: MIDI & Force Ratios (r_i)
         midi = self.calculate_midi()
@@ -527,6 +581,7 @@ class MactorEngine:
             "mid": self.mid.tolist(),
             "midi": np.round(midi, 2).tolist(),
             "mid_metrics": mid_metrics,
+            "network_metrics": network_metrics,
             "force_metrics": force_metrics,
             "mao1": mao1.tolist(),
             "mao2": self.mao2.tolist(),
