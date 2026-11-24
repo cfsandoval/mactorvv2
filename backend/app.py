@@ -222,6 +222,8 @@ def list_cases():
             "id": v["id"],
             "title": v["title"],
             "territory": v["territory"],
+            "country": v.get("country", "Colombia"),
+            "sector": v.get("sector", ""),
             "description": v["description"],
             "source": v["source"],
             "actors_count": len(v["actors"]),

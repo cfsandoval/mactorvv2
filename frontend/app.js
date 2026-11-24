@@ -480,6 +480,21 @@ async function loadCase(caseId) {
     if (document.getElementById("input-sector") && c.sector) {
       document.getElementById("input-sector").value = c.sector;
     }
+    if (document.getElementById("input-target-actors") && c.actors) {
+      const actLen = c.actors.length;
+      const targetSel = document.getElementById("input-target-actors");
+      if ([5, 8, 10, 12].includes(actLen)) {
+        targetSel.value = actLen.toString();
+      } else if (actLen <= 5) {
+        targetSel.value = "5";
+      } else if (actLen <= 8) {
+        targetSel.value = "8";
+      } else if (actLen <= 10) {
+        targetSel.value = "10";
+      } else {
+        targetSel.value = "12";
+      }
+    }
     syncTopContextBar();
     setMethodVariant(c.variant || "softprosp", false);
 
