@@ -527,6 +527,108 @@ class MactorEngine:
             "total_possible_edges": total_possible_edges
         }
 
+    def calculate_fuzzy_analysis(self, r_i: np.ndarray) -> Dict[str, Any]:
+        """
+        Variante Difusa / Incertidumbre Geopolítica (Triangular Fuzzy Numbers):
+        Modela cada postura 2MAO_ij como un intervalo difuso [min, modal, max] con volatilidad delta,
+        calcula la oscilación de la balanza por objetivo (pesimista/modal/optimista) y el
+        Índice de Robustez de Alianzas (0 a 1) entre cada par de actores.
+        """
+        l_mat = np.zeros((self.N, self.M))
+        u_mat = np.zeros((self.N, self.M))
+        fuzzy_intervals = []
+
+        for i in range(self.N):
+            row_intervals = []
+            for j in range(self.M):
+                m = float(self.mao2[i, j])
+                delta = 1.0 if m != 0 else 0.5
+                l_val = max(-4.0, m - delta)
+                u_val = min(4.0, m + delta)
+                l_mat[i, j] = l_val
+                u_mat[i, j] = u_val
+                row_intervals.append([round(l_val, 1), round(m, 1), round(u_val, 1)])
+            fuzzy_intervals.append(row_intervals)
+
+        # 1. Oscilación Difusa por Objetivo
+        fuzzy_objectives = []
+        for j in range(self.M):
+            b_pess = float(sum(r_i[i] * l_mat[i, j] for i in range(self.N)))
+            b_modal = float(sum(r_i[i] * self.mao2[i, j] for i in range(self.N)))
+            b_opt = float(sum(r_i[i] * u_mat[i, j] for i in range(self.N)))
+
+            if b_pess > 0 and b_opt > 0:
+                stability = "Favorable Estable (+)"
+            elif b_pess < 0 and b_opt < 0:
+                stability = "Oposición Estable (-)"
+            else:
+                stability = "Volátil / Cambio de Signo"
+
+            fuzzy_objectives.append({
+                "id": self.objectives[j].get("id", f"O{j+1}"),
+                "name": self.objectives[j].get("name", f"Objetivo {j+1}"),
+                "balance_pessimistic": round(b_pess, 2),
+                "balance_modal": round(b_modal, 2),
+                "balance_optimistic": round(b_opt, 2),
+                "spread": round(abs(b_opt - b_pess), 2),
+                "stability": stability
+            })
+
+        # 2. Índice de Robustez de Alianzas (Pares de Actores)
+        fuzzy_alliances = []
+        for i in range(self.N):
+            for k in range(i + 1, self.N):
+                caa_pess = 0.0
+                caa_modal = 0.0
+                caa_opt = 0.0
+
+                for j in range(self.M):
+                    li, mi, ui = l_mat[i, j], float(self.mao2[i, j]), u_mat[i, j]
+                    lk, mk, uk = l_mat[k, j], float(self.mao2[k, j]), u_mat[k, j]
+
+                    # Modal convergence
+                    if mi * mk > 0:
+                        caa_modal += 0.5 * (r_i[i] * abs(mi) + r_i[k] * abs(mk))
+
+                    # Pessimistic convergence: both intervals strictly on same side of 0
+                    if li > 0 and lk > 0:
+                        caa_pess += 0.5 * (r_i[i] * li + r_i[k] * lk)
+                    elif ui < 0 and uk < 0:
+                        caa_pess += 0.5 * (r_i[i] * abs(ui) + r_i[k] * abs(uk))
+
+                    # Optimistic convergence: overlap on positive or negative side
+                    if ui > 0 and uk > 0:
+                        caa_opt += 0.5 * (r_i[i] * ui + r_i[k] * uk)
+                    elif li < 0 and lk < 0:
+                        caa_opt += 0.5 * (r_i[i] * abs(li) + r_i[k] * abs(lk))
+
+                if caa_modal > 0 or caa_opt > 0:
+                    robustness = float(round(min(1.0, float(caa_pess) / max(0.01, float(caa_opt))), 2))
+                    if robustness > 0.75:
+                        status = "Alianza Sólida"
+                    elif robustness >= 0.45:
+                        status = "Alianza Condicionada"
+                    else:
+                        status = "Alianza Frágil / Volátil"
+
+                    fuzzy_alliances.append({
+                        "actor1": self.actors[i].get("short_name", self.actors[i]["name"]),
+                        "actor2": self.actors[k].get("short_name", self.actors[k]["name"]),
+                        "caa_pessimistic": float(round(caa_pess, 2)),
+                        "caa_modal": float(round(caa_modal, 2)),
+                        "caa_optimistic": float(round(caa_opt, 2)),
+                        "robustness": robustness,
+                        "status": status
+                    })
+
+        fuzzy_alliances.sort(key=lambda x: (x["robustness"], x["caa_modal"]), reverse=True)
+        return {
+            "active": True,
+            "intervals": fuzzy_intervals,
+            "fuzzy_objectives": fuzzy_objectives,
+            "fuzzy_alliances": fuzzy_alliances
+        }
+
     def run_all(self) -> Dict[str, Any]:
         """Runs the complete MACTOR workflow and returns comprehensive prospective results."""
         # Step 1: Direct Influence / Dependence
@@ -572,9 +674,13 @@ class MactorEngine:
         conv_sums = caa_results["actor_convergence"]
         best_actor_idx = int(np.argmax(conv_sums))
         best_actor = self.actors[best_actor_idx]
+
+        # Step 10: Fuzzy Logic Uncertainty & Robustness Analysis (when variant == 'fuzzy')
+        fuzzy_analysis = self.calculate_fuzzy_analysis(r_i) if self.variant == "fuzzy" else None
         
         return {
             "variant": self.variant,
+            "fuzzy_analysis": fuzzy_analysis,
             "actors": self.actors,
             "objectives": self.objectives,
             "weights": self.weights.tolist(),

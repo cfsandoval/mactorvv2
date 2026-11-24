@@ -827,6 +827,7 @@ async function calculateMactor() {
     renderMobilizationChart();
     renderObjectivesDiagnostic();
     renderCoalitionsTable();
+    renderFuzzyAnalysis();
 
   } catch (err) {
     console.error("Calculation error:", err);
@@ -2895,6 +2896,40 @@ function renderExecutiveReport() {
         </div>
       </div>
 
+      ${res.fuzzy_analysis && res.fuzzy_analysis.active ? `
+      <!-- 4. Fuzzy Logic Robustness Analysis -->
+      <div>
+        <h4 class="font-bold text-sm text-amber-900 mb-2">4. Resultados de Lógica Difusa: Robustez de Alianzas bajo Incertidumbre</h4>
+        <p class="text-xs text-slate-500 mb-2">Evaluación de estabilidad de las coaliciones ante fluctuaciones en las posturas de los actores (Escenario Pesimista vs. Optimista).</p>
+        <div class="overflow-x-auto border border-amber-200 rounded-xl">
+          <table class="w-full text-xs">
+            <thead class="bg-amber-800 text-white">
+              <tr>
+                <th class="p-2 text-left">Par de Actores</th>
+                <th class="p-2 text-center">Conv. Pesimista</th>
+                <th class="p-2 text-center">Conv. Modal</th>
+                <th class="p-2 text-center">Conv. Optimista</th>
+                <th class="p-2 text-center">Índice Robustez</th>
+                <th class="p-2 text-left">Diagnóstico Difuso</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-amber-100">
+              ${res.fuzzy_analysis.fuzzy_alliances.slice(0, 8).map(fa => `
+                <tr>
+                  <td class="p-2 font-bold text-slate-800">${escapeXml(fa.actor1)} &harr; ${escapeXml(fa.actor2)}</td>
+                  <td class="p-2 text-center">${fa.caa_pessimistic}</td>
+                  <td class="p-2 text-center font-bold">${fa.caa_modal}</td>
+                  <td class="p-2 text-center">${fa.caa_optimistic}</td>
+                  <td class="p-2 text-center font-bold text-indigo-800">${fa.robustness.toFixed(2)}</td>
+                  <td class="p-2 font-semibold">${fa.status}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      ` : ''}
+
       <!-- Methodological Reference -->
       <div class="p-4 bg-slate-100 rounded-lg text-xs text-slate-600 space-y-1">
         <span class="font-bold text-slate-800">Referencia Metodológica:</span>
@@ -2916,6 +2951,85 @@ function readMatricesFromDOM() {
       state.mid[r][c] = val;
     }
   });
+}
+
+// Render Fuzzy Logic Analysis Panels (in Tab 4 & Tab 5)
+function renderFuzzyAnalysis() {
+  const posPanel = document.getElementById("fuzzy-positions-panel");
+  const allPanel = document.getElementById("fuzzy-alliances-panel");
+  const objContainer = document.getElementById("fuzzy-objectives-table-container");
+  const allContainer = document.getElementById("fuzzy-alliances-table-container");
+
+  const fa = state.results ? state.results.fuzzy_analysis : null;
+  if (!fa || !fa.active) {
+    if (posPanel) posPanel.classList.add("hidden");
+    if (allPanel) allPanel.classList.add("hidden");
+    return;
+  }
+
+  // Show panels
+  if (posPanel) posPanel.classList.remove("hidden");
+  if (allPanel) allPanel.classList.remove("hidden");
+
+  // 1. Render Fuzzy Objectives Balance Oscillation (Tab 4)
+  if (objContainer && fa.fuzzy_objectives) {
+    objContainer.innerHTML = `<table class="w-full text-xs border border-amber-200 rounded-xl overflow-hidden bg-white">
+      <thead class="bg-amber-800 text-white font-bold">
+        <tr>
+          <th class="p-2 text-left">Objetivo</th>
+          <th class="p-2 text-center">Balance Pesimista</th>
+          <th class="p-2 text-center">Balance Modal</th>
+          <th class="p-2 text-center">Balance Optimista</th>
+          <th class="p-2 text-center">Amplitud Incertidumbre</th>
+          <th class="p-2 text-left">Estabilidad de Signo</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-amber-100">
+        ${fa.fuzzy_objectives.map(fo => {
+          const isVolatile = fo.stability.toLowerCase().includes("volátil");
+          const stabBadge = isVolatile ? "bg-rose-100 text-rose-800" : (fo.balance_modal >= 0 ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800");
+          return `<tr class="hover:bg-amber-50/40">
+            <td class="p-2 font-bold text-slate-800">${fo.id} - ${escapeXml(fo.name)}</td>
+            <td class="p-2 text-center font-mono ${fo.balance_pessimistic >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${fo.balance_pessimistic > 0 ? '+' : ''}${fo.balance_pessimistic}</td>
+            <td class="p-2 text-center font-mono font-bold text-slate-900">${fo.balance_modal > 0 ? '+' : ''}${fo.balance_modal}</td>
+            <td class="p-2 text-center font-mono ${fo.balance_optimistic >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${fo.balance_optimistic > 0 ? '+' : ''}${fo.balance_optimistic}</td>
+            <td class="p-2 text-center font-semibold text-amber-800">&plusmn; ${(fo.spread / 2).toFixed(2)}</td>
+            <td class="p-2"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${stabBadge}">${fo.stability}</span></td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>`;
+  }
+
+  // 2. Render Fuzzy Alliance Robustness Table (Tab 5)
+  if (allContainer && fa.fuzzy_alliances) {
+    allContainer.innerHTML = `<table class="w-full text-xs border border-amber-200 rounded-xl overflow-hidden bg-white">
+      <thead class="bg-amber-800 text-white font-bold">
+        <tr>
+          <th class="p-2 text-left">Par de Actores (Alianza Potencial)</th>
+          <th class="p-2 text-center">Conv. Pesimista</th>
+          <th class="p-2 text-center">Conv. Modal</th>
+          <th class="p-2 text-center">Conv. Optimista</th>
+          <th class="p-2 text-center">Índice Robustez</th>
+          <th class="p-2 text-left">Diagnóstico Difuso</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-amber-100">
+        ${fa.fuzzy_alliances.map(faItem => {
+          const r = faItem.robustness;
+          const badge = r > 0.75 ? "bg-emerald-100 text-emerald-800" : (r >= 0.45 ? "bg-amber-100 text-amber-900" : "bg-rose-100 text-rose-800");
+          return `<tr class="hover:bg-amber-50/40">
+            <td class="p-2 font-bold text-slate-800">${escapeXml(faItem.actor1)} &harr; ${escapeXml(faItem.actor2)}</td>
+            <td class="p-2 text-center font-mono text-slate-600">${faItem.caa_pessimistic}</td>
+            <td class="p-2 text-center font-mono font-bold text-slate-900">${faItem.caa_modal}</td>
+            <td class="p-2 text-center font-mono text-slate-600">${faItem.caa_optimistic}</td>
+            <td class="p-2 text-center font-bold text-indigo-800">${r.toFixed(2)}</td>
+            <td class="p-2"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${badge}">${faItem.status}</span></td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>`;
+  }
 }
 
 // Export to Microsoft Word (.docx)

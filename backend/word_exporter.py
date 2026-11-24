@@ -1514,6 +1514,73 @@ def generate_comprehensive_mactor_word(
     doc.add_paragraph().paragraph_format.space_after = Pt(8)
 
     # =========================================================================
+    # SECCIÓN ESPECIAL: ANÁLISIS DE LÓGICA DIFUSA (SI ESTÁ ACTIVO)
+    # =========================================================================
+    fa = res.get("fuzzy_analysis")
+    if fa and fa.get("active"):
+        add_styled_heading(doc, "Análisis de Lógica Difusa: Incertidumbre y Robustez de Alianzas", level=1)
+        p_fz = doc.add_paragraph()
+        p_fz.paragraph_format.line_spacing = 1.15
+        p_fz.paragraph_format.space_after = Pt(6)
+        p_fz.add_run(
+            "Bajo la Variante Difusa (Triangular Fuzzy Numbers), cada postura nominal 2MAO se modela como un intervalo "
+            "[mín, modal, máx] para evaluar la estabilidad de las balanzas y alianzas frente a volatilidad mediática o "
+            "cambios de discurso (Escenario Pesimista vs. Optimista)."
+        )
+
+        # Tabla 1: Oscilación Difusa de Objetivos
+        f_objs = fa.get("fuzzy_objectives", [])
+        if f_objs:
+            fo_tbl = doc.add_table(rows=len(f_objs) + 1, cols=6)
+            fo_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+            set_table_borders(fo_tbl)
+            format_table_header(fo_tbl.rows[0], ["Cód.", "Objetivo", "Bal. Pesimista", "Bal. Modal", "Bal. Optimista", "Estabilidad Difusa"])
+            for f_i, fo in enumerate(f_objs):
+                row = fo_tbl.rows[f_i + 1]
+                bg = COLOR_SLATE_LIGHT_HEX if f_i % 2 == 1 else "FFFFFF"
+                for cell in row.cells:
+                    set_cell_background(cell, bg)
+                    set_cell_margins(cell, top=80, bottom=80, left=80, right=80)
+                vals = [fo["id"], fo["name"], f"{fo['balance_pessimistic']:+.2f}", f"{fo['balance_modal']:+.2f}", f"{fo['balance_optimistic']:+.2f}", fo["stability"]]
+                for c_i, v in enumerate(vals):
+                    p = row.cells[c_i].paragraphs[0]
+                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c_i in [0, 2, 3, 4] else WD_ALIGN_PARAGRAPH.LEFT
+                    p.paragraph_format.space_after = Pt(0)
+                    r = p.add_run(str(v))
+                    r.font.name = "Calibri"
+                    r.font.size = Pt(8)
+                    if c_i in [1, 3, 5]:
+                        r.bold = True
+
+            doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+        # Tabla 2: Robustez de Alianzas
+        f_alls = fa.get("fuzzy_alliances", [])
+        if f_alls:
+            fa_tbl = doc.add_table(rows=min(len(f_alls), 10) + 1, cols=6)
+            fa_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+            set_table_borders(fa_tbl)
+            format_table_header(fa_tbl.rows[0], ["Par de Actores", "Conv. Pesimista", "Conv. Modal", "Conv. Optimista", "Robustez", "Diagnóstico Difuso"])
+            for f_i, item in enumerate(f_alls[:10]):
+                row = fa_tbl.rows[f_i + 1]
+                bg = COLOR_SLATE_LIGHT_HEX if f_i % 2 == 1 else "FFFFFF"
+                for cell in row.cells:
+                    set_cell_background(cell, bg)
+                    set_cell_margins(cell, top=80, bottom=80, left=80, right=80)
+                vals = [f"{item['actor1']} ↔ {item['actor2']}", f"{item['caa_pessimistic']:.2f}", f"{item['caa_modal']:.2f}", f"{item['caa_optimistic']:.2f}", f"{item['robustness']:.2f}", item["status"]]
+                for c_i, v in enumerate(vals):
+                    p = row.cells[c_i].paragraphs[0]
+                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c_i in [1, 2, 3, 4] else WD_ALIGN_PARAGRAPH.LEFT
+                    p.paragraph_format.space_after = Pt(0)
+                    r = p.add_run(str(v))
+                    r.font.name = "Calibri"
+                    r.font.size = Pt(8)
+                    if c_i in [0, 4, 5]:
+                        r.bold = True
+
+            doc.add_paragraph().paragraph_format.space_after = Pt(8)
+
+    # =========================================================================
     # CAPÍTULO 8: SIMULACIÓN DE ESCENARIOS PROSPECTIVOS ("¿QUÉ PASA SI...?")
     # =========================================================================
     add_styled_heading(doc, "8. Simulación de Escenarios Prospectivos y Análisis Sensibilidad", level=1)

@@ -1105,6 +1105,21 @@
           </details>
         </div>
       </div>
+
+      <!-- Fuzzy Positions Panel (Visible when variant === 'fuzzy') -->
+      <div id="fuzzy-positions-panel" class="hidden bg-amber-50/70 border border-amber-300 p-5 rounded-2xl shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-200 pb-3">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-600 text-white">Variante Difusa Activa</span>
+            <h3 class="font-bold text-sm text-amber-950 mt-1 flex items-center space-x-2">
+              <i class="fa-solid fa-wave-square text-amber-600"></i>
+              <span>Oscilación de Balanzas bajo Incertidumbre (Intervalos Triangulares [mín, modal, máx])</span>
+            </h3>
+            <p class="text-xs text-amber-900/80">Evalúa cómo varía el balance de poder de cada objetivo si las posturas de los actores fluctúan por presión mediática o negociación.</p>
+          </div>
+        </div>
+        <div id="fuzzy-objectives-table-container" class="overflow-x-auto"></div>
+      </div>
     </section>
 
     <!-- ========================================== -->
@@ -1177,6 +1192,23 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- Fuzzy Alliances Robustness Panel (Visible when variant === 'fuzzy') -->
+      <div id="fuzzy-alliances-panel" class="hidden bg-amber-50/70 border border-amber-300 p-5 rounded-2xl shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-200 pb-3">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-600 text-white">Análisis de Robustez Difusa</span>
+            <h3 class="font-bold text-sm text-amber-950 mt-1 flex items-center space-x-2">
+              <i class="fa-solid fa-shield-halved text-amber-600"></i>
+              <span>Índice de Robustez de Alianzas bajo Volatilidad (Escenario Pesimista vs. Optimista)</span>
+            </h3>
+            <p class="text-xs text-amber-900/80">
+              <b>Robustez &gt; 0.75:</b> Alianza Sólida (inmune a cambios de discurso). &bull; <b>0.45 – 0.75:</b> Condicionada. &bull; <b>&lt; 0.45:</b> Frágil / Alto riesgo de ruptura.
+            </p>
+          </div>
+        </div>
+        <div id="fuzzy-alliances-table-container" class="overflow-x-auto"></div>
       </div>
     </section>
 
