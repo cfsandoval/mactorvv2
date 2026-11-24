@@ -34,4 +34,5 @@ if __name__ == "__main__":
     # Launch browser automatically
     threading.Thread(target=open_browser, daemon=True).start()
     
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+    # Run with reload
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True, reload_dirs=[str(backend_dir)], log_level="info")

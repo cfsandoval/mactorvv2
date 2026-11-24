@@ -29,6 +29,7 @@ from openpyxl.utils import get_column_letter
 from mactor_engine import MactorEngine
 from territory_miner import fetch_multi_angle_news, extract_detailed_actors_and_postures
 from cases_data import PRELOADED_CASES
+from word_exporter import generate_comprehensive_mactor_word
 
 # In-memory cache for case territory analysis to keep requests ultra-fast
 _CASES_ANALYSIS_CACHE: Dict[str, Dict[str, Any]] = {}
@@ -461,6 +462,51 @@ def export_excel(req: MactorCalculationRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando Excel: {str(e)}")
+
+@app.post("/api/mactor/export/word")
+@app.post("/api/mactor/export/docx")
+def export_word(req: MactorCalculationRequest):
+    """
+    Genera un informe integral ejecutivo en formato Microsoft Word (.docx),
+    incorporando todas las dimensiones de análisis prospectivo:
+    Inteligencia Territorial, Actores, Objetivos, Matrices MID/MIDI, Cuadrantes Godet,
+    Centralidad SNA, Matrices 2MAO/3MAO, Balanzas LIPSOR por objetivo, Redes de Alianzas (CAA3)
+    y Conflictos (DAA3), Movilización y Viabilidad, Simulación de Escenarios, Recomendaciones
+    de Gobernanza y Dossier individual por actor.
+    """
+    try:
+        engine = MactorEngine(
+            actors=req.actors,
+            objectives=req.objectives,
+            mid=req.mid,
+            mao2=req.mao2,
+            variant=req.variant or "softprosp",
+            options=req.options
+        )
+        res = engine.run_all()
+        
+        options = req.options or {}
+        stream = generate_comprehensive_mactor_word(
+            actors=req.actors,
+            objectives=req.objectives,
+            mid=req.mid,
+            mao2=req.mao2,
+            variant=req.variant or "softprosp",
+            res=res,
+            options=options
+        )
+
+        territory_slug = "".join(c if c.isalnum() else "_" for c in options.get("territory", "Territorio"))
+        filename = f"Informe_Prospectivo_MACTOR_{territory_slug}.docx"
+        return StreamingResponse(
+            stream,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error generando documento Word: {str(e)}")
 
 # Mount static frontend files
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"

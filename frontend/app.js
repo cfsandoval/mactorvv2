@@ -254,6 +254,12 @@ function setupEventListeners() {
     });
   });
 
+  // Export Word (.docx) buttons
+  const btnExportDocx = document.getElementById("btn-export-docx");
+  if (btnExportDocx) btnExportDocx.addEventListener("click", exportWordDocx);
+  const btnExportDocx2 = document.getElementById("btn-export-docx-2");
+  if (btnExportDocx2) btnExportDocx2.addEventListener("click", exportWordDocx);
+
   // Export Excel buttons
   const btnExport = document.getElementById("btn-export-excel");
   if (btnExport) btnExport.addEventListener("click", exportExcel);
@@ -2662,6 +2668,76 @@ function readMatricesFromDOM() {
   });
 }
 
+// Export to Microsoft Word (.docx)
+async function exportWordDocx() {
+  readMatricesFromDOM();
+  const btn1 = document.getElementById("btn-export-docx");
+  const btn2 = document.getElementById("btn-export-docx-2");
+  const oldText1 = btn1 ? btn1.innerHTML : "";
+  const oldText2 = btn2 ? btn2.innerHTML : "";
+
+  if (btn1) {
+    btn1.disabled = true;
+    btn1.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span class="hidden md:inline">Generando Word...</span>`;
+  }
+  if (btn2) {
+    btn2.disabled = true;
+    btn2.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Generando Informe Word...</span>`;
+  }
+
+  try {
+    const payload = {
+      actors: state.actors,
+      objectives: state.objectives,
+      mid: state.mid,
+      mao2: state.mao2,
+      variant: state.variant || "softprosp",
+      options: {
+        territory: state.territory || "Territorio",
+        country: state.country || "Colombia",
+        sector: state.sector || "",
+        case_id: state.activeCaseId || "",
+        news_items: state.newsItems || []
+      }
+    };
+
+    const resp = await fetch("/api/mactor/export/word", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      throw new Error(errData.detail || "Error al procesar la solicitud en el servidor");
+    }
+
+    const blob = await resp.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const terrClean = (state.territory || "Territorio").replace(/[^a-zA-Z0-9]/g, "_");
+    a.download = `Informe_Prospectivo_MACTOR_${terrClean}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error("Export Word error:", err);
+    alert("Error exportando a Word: " + err.message);
+  } finally {
+    if (btn1) {
+      btn1.disabled = false;
+      btn1.innerHTML = oldText1;
+    }
+    if (btn2) {
+      btn2.disabled = false;
+      btn2.innerHTML = oldText2;
+    }
+  }
+}
+
 // Export to Excel
 async function exportExcel() {
   readMatricesFromDOM();
@@ -2671,7 +2747,13 @@ async function exportExcel() {
       objectives: state.objectives,
       mid: state.mid,
       mao2: state.mao2,
-      variant: state.variant
+      variant: state.variant,
+      options: {
+        territory: state.territory || "Territorio",
+        country: state.country || "Colombia",
+        sector: state.sector || "",
+        case_id: state.activeCaseId || ""
+      }
     };
 
     const resp = await fetch("/api/mactor/export/excel", {
