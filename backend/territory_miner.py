@@ -1,5 +1,9 @@
 """
 Territory Miner Avanzado: Extracción granular y específica de actores reales.
+Amplía el rango a TODO el ecosistema de Google (Prensa, Gacetas Oficiales .gov/.gob, Decretos, Documentos Públicos)
+y Redes Sociales (X/Twitter, debates en YouTube, denuncias ciudadanas).
+Genera actores territoriales específicos (con nombres propios de alcaldes, gobernadores,
+empresas concretas, cabildos reales y corporaciones ambientales locales), evitando nombres genéricos.
 Integra fuentes en tiempo real:
 1. NewsData.io (API segura en backend con token protegido)
 2. Google News LatAm / CL (Prensa regional y nacional)
@@ -1158,6 +1162,7 @@ def extract_detailed_actors_and_postures(territory: str, news_items: List[Dict[s
         "channel_counts": channel_counts,
         "social_pulse": social_pulse,
         "news_sources": news_items,
+        "sources": news_items,
         "actors": detailed_actors,
         "objectives": objectives,
         "mid": mid,

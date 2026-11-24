@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body class="flex flex-col min-h-screen bg-slate-50 text-slate-800">
 
   <!-- Top Navigation Header -->
@@ -26,7 +28,9 @@
         <div>
           <h1 class="font-bold text-lg leading-tight tracking-wide flex items-center space-x-2">
             <span>MACTOR PROSP</span>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/30 text-blue-300 border border-blue-400/30">v2.0 Avanzado</span>
+            <span
+              class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/30 text-blue-300 border border-blue-400/30">v2.0
+              Avanzado</span>
           </h1>
           <p class="text-xs text-slate-400">Prospectiva Estratégica Territorial & Juegos de Actores (LIPSOR / Godet)</p>
         </div>
@@ -36,7 +40,8 @@
       <div class="flex items-center space-x-3">
         <!-- Preloaded cases dropdown -->
         <div class="relative">
-          <select id="case-select" class="bg-slate-800 text-slate-200 text-xs rounded-lg px-3 py-2 border border-slate-700 hover:border-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer">
+          <select id="case-select"
+            class="bg-slate-800 text-slate-200 text-xs rounded-lg px-3 py-2 border border-slate-700 hover:border-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer">
             <option value="" disabled selected>📂 Cargar Caso de Estudio...</option>
             <option value="manual_caballos_monteria">📖 Caso Manual: Caballos de Paso (Montería - Trocha)</option>
             <option value="guajira_transicion_energetica">⚡ La Guajira: Parques Eólicos vs Territorio Wayúu</option>
@@ -46,7 +51,8 @@
 
         <!-- Variant Selector -->
         <div class="relative hidden sm:block">
-          <select id="variant-select" class="bg-slate-800 text-slate-200 text-xs rounded-lg px-3 py-2 border border-slate-700 hover:border-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer">
+          <select id="variant-select"
+            class="bg-slate-800 text-slate-200 text-xs rounded-lg px-3 py-2 border border-slate-700 hover:border-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer">
             <option value="softprosp">Variante: SoftProsp / Multi-criterio (Manual)</option>
             <option value="lipsor_standard">Variante: Godet Clásica (LIPSOR Puro)</option>
             <option value="fuzzy">Variante: Difusa / Incertidumbre Geopolítica</option>
@@ -55,19 +61,23 @@
         </div>
 
         <!-- Help / Methodological Guide Button -->
-        <button id="btn-open-method-guide" class="bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center space-x-1.5 shadow transition-all" title="Ver explicación metodológica de cada variante">
+        <button id="btn-open-method-guide"
+          class="bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center space-x-1.5 shadow transition-all"
+          title="Ver explicación metodológica de cada variante">
           <i class="fa-solid fa-graduation-cap"></i>
           <span class="hidden lg:inline">Guía de Métodos</span>
         </button>
 
         <!-- Reactive Calculation Status Indicator -->
-        <div class="hidden sm:flex items-center space-x-1.5 text-[11px] bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-700 text-slate-300">
+        <div
+          class="hidden sm:flex items-center space-x-1.5 text-[11px] bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-700 text-slate-300">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span class="font-medium">Cálculo Reactivo Automático</span>
         </div>
 
         <!-- Export Excel -->
-        <button id="btn-export-excel" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center space-x-1.5 shadow transition-all">
+        <button id="btn-export-excel"
+          class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center space-x-1.5 shadow transition-all">
           <i class="fa-solid fa-file-excel"></i>
           <span class="hidden md:inline">Exportar Excel</span>
         </button>
@@ -77,39 +87,57 @@
     <!-- Navigation Tabs Strip -->
     <nav class="bg-slate-800 border-t border-slate-700/60 px-4">
       <div class="max-w-7xl mx-auto flex space-x-1 overflow-x-auto py-1.5 text-xs text-slate-300 scrollbar-none">
-        <button class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2 active" data-tab="tab-territory">
+        <button
+          class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2 active"
+          data-tab="tab-territory">
           <i class="fa-solid fa-satellite-dish text-blue-400"></i>
           <span>1. Inteligencia Territorial</span>
         </button>
-        <button class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2" data-tab="tab-config">
+        <button
+          class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2"
+          data-tab="tab-config">
           <i class="fa-solid fa-users-gear text-amber-400"></i>
           <span>2. Actores & Objetivos</span>
         </button>
-        <button class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2" data-tab="tab-mid">
+        <button
+          class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2"
+          data-tab="tab-mid">
           <i class="fa-solid fa-table-cells text-emerald-400"></i>
           <span>3. Matriz MID & Cuadrantes</span>
         </button>
-        <button class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2" data-tab="tab-mao">
+        <button
+          class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2"
+          data-tab="tab-mao">
           <i class="fa-solid fa-scale-balanced text-indigo-400"></i>
           <span>4. Posiciones & Balanzas LIPSOR</span>
         </button>
-        <button class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2" data-tab="tab-alliances">
+        <button
+          class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2"
+          data-tab="tab-alliances">
           <i class="fa-solid fa-circle-nodes text-purple-400"></i>
           <span>5. Red de Alianzas & Conflictos</span>
         </button>
-        <button class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2" data-tab="tab-trees">
+        <button
+          class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2"
+          data-tab="tab-trees">
           <i class="fa-solid fa-sitemap text-emerald-400"></i>
           <span>6. Árboles de Convergencia</span>
         </button>
-        <button class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2" data-tab="tab-mobilization">
+        <button
+          class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2"
+          data-tab="tab-mobilization">
           <i class="fa-solid fa-chart-simple text-cyan-400"></i>
           <span>7. Movilización Objetivos</span>
         </button>
-        <button class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2" data-tab="tab-scenarios">
+        <button
+          class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2"
+          data-tab="tab-scenarios">
           <i class="fa-solid fa-wand-magic-sparkles text-pink-400"></i>
           <span>8. Simulación "¿Qué pasa si...?"</span>
         </button>
-        <button class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2" data-tab="tab-report">
+        <button
+          class="nav-tab px-3 py-1.5 rounded-md font-medium hover:text-white transition-all flex items-center space-x-2"
+          data-tab="tab-report">
           <i class="fa-solid fa-file-contract text-yellow-400"></i>
           <span>9. Informe Ejecutivo</span>
         </button>
@@ -121,19 +149,23 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
 
     <!-- Compact Active Context Bar (Información limpia de 1 línea, sin duplicidad de campos) -->
-    <div id="active-context-bar" class="mb-5 bg-white px-4 py-2.5 rounded-xl shadow-2xs border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+    <div id="active-context-bar"
+      class="mb-5 bg-white px-4 py-2.5 rounded-xl shadow-2xs border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
       <div class="flex flex-wrap items-center gap-2 text-slate-700">
-        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 uppercase">
+        <span
+          class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 uppercase">
           Territorio Activo
         </span>
         <span id="banner-title" class="font-bold text-slate-900 text-sm">Montería (Córdoba)</span>
-        <span id="banner-country-badge" class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">🇨🇴 Colombia</span>
+        <span id="banner-country-badge"
+          class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">🇨🇴 Colombia</span>
         <span class="text-slate-300">|</span>
         <span class="text-slate-500">Sector:</span>
         <span id="active-sector-tag" class="font-semibold text-slate-700">Servicios Públicos e Infraestructura</span>
         <span class="text-slate-300">|</span>
         <span class="text-slate-500">Método en Uso:</span>
-        <span id="badge-active-method-label" class="font-bold text-blue-700">2. SoftProsp (Manual Adjunto Ponderado)</span>
+        <span id="badge-active-method-label" class="font-bold text-blue-700">2. SoftProsp (Manual Adjunto
+          Ponderado)</span>
       </div>
       <div class="flex items-center space-x-2 shrink-0">
         <span class="text-[11px] text-slate-400 font-medium">Mayor Convergencia:</span>
@@ -148,14 +180,15 @@
     <!-- TAB 1: Secuencia de Inicio & Inteligencia  -->
     <!-- ========================================== -->
     <section id="tab-territory" class="tab-pane space-y-6">
-      
+
       <!-- Main Sequence Controller Card -->
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
-        
+
         <!-- Step 1 Header -->
         <div class="border-b border-slate-100 pb-4">
           <div class="flex items-center space-x-2 text-xs font-bold text-blue-600 uppercase tracking-widest">
-            <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">1</span>
+            <span
+              class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">1</span>
             <span>Secuencia Inicial &bull; Configuración del Alcance Prospectivo</span>
           </div>
           <h3 class="text-lg font-bold text-slate-900 mt-1 flex items-center space-x-2">
@@ -163,20 +196,24 @@
             <span>Definición de País, Territorio, Sector y Marco de Análisis</span>
           </h3>
           <p class="text-xs text-slate-500 mt-1">
-            Configure las coordenadas territoriales y sectoriales de su estudio. El sistema escaneará documentos públicos oficiales, gacetas estatales, prensa abierta y redes sociales para identificar los actores reales específicos y deducir sus objetivos implícitos.
+            Configure las coordenadas territoriales y sectoriales de su estudio. El sistema escaneará documentos
+            públicos oficiales, gacetas estatales, prensa abierta y redes sociales para identificar los actores reales
+            específicos y deducir sus objetivos implícitos.
           </p>
         </div>
 
         <!-- Inputs: País, Territorio, Sector, Profundidad de Actores -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-          
+
           <!-- País -->
           <div class="md:col-span-3">
-            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
+            <label
+              class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
               <i class="fa-solid fa-flag text-slate-400 text-xs"></i>
               <span>1. País o Estado</span>
             </label>
-            <select id="input-country" class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
+            <select id="input-country"
+              class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
               <option value="Colombia" selected>🇨🇴 Colombia</option>
               <option value="Chile">🇨🇱 Chile</option>
               <option value="Argentina">🇦🇷 Argentina</option>
@@ -189,31 +226,39 @@
 
           <!-- Territorio Real -->
           <div class="md:col-span-3">
-            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
+            <label
+              class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
               <i class="fa-solid fa-location-dot text-blue-600 text-xs"></i>
               <span>2. Territorio Real Específico</span>
             </label>
-            <input id="input-territory" type="text" placeholder="Ej: Medellín, Antioquia, La Guajira, Salar de Atacama, Bogotá..." value="Medellín" class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+            <input id="input-territory" type="text"
+              placeholder="Ej: Medellín, Antioquia, La Guajira, Salar de Atacama, Bogotá..." value="Medellín"
+              class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
             <span class="text-[10px] text-slate-400 mt-1 block">Municipio, departamento, cuenca, etc.</span>
           </div>
 
           <!-- Sector o Eje en Disputa -->
           <div class="md:col-span-3">
-            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
+            <label
+              class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
               <i class="fa-solid fa-industry text-emerald-600 text-xs"></i>
               <span>3. Sector / Eje Estratégico</span>
             </label>
-            <input id="input-sector" type="text" placeholder="Ej: Servicios Públicos, Transición Energética..." value="Servicios Públicos e Infraestructura" class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+            <input id="input-sector" type="text" placeholder="Ej: Servicios Públicos, Transición Energética..."
+              value="Servicios Públicos e Infraestructura"
+              class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
             <span class="text-[10px] text-slate-400 mt-1 block">Eje temático prioritario de competencia.</span>
           </div>
 
           <!-- Profundidad del Mapeo de Actores -->
           <div class="md:col-span-3">
-            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
+            <label
+              class="text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1.5 block flex items-center space-x-1">
               <i class="fa-solid fa-users-gear text-indigo-600 text-xs"></i>
               <span>4. Profundidad del Mapeo</span>
             </label>
-            <select id="input-target-actors" class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl bg-slate-50 font-bold text-indigo-950 focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition-all">
+            <select id="input-target-actors"
+              class="w-full text-xs py-2.5 px-3 border border-slate-300 rounded-xl bg-slate-50 font-bold text-indigo-950 focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition-all">
               <option value="5">🎯 5 Actores (Focalizado / Clave)</option>
               <option value="8" selected>⚖️ 8 Actores (Recomendado MACTOR)</option>
               <option value="10">🌐 10 Actores (Mapeo Estratégico)</option>
@@ -255,186 +300,232 @@
           </div>
         </div>
 
-        <!-- Método de Cálculo a Aplicar (Con botón de ayuda explicativa al lado) -->
-        <div class="pt-4 border-t border-slate-100 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wide flex items-center space-x-1.5">
-              <i class="fa-solid fa-calculator text-indigo-600"></i>
-              <span>4. Tipo de Análisis & Método de Cálculo (Partiendo por Godet como el Básico):</span>
-            </label>
-            <!-- Help button right beside it -->
-            <button id="btn-quick-method-help" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1.5 hover:underline bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200">
-              <i class="fa-solid fa-circle-question"></i>
-              <span>¿Cómo interpretar cada método? (Ver Guía y Popups)</span>
-            </button>
-          </div>
-
-          <!-- Method selection pills inside step 1 -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
-            
-            <label class="method-option-pill p-3 border rounded-xl cursor-pointer transition-all flex items-start space-x-2.5 bg-slate-50 border-slate-200 hover:border-slate-400">
-              <input type="radio" name="method-radio" value="lipsor_standard" class="mt-0.5 text-blue-600 focus:ring-blue-500">
-              <div>
-                <span class="font-bold text-slate-900 block text-[11px]">1. Godet Clásico (LIPSOR)</span>
-                <span class="text-[10px] text-slate-500 block font-normal">Método base fundacional: objetivos con igual peso y balance de fuerza pura.</span>
-              </div>
-            </label>
-
-            <label class="method-option-pill p-3 border rounded-xl cursor-pointer transition-all flex items-start space-x-2.5 bg-blue-50/60 border-blue-400">
-              <input type="radio" name="method-radio" value="softprosp" checked class="mt-0.5 text-blue-600 focus:ring-blue-500">
-              <div>
-                <span class="font-bold text-blue-900 block text-[11px]">2. SoftProsp (Manual Adjunto)</span>
-                <span class="text-[10px] text-blue-700 block font-normal">Multi-criterio ponderado: objetivos con pesos porcentuales (W_j).</span>
-              </div>
-            </label>
-
-            <label class="method-option-pill p-3 border rounded-xl cursor-pointer transition-all flex items-start space-x-2.5 bg-slate-50 border-slate-200 hover:border-slate-400">
-              <input type="radio" name="method-radio" value="fuzzy" class="mt-0.5 text-amber-600 focus:ring-amber-500">
-              <div>
-                <span class="font-bold text-slate-900 block text-[11px]">3. Variante Difusa (Fuzzy)</span>
-                <span class="text-[10px] text-slate-500 block font-normal">Incertidumbre en fuentes y redes sociales; intervalos de robustez.</span>
-              </div>
-            </label>
-
-            <label class="method-option-pill p-3 border rounded-xl cursor-pointer transition-all flex items-start space-x-2.5 bg-slate-50 border-slate-200 hover:border-slate-400">
-              <input type="radio" name="method-radio" value="game_theory" class="mt-0.5 text-purple-600 focus:ring-purple-500">
-              <div>
-                <span class="font-bold text-slate-900 block text-[11px]">4. Teoría de Juegos</span>
-                <span class="text-[10px] text-slate-500 block font-normal">Afinidad neta (3CAA - 3DAA) y riesgo de ruptura de coaliciones.</span>
-              </div>
-            </label>
-
-          </div>
-        </div>
-
-        <!-- BIG DETONATOR CALL TO ACTION BUTTON -->
-        <div class="pt-4 border-t border-slate-100">
-          <button id="btn-start-ai-analysis" onclick="analyzeTerritoryLive()" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold py-3.5 px-6 rounded-xl text-sm shadow-md hover:shadow-lg transition-all flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-3 cursor-pointer">
-            <span class="flex items-center space-x-2">
-              <i class="fa-solid fa-wand-magic-sparkles text-lg animate-pulse text-amber-300"></i>
-              <span class="text-base tracking-wide">PASO 1: INICIAR ANÁLISIS PROSPECTIVO CON IA</span>
-            </span>
-            <span class="hidden sm:inline text-blue-200">|</span>
-            <span class="text-xs font-normal text-blue-100">Rastrear Documentos Oficiales, Gacetas, Prensa Abierta y Redes Sociales</span>
-          </button>
-          <p class="text-[11px] text-center text-slate-400 mt-2">
-            Este botón es el detonador central que escanea cientos de fuentes para identificar los actores específicos y sus objetivos implícitos en el territorio.
-          </p>
-        </div>
-
-        <!-- Scanning Status Feedback -->
-        <div id="scanning-status" class="hidden p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center space-x-3 text-blue-800 text-xs">
-          <i class="fa-solid fa-spinner fa-spin text-xl text-blue-600"></i>
-          <div>
-            <span class="font-bold block">Consultando documentos públicos, gacetas estatales y redes sociales en vivo...</span>
-            <span class="text-blue-600/90 text-[11px]">Extrayendo autoridades institucionales con nombres propios, gremios específicos, cabildos comunales e infiriendo posturas MACTOR.</span>
-          </div>
-        </div>
-
-        <!-- Extraction Results Container -->
-        <div id="territory-results" class="pt-4 border-t border-slate-100 space-y-6">
-          
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Actores Específicos Identificados -->
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-1.5">
-                  <i class="fa-solid fa-users text-blue-600"></i>
-                  <span>Actores Específicos Identificados en el Territorio</span>
-                </h4>
-                <span id="badge-actors-count" class="text-[11px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">0 Actores</span>
-              </div>
-              <div id="actors-list-container" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
-                <!-- Rendered dynamically -->
-              </div>
+          <!-- Método de Cálculo a Aplicar (Con botón de ayuda explicativa al lado) -->
+          <div class="pt-4 border-t border-slate-100 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wide flex items-center space-x-1.5">
+                <i class="fa-solid fa-calculator text-indigo-600"></i>
+                <span>4. Tipo de Análisis & Método de Cálculo (Partiendo por Godet como el Básico):</span>
+              </label>
+              <!-- Help button right beside it -->
+              <button id="btn-quick-method-help"
+                class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1.5 hover:underline bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200">
+                <i class="fa-solid fa-circle-question"></i>
+                <span>¿Cómo interpretar cada método? (Ver Guía y Popups)</span>
+              </button>
             </div>
 
-            <!-- Objetivos Estratégicos Detectados -->
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-1.5">
-                  <i class="fa-solid fa-bullseye text-emerald-600"></i>
-                  <span>Objetivos Estratégicos Implícitos Detectados</span>
-                </h4>
-                <span id="badge-objectives-count" class="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0 Objetivos</span>
-              </div>
-              <div id="objectives-list-container" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
-                <!-- Rendered dynamically -->
-              </div>
-            </div>
-          </div>
+            <!-- Method selection pills inside step 1 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
 
-          <!-- Transfer confirmation bar -->
-          <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div class="flex items-center space-x-2 text-emerald-900 font-medium">
-              <i class="fa-solid fa-check-circle text-emerald-600 text-base"></i>
-              <span>¿Conforme con los actores y objetivos específicos identificados?</span>
-            </div>
-            <button id="btn-apply-territory-to-mactor" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg shadow transition-all flex items-center space-x-2">
-              <i class="fa-solid fa-arrow-right"></i>
-              <span>Transferir a Matrices de Trabajo y Continuar al Paso 2</span>
-            </button>
-          </div>
-
-          <!-- Live Multi-Channel Sources Feed -->
-          <div class="pt-5 border-t border-slate-100 space-y-4">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div>
-                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center space-x-1.5">
-                  <i class="fa-solid fa-satellite-dish text-blue-600"></i>
-                  <span>Ecosistema de Fuentes Rastreadas (Google Global + Redes Sociales + Gacetas Estatales)</span>
-                </h4>
-                <p class="text-[11px] text-slate-500">Filtrado en tiempo real por canal de información y pulso de opinión.</p>
-              </div>
-
-              <!-- Channel Filter Pills -->
-              <div id="sources-channel-filters" class="flex flex-wrap gap-1.5 text-[11px]">
-                <button class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-900 text-white transition-all" data-channel="all">
-                  🌐 Todas (<span id="count-all-sources">0</span>)
-                </button>
-                <button class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all" data-channel="bhrrc">
-                  <i class="fa-solid fa-hand-holding-heart text-amber-600 mr-1"></i>Empresas & DDHH BHRRC (<span id="count-bhrrc-sources">0</span>)
-                </button>
-                <button class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all" data-channel="social">
-                  <i class="fa-brands fa-x-twitter text-purple-600 mr-1"></i>Redes Sociales (<span id="count-social-sources">0</span>)
-                </button>
-                <button class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all" data-channel="official">
-                  <i class="fa-solid fa-building-columns text-blue-600 mr-1"></i>Oficial / Gacetas (<span id="count-official-sources">0</span>)
-                </button>
-                <button class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all" data-channel="press">
-                  <i class="fa-regular fa-newspaper text-emerald-600 mr-1"></i>Prensa CL (<span id="count-press-sources">0</span>)
-                </button>
-                <button class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all" data-channel="academic">
-                  <i class="fa-solid fa-graduation-cap text-orange-600 mr-1"></i>Academia (<span id="count-academic-sources">0</span>)
-                </button>
-              </div>
-            </div>
-
-            <!-- Social Media Pulse Banner -->
-            <div id="social-pulse-banner" class="hidden p-3.5 bg-purple-50 border border-purple-200 rounded-xl flex items-center justify-between gap-3 text-xs text-purple-900">
-              <div class="flex items-center space-x-2.5">
-                <span class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center text-sm shrink-0">
-                  <i class="fa-brands fa-x-twitter"></i>
-                </span>
+              <label
+                class="method-option-pill p-3 border rounded-xl cursor-pointer transition-all flex items-start space-x-2.5 bg-slate-50 border-slate-200 hover:border-slate-400">
+                <input type="radio" name="method-radio" value="lipsor_standard"
+                  class="mt-0.5 text-blue-600 focus:ring-blue-500">
                 <div>
-                  <span class="font-bold block text-purple-950 flex items-center space-x-2">
-                    <span>Pulso de Redes Sociales & Reclamos Ciudadanos</span>
-                    <span id="badge-social-pulse-status" class="text-[10px] px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 font-bold">Activo</span>
-                  </span>
-                  <p id="social-pulse-summary" class="text-[11px] text-purple-800/90 mt-0.5"></p>
+                  <span class="font-bold text-slate-900 block text-[11px]">1. Godet Clásico (LIPSOR)</span>
+                  <span class="text-[10px] text-slate-500 block font-normal">Método base fundacional: objetivos con
+                    igual peso y balance de fuerza pura.</span>
+                </div>
+              </label>
+
+              <label
+                class="method-option-pill p-3 border rounded-xl cursor-pointer transition-all flex items-start space-x-2.5 bg-blue-50/60 border-blue-400">
+                <input type="radio" name="method-radio" value="softprosp" checked
+                  class="mt-0.5 text-blue-600 focus:ring-blue-500">
+                <div>
+                  <span class="font-bold text-blue-900 block text-[11px]">2. SoftProsp (Manual Adjunto)</span>
+                  <span class="text-[10px] text-blue-700 block font-normal">Multi-criterio ponderado: objetivos con
+                    pesos porcentuales (W_j).</span>
+                </div>
+              </label>
+
+              <label
+                class="method-option-pill p-3 border rounded-xl cursor-pointer transition-all flex items-start space-x-2.5 bg-slate-50 border-slate-200 hover:border-slate-400">
+                <input type="radio" name="method-radio" value="fuzzy"
+                  class="mt-0.5 text-amber-600 focus:ring-amber-500">
+                <div>
+                  <span class="font-bold text-slate-900 block text-[11px]">3. Variante Difusa (Fuzzy)</span>
+                  <span class="text-[10px] text-slate-500 block font-normal">Incertidumbre en fuentes y redes sociales;
+                    intervalos de robustez.</span>
+                </div>
+              </label>
+
+              <label
+                class="method-option-pill p-3 border rounded-xl cursor-pointer transition-all flex items-start space-x-2.5 bg-slate-50 border-slate-200 hover:border-slate-400">
+                <input type="radio" name="method-radio" value="game_theory"
+                  class="mt-0.5 text-purple-600 focus:ring-purple-500">
+                <div>
+                  <span class="font-bold text-slate-900 block text-[11px]">4. Teoría de Juegos</span>
+                  <span class="text-[10px] text-slate-500 block font-normal">Afinidad neta (3CAA - 3DAA) y riesgo de
+                    ruptura de coaliciones.</span>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
+          <!-- BIG DETONATOR CALL TO ACTION BUTTON -->
+          <div class="pt-4 border-t border-slate-100">
+            <button id="btn-start-ai-analysis"
+              class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold py-3.5 px-6 rounded-xl text-sm shadow-md hover:shadow-lg transition-all flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-3">
+              <span class="flex items-center space-x-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-lg animate-pulse text-amber-300"></i>
+                <span class="text-base tracking-wide">PASO 1: INICIAR ANÁLISIS PROSPECTIVO CON IA</span>
+              </span>
+              <span class="hidden sm:inline text-blue-200">|</span>
+              <span class="text-xs font-normal text-blue-100">Rastrear Documentos Oficiales, Gacetas, Prensa Abierta y
+                Redes Sociales</span>
+            </button>
+            <p class="text-[11px] text-center text-slate-400 mt-2">
+              Este botón es el detonador central que escanea cientos de fuentes para identificar los actores específicos
+              y sus objetivos implícitos en el territorio.
+            </p>
+          </div>
+
+          <!-- Scanning Status Feedback -->
+          <div id="scanning-status"
+            class="hidden p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center space-x-3 text-blue-800 text-xs">
+            <i class="fa-solid fa-spinner fa-spin text-xl text-blue-600"></i>
+            <div>
+              <span class="font-bold block">Consultando documentos públicos, gacetas estatales y redes sociales en
+                vivo...</span>
+              <span class="text-blue-600/90 text-[11px]">Extrayendo autoridades institucionales con nombres propios,
+                gremios específicos, cabildos comunales e infiriendo posturas MACTOR.</span>
+            </div>
+          </div>
+
+          <!-- Extraction Results Container -->
+          <div id="territory-results" class="pt-4 border-t border-slate-100 space-y-6">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Actores Específicos Identificados -->
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-users text-blue-600"></i>
+                    <span>Actores Específicos Identificados en el Territorio</span>
+                  </h4>
+                  <span id="badge-actors-count"
+                    class="text-[11px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">0 Actores</span>
+                </div>
+                <div id="actors-list-container" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Objetivos Estratégicos Detectados -->
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-bullseye text-emerald-600"></i>
+                    <span>Objetivos Estratégicos Implícitos Detectados</span>
+                  </h4>
+                  <span id="badge-objectives-count"
+                    class="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0
+                    Objetivos</span>
+                </div>
+                <div id="objectives-list-container" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
+                  <!-- Rendered dynamically -->
                 </div>
               </div>
             </div>
 
-            <!-- News Cards Container -->
-            <div id="news-feed-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[460px] overflow-y-auto pr-1">
-              <!-- News Cards -->
+            <!-- Transfer confirmation bar -->
+            <div
+              class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div class="flex items-center space-x-2 text-emerald-900 font-medium">
+                <i class="fa-solid fa-check-circle text-emerald-600 text-base"></i>
+                <span>¿Conforme con los actores y objetivos específicos identificados?</span>
+              </div>
+              <button id="btn-apply-territory-to-mactor"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg shadow transition-all flex items-center space-x-2">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>Transferir a Matrices de Trabajo y Continuar al Paso 2</span>
+              </button>
             </div>
+
+            <!-- Live Multi-Channel Sources Feed -->
+            <div class="pt-5 border-t border-slate-100 space-y-4">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-satellite-dish text-blue-600"></i>
+                    <span>Ecosistema de Fuentes Rastreadas (Google Global + Redes Sociales + Gacetas Estatales)</span>
+                  </h4>
+                  <p class="text-[11px] text-slate-500">Filtrado en tiempo real por canal de información y pulso de
+                    opinión.</p>
+                </div>
+
+                <!-- Channel Filter Pills -->
+                <div id="sources-channel-filters" class="flex flex-wrap gap-1.5 text-[11px]">
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-900 text-white transition-all"
+                    data-channel="all">
+                    🌐 Todas (<span id="count-all-sources">0</span>)
+                  </button>
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                    data-channel="bhrrc">
+                    <i class="fa-solid fa-hand-holding-heart text-amber-600 mr-1"></i>Empresas & DDHH BHRRC (<span
+                      id="count-bhrrc-sources">0</span>)
+                  </button>
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                    data-channel="social">
+                    <i class="fa-brands fa-x-twitter text-purple-600 mr-1"></i>Redes Sociales (<span
+                      id="count-social-sources">0</span>)
+                  </button>
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                    data-channel="official">
+                    <i class="fa-solid fa-building-columns text-blue-600 mr-1"></i>Oficial / Gacetas (<span
+                      id="count-official-sources">0</span>)
+                  </button>
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                    data-channel="press">
+                    <i class="fa-regular fa-newspaper text-emerald-600 mr-1"></i>Prensa CL (<span
+                      id="count-press-sources">0</span>)
+                  </button>
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                    data-channel="academic">
+                    <i class="fa-solid fa-graduation-cap text-orange-600 mr-1"></i>Academia (<span
+                      id="count-academic-sources">0</span>)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Social Media Pulse Banner -->
+              <div id="social-pulse-banner"
+                class="hidden p-3.5 bg-purple-50 border border-purple-200 rounded-xl flex items-center justify-between gap-3 text-xs text-purple-900">
+                <div class="flex items-center space-x-2.5">
+                  <span
+                    class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center text-sm shrink-0">
+                    <i class="fa-brands fa-x-twitter"></i>
+                  </span>
+                  <div>
+                    <span class="font-bold block text-purple-950 flex items-center space-x-2">
+                      <span>Pulso de Redes Sociales & Reclamos Ciudadanos</span>
+                      <span id="badge-social-pulse-status"
+                        class="text-[10px] px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 font-bold">Activo</span>
+                    </span>
+                    <p id="social-pulse-summary" class="text-[11px] text-purple-800/90 mt-0.5"></p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- News Cards Container -->
+              <div id="news-feed-container"
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[460px] overflow-y-auto pr-1">
+                <!-- News Cards -->
+              </div>
+            </div>
+
           </div>
 
         </div>
-
-      </div>
 
     </section>
 
@@ -453,7 +544,8 @@
               </h3>
               <p class="text-xs text-slate-500">Defina o edite los actores que intervienen en el sistema.</p>
             </div>
-            <button id="btn-add-actor" class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold text-xs px-2.5 py-1.5 rounded-lg border border-blue-200 flex items-center space-x-1">
+            <button id="btn-add-actor"
+              class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold text-xs px-2.5 py-1.5 rounded-lg border border-blue-200 flex items-center space-x-1">
               <i class="fa-solid fa-plus"></i>
               <span>Agregar Actor</span>
             </button>
@@ -471,9 +563,11 @@
                 <i class="fa-solid fa-crosshairs text-emerald-600"></i>
                 <span>Objetivos en Juego & Ponderación</span>
               </h3>
-              <p class="text-xs text-slate-500">Pondere la importancia relativa de cada objetivo (ej. en el manual: Fenotipo 25%, Adiestramiento 25%, Movimientos 50%).</p>
+              <p class="text-xs text-slate-500">Pondere la importancia relativa de cada objetivo (ej. en el manual:
+                Fenotipo 25%, Adiestramiento 25%, Movimientos 50%).</p>
             </div>
-            <button id="btn-add-objective" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs px-2.5 py-1.5 rounded-lg border border-emerald-200 flex items-center space-x-1">
+            <button id="btn-add-objective"
+              class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs px-2.5 py-1.5 rounded-lg border border-emerald-200 flex items-center space-x-1">
               <i class="fa-solid fa-plus"></i>
               <span>Agregar Objetivo</span>
             </button>
@@ -489,31 +583,30 @@
     <!-- TAB 3: Matriz MID & Cuadrantes de Godet    -->
     <!-- ========================================== -->
     <section id="tab-mid" class="tab-pane hidden space-y-6">
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-        <!-- MID Table Column (Ahora balanceada a 1/2 en pantallas amplias) -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 class="font-bold text-sm text-slate-800 flex items-center space-x-2">
-                  <i class="fa-solid fa-table text-blue-600"></i>
-                  <span>Matriz de Influencia Directa (MID)</span>
-                </h3>
-                <p class="text-xs text-slate-500">
-                  Escala de Godet: 0=Ninguna, 1=Procesos (operativa), 2=Proyectos, 3=Misiones, 4=Existencia/Supervivencia.
-                </p>
-              </div>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- MID Table Column -->
+        <div class="lg:col-span-7 bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800 flex items-center space-x-2">
+                <i class="fa-solid fa-table text-blue-600"></i>
+                <span>Matriz de Influencia Directa (MID)</span>
+              </h3>
+              <p class="text-xs text-slate-500">
+                Escala de Godet: 0=Ninguna, 1=Procesos (operativa), 2=Proyectos, 3=Misiones, 4=Existencia/Supervivencia.
+              </p>
             </div>
-            
-            <div class="overflow-x-auto mt-3 flex justify-center">
-              <div id="mid-table-container" class="inline-block max-w-full"></div>
-            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <div id="mid-table-container"></div>
           </div>
 
           <!-- MIDI Accordion / Toggle -->
           <div class="pt-4 border-t border-slate-100">
             <details class="group">
-              <summary class="flex justify-between items-center font-semibold text-xs text-slate-600 cursor-pointer list-none hover:text-blue-600">
+              <summary
+                class="flex justify-between items-center font-semibold text-xs text-slate-600 cursor-pointer list-none hover:text-blue-600">
                 <span class="flex items-center space-x-2">
                   <i class="fa-solid fa-diagram-project text-blue-500"></i>
                   <span>Ver Matriz de Influencias Directas e Indirectas (MIDI) & Relación de Fuerza (r_i)</span>
@@ -522,28 +615,24 @@
                   <i class="fa-solid fa-chevron-down text-xs"></i>
                 </span>
               </summary>
-              <div class="mt-3 overflow-x-auto flex justify-center" id="midi-table-container"></div>
+              <div class="mt-3 overflow-x-auto" id="midi-table-container"></div>
             </details>
           </div>
         </div>
 
-        <!-- Quadrant Plot Column (Aspecto cuadrado 1:1 proporcional a la pantalla) -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4 flex flex-col justify-between">
-          <div>
-            <div class="border-b border-slate-100 pb-3">
-              <h3 class="font-bold text-sm text-slate-800 flex items-center space-x-2">
-                <i class="fa-solid fa-chart-line text-emerald-600"></i>
-                <span>Plano Estratégico de Influencia vs Dependencia</span>
-              </h3>
-              <p class="text-xs text-slate-500">Distribución de los actores en los 4 cuadrantes prospectivos de Michel Godet.</p>
-            </div>
+        <!-- Quadrant Plot Column -->
+        <div class="lg:col-span-5 bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4 flex flex-col">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-sm text-slate-800 flex items-center space-x-2">
+              <i class="fa-solid fa-chart-line text-emerald-600"></i>
+              <span>Plano Estratégico de Influencia vs Dependencia</span>
+            </h3>
+            <p class="text-xs text-slate-500">Distribución de los actores en los 4 cuadrantes prospectivos de Michel
+              Godet.</p>
+          </div>
 
-            <!-- Contenedor cuadrado proporcional (aspect-square con límites ergonómicos) -->
-            <div class="w-full flex items-center justify-center p-2">
-              <div class="relative w-full max-w-[500px] aspect-square flex items-center justify-center">
-                <canvas id="quadrant-chart"></canvas>
-              </div>
-            </div>
+          <div class="relative flex-grow min-h-[340px] flex items-center justify-center">
+            <canvas id="quadrant-chart"></canvas>
           </div>
 
           <!-- Quadrant breakdown cards -->
@@ -567,67 +656,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Indicadores de Red (Análisis de Redes Sociales - SNA sobre MID) -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
-        <div class="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
-          <div>
-            <h3 class="font-bold text-sm text-slate-800 flex items-center space-x-2">
-              <i class="fa-solid fa-circle-nodes text-indigo-600"></i>
-              <span>Métricas Topológicas de Red & Centralización (SNA sobre MID)</span>
-            </h3>
-            <p class="text-xs text-slate-500">
-              Mide la concentración de poder (Out-Degree), vulnerabilidad (In-Degree) y el grado de centralización global de Freeman.
-            </p>
-          </div>
-          <span class="text-xs font-mono font-bold px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full">
-            Freeman Centralization Index
-          </span>
-        </div>
-
-        <!-- Tarjetas Macro de la Red -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-            <span class="text-[10px] uppercase font-bold text-slate-500 block">Centralización Salida (Emisión)</span>
-            <span id="net-centralization-out" class="text-xl font-black text-indigo-600 font-mono">0.0%</span>
-            <span class="text-[10px] text-slate-400 block mt-0.5">Jerarquía de poder</span>
-          </div>
-          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-            <span class="text-[10px] uppercase font-bold text-slate-500 block">Centralización Entrada (Recepción)</span>
-            <span id="net-centralization-in" class="text-xl font-black text-blue-600 font-mono">0.0%</span>
-            <span class="text-[10px] text-slate-400 block mt-0.5">Vulnerabilidad compartida</span>
-          </div>
-          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-            <span class="text-[10px] uppercase font-bold text-slate-500 block">Densidad de la Red</span>
-            <span id="net-density" class="text-xl font-black text-emerald-600 font-mono">0.0%</span>
-            <span class="text-[10px] text-slate-400 block mt-0.5">Conectividad activa</span>
-          </div>
-          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-            <span class="text-[10px] uppercase font-bold text-slate-500 block">Intensidad Media</span>
-            <span id="net-mean-intensity" class="text-xl font-black text-amber-600 font-mono">0.0</span>
-            <span class="text-[10px] text-slate-400 block mt-0.5">Fuerza promedio de enlace</span>
-          </div>
-        </div>
-
-        <!-- Tabla detallada de Centralidad por Actor -->
-        <div class="overflow-x-auto pt-2">
-          <table class="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
-            <thead class="bg-slate-800 text-white font-bold">
-              <tr>
-                <th class="p-2 text-left">Actor Territorial</th>
-                <th class="p-2 text-center">Centralidad Salida (Out-Degree)</th>
-                <th class="p-2 text-center">Nivel Emisión</th>
-                <th class="p-2 text-center">Centralidad Entrada (In-Degree)</th>
-                <th class="p-2 text-center">Nivel Absorción</th>
-                <th class="p-2 text-center">Rol en la Red</th>
-              </tr>
-            </thead>
-            <tbody id="network-centrality-tbody" class="divide-y divide-slate-100">
-              <!-- Se puebla dinámicamente con JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
     </section>
 
     <!-- ========================================== -->
@@ -637,7 +665,7 @@
 
       <!-- Figuras de Posición LIPSOR MACTOR (Balanza de Competitividad & Posturas de Actores) -->
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-        
+
         <!-- Header & Switchers -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div>
@@ -647,28 +675,36 @@
             </div>
             <h3 class="text-base font-bold text-slate-900 mt-0.5 flex items-center space-x-2">
               <span>Balanza de Posición de los Actores respecto a los Objetivos</span>
-              <span class="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-semibold font-normal">Original LIPSOR-EPITA</span>
+              <span
+                class="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-semibold font-normal">Original
+                LIPSOR-EPITA</span>
             </h3>
             <p class="text-xs text-slate-500">
-              Escala de balance de fuerzas: inclinación proporcional a la competitividad ponderada de los actores a favor (+) versus oposición (-).
+              Escala de balance de fuerzas: inclinación proporcional a la competitividad ponderada de los actores a
+              favor (+) versus oposición (-).
             </p>
           </div>
 
           <!-- Mode buttons -->
           <div class="flex flex-wrap items-center gap-2">
             <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 text-xs font-medium">
-              <button id="btn-balance-mode-single" class="px-3 py-1.5 rounded-md bg-white text-indigo-700 shadow-2xs font-bold transition-all">
+              <button id="btn-balance-mode-single"
+                class="px-3 py-1.5 rounded-md bg-white text-indigo-700 shadow-2xs font-bold transition-all">
                 <i class="fa-solid fa-scale-unbalanced text-xs mr-1"></i> Balanza Individual
               </button>
-              <button id="btn-balance-mode-gallery" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all">
+              <button id="btn-balance-mode-gallery"
+                class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all">
                 <i class="fa-solid fa-grip text-xs mr-1"></i> Todos los Objetivos
               </button>
-              <button id="btn-balance-mode-actor" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all">
+              <button id="btn-balance-mode-actor"
+                class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all">
                 <i class="fa-solid fa-user-tag text-xs mr-1"></i> Perfil por Actor
               </button>
             </div>
 
-            <button id="btn-export-balance-svg" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-semibold flex items-center space-x-1 shadow-2xs transition-all" title="Descargar Figura en formato SVG vectorial">
+            <button id="btn-export-balance-svg"
+              class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-semibold flex items-center space-x-1 shadow-2xs transition-all"
+              title="Descargar Figura en formato SVG vectorial">
               <i class="fa-solid fa-download text-xs text-slate-500"></i>
               <span>Descargar SVG</span>
             </button>
@@ -676,20 +712,26 @@
         </div>
 
         <!-- Controls for Single Mode -->
-        <div id="balance-single-controls" class="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+        <div id="balance-single-controls"
+          class="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
           <div class="flex items-center space-x-2">
             <label class="font-bold text-slate-700 flex items-center space-x-1">
               <i class="fa-solid fa-bullseye text-indigo-600"></i>
               <span>Objetivo Estratégico:</span>
             </label>
             <div class="flex items-center space-x-1">
-              <button id="btn-balance-prev" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 font-bold text-slate-700 transition-all" title="Objetivo anterior">
+              <button id="btn-balance-prev"
+                class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 font-bold text-slate-700 transition-all"
+                title="Objetivo anterior">
                 <i class="fa-solid fa-chevron-left text-[10px]"></i>
               </button>
-              <select id="select-balance-objective" class="px-3 py-1 bg-white border border-slate-300 rounded-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+              <select id="select-balance-objective"
+                class="px-3 py-1 bg-white border border-slate-300 rounded-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
                 <!-- Dynamically populated -->
               </select>
-              <button id="btn-balance-next" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 font-bold text-slate-700 transition-all" title="Objetivo siguiente">
+              <button id="btn-balance-next"
+                class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 font-bold text-slate-700 transition-all"
+                title="Objetivo siguiente">
                 <i class="fa-solid fa-chevron-right text-[10px]"></i>
               </button>
             </div>
@@ -697,30 +739,35 @@
 
           <div class="flex items-center space-x-3">
             <label class="flex items-center space-x-1.5 cursor-pointer text-slate-700 font-semibold select-none">
-              <input type="checkbox" id="check-balance-weight-3mao" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+              <input type="checkbox" id="check-balance-weight-3mao" checked
+                class="rounded text-indigo-600 focus:ring-indigo-500">
               <span>Competitividad Ponderada (3MAO con relación de fuerza r_i)</span>
             </label>
           </div>
         </div>
 
         <!-- Controls for Actor Profile Mode -->
-        <div id="balance-actor-controls" class="hidden flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+        <div id="balance-actor-controls"
+          class="hidden flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
           <div class="flex items-center space-x-2">
             <label class="font-bold text-slate-700 flex items-center space-x-1">
               <i class="fa-solid fa-user-gear text-indigo-600"></i>
               <span>Actor Estratégico:</span>
             </label>
-            <select id="select-balance-actor" class="px-3 py-1 bg-white border border-slate-300 rounded-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+            <select id="select-balance-actor"
+              class="px-3 py-1 bg-white border border-slate-300 rounded-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
               <!-- Dynamically populated -->
             </select>
           </div>
           <span class="text-slate-500 text-[11px]">
-            Histograma LIPSOR de postura del actor (-4 oposición máxima a +4 apoyo vital) sobre el conjunto de objetivos.
+            Histograma LIPSOR de postura del actor (-4 oposición máxima a +4 apoyo vital) sobre el conjunto de
+            objetivos.
           </span>
         </div>
 
         <!-- Dynamic Visualization Canvas Card -->
-        <div id="balance-canvas-area" class="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center relative overflow-hidden shadow-2xs min-h-[520px]">
+        <div id="balance-canvas-area"
+          class="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center relative overflow-hidden shadow-2xs min-h-[520px]">
           <div id="balance-svg-container" class="w-full flex justify-center overflow-x-auto">
             <!-- Rendered SVG Balance or Grid or Actor Profile -->
           </div>
@@ -733,7 +780,8 @@
               <span class="text-emerald-800 font-medium block text-[11px]">Fuerza Favorable (+)</span>
               <span id="metric-balance-f-plus" class="text-lg font-bold text-emerald-900">0.0</span>
             </div>
-            <span class="w-8 h-8 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center font-bold text-sm">+</span>
+            <span
+              class="w-8 h-8 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center font-bold text-sm">+</span>
           </div>
 
           <div class="p-3 bg-rose-50/70 border border-rose-200 rounded-xl flex items-center justify-between">
@@ -741,7 +789,8 @@
               <span class="text-rose-800 font-medium block text-[11px]">Fuerza Opositora (-)</span>
               <span id="metric-balance-f-minus" class="text-lg font-bold text-rose-900">0.0</span>
             </div>
-            <span class="w-8 h-8 rounded-full bg-rose-200 text-rose-800 flex items-center justify-center font-bold text-sm">-</span>
+            <span
+              class="w-8 h-8 rounded-full bg-rose-200 text-rose-800 flex items-center justify-center font-bold text-sm">-</span>
           </div>
 
           <div class="p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl flex items-center justify-between">
@@ -762,8 +811,10 @@
         </div>
 
         <!-- Neutral Actors Bar (if any) -->
-        <div id="balance-neutral-bar" class="hidden p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs flex items-center space-x-2">
-          <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold text-[10px] uppercase">Actores Neutros (0)</span>
+        <div id="balance-neutral-bar"
+          class="hidden p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs flex items-center space-x-2">
+          <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold text-[10px] uppercase">Actores Neutros
+            (0)</span>
           <span id="balance-neutral-list" class="text-slate-600 font-medium">Ninguno</span>
         </div>
 
@@ -778,17 +829,21 @@
               <span>Matriz Valorada de Posición de Actores sobre Objetivos (2MAO)</span>
             </h3>
             <p class="text-xs text-slate-500">
-              Intensidad de postura (-4 a +4): +4: Supervivencia/Vital, +3: Prioritario, +2: Importante, +1: Secundario, 0: Neutro, -1 a -4: Oposición creciente.
+              Intensidad de postura (-4 a +4): +4: Supervivencia/Vital, +3: Prioritario, +2: Importante, +1: Secundario,
+              0: Neutro, -1 a -4: Oposición creciente.
             </p>
           </div>
           <div class="flex items-center space-x-2 text-xs">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-100 text-emerald-800">
+            <span
+              class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-100 text-emerald-800">
               + A Favor
             </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
+            <span
+              class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
               0 Neutro
             </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-rose-100 text-rose-800">
+            <span
+              class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-rose-100 text-rose-800">
               - En Contra
             </span>
           </div>
@@ -801,7 +856,8 @@
         <!-- 3MAO View Details -->
         <div class="pt-4 border-t border-slate-100">
           <details class="group">
-            <summary class="flex justify-between items-center font-semibold text-xs text-slate-600 cursor-pointer list-none hover:text-indigo-600">
+            <summary
+              class="flex justify-between items-center font-semibold text-xs text-slate-600 cursor-pointer list-none hover:text-indigo-600">
               <span class="flex items-center space-x-2">
                 <i class="fa-solid fa-calculator text-indigo-500"></i>
                 <span>Ver Matriz Ponderada 3MAO (Multiplicada por Relación de Fuerza r_i y Ponderación)</span>
@@ -821,7 +877,7 @@
     <!-- ========================================== -->
     <section id="tab-alliances" class="tab-pane hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
+
         <!-- Interactive Network Canvas -->
         <div class="lg:col-span-8 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col space-y-3">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -831,13 +887,15 @@
                 <span>Grafo Interactivo de Alianzas y Conflictos (MACTOR Network)</span>
               </h3>
               <p class="text-xs text-slate-500">
-                Nodos = Actores (tamaño por fuerza r_i). Líneas Verdes = Alianzas (3CAA). Líneas Rojas = Conflictos (3DAA).
+                Nodos = Actores (tamaño por fuerza r_i). Líneas Verdes = Alianzas (3CAA). Líneas Rojas = Conflictos
+                (3DAA).
               </p>
             </div>
             <!-- Threshold filter -->
             <div class="flex items-center space-x-2 text-xs">
               <label for="network-filter-threshold" class="text-slate-600 font-medium">Umbral Mínimo:</label>
-              <input id="network-filter-threshold" type="range" min="0" max="30" value="1" step="1" class="w-20 cursor-pointer">
+              <input id="network-filter-threshold" type="range" min="0" max="30" value="1" step="1"
+                class="w-20 cursor-pointer">
               <span id="threshold-val" class="font-bold text-slate-800">1</span>
             </div>
           </div>
@@ -855,7 +913,8 @@
                 <span>Divergencia / Conflicto</span>
               </span>
             </div>
-            <button id="btn-reset-physics" class="text-blue-600 hover:text-blue-700 font-semibold text-xs flex items-center space-x-1">
+            <button id="btn-reset-physics"
+              class="text-blue-600 hover:text-blue-700 font-semibold text-xs flex items-center space-x-1">
               <i class="fa-solid fa-compress"></i>
               <span>Reorganizar Red</span>
             </button>
@@ -891,7 +950,7 @@
     <!-- ========================================== -->
     <section id="tab-trees" class="tab-pane hidden space-y-6">
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6">
-        
+
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <h3 class="font-bold text-base text-slate-800 flex items-center space-x-2">
@@ -899,18 +958,21 @@
               <span>Árboles Jerárquicos de Convergencia y Divergencia (Dendrogramas MACTOR)</span>
             </h3>
             <p class="text-xs text-slate-500 mt-1">
-              Clasificación jerárquica ascendente de Michel Godet (LIPSOR). Agrupa a los actores por afinidad mutua en sus objetivos y revela los bloques y coaliciones naturales del territorio.
+              Clasificación jerárquica ascendente de Michel Godet (LIPSOR). Agrupa a los actores por afinidad mutua en
+              sus objetivos y revela los bloques y coaliciones naturales del territorio.
             </p>
           </div>
 
           <!-- Tree Type Selector & Cut slider -->
           <div class="flex items-center space-x-3">
             <div class="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-50 text-xs font-semibold">
-              <button id="btn-tree-mode-conv" class="px-3 py-1.5 rounded-md bg-emerald-600 text-white shadow-xs transition-all flex items-center space-x-1.5">
+              <button id="btn-tree-mode-conv"
+                class="px-3 py-1.5 rounded-md bg-emerald-600 text-white shadow-xs transition-all flex items-center space-x-1.5">
                 <i class="fa-solid fa-handshake"></i>
                 <span>Árbol de Convergencia (Alianzas)</span>
               </button>
-              <button id="btn-tree-mode-div" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1.5">
+              <button id="btn-tree-mode-div"
+                class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1.5">
                 <i class="fa-solid fa-bolt"></i>
                 <span>Árbol de Divergencia (Conflictos)</span>
               </button>
@@ -919,10 +981,11 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
+
           <!-- Dendrogram SVG Visualizer -->
           <div class="lg:col-span-8 flex flex-col space-y-3">
-            <div class="flex items-center justify-between text-xs text-slate-500 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+            <div
+              class="flex items-center justify-between text-xs text-slate-500 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
               <span class="flex items-center space-x-2 font-medium">
                 <i class="fa-solid fa-ruler-horizontal text-emerald-600"></i>
                 <span>Eje Horizontal: Distancia Relativa / Nivel de Desacuerdo (a la izquierda = mayor afinidad)</span>
@@ -931,7 +994,8 @@
             </div>
 
             <!-- SVG Container -->
-            <div id="dendrogram-svg-container" class="w-full min-h-[460px] bg-gradient-to-r from-slate-50 to-white rounded-xl border border-slate-200 overflow-x-auto p-4 flex items-center justify-center">
+            <div id="dendrogram-svg-container"
+              class="w-full min-h-[460px] bg-gradient-to-r from-slate-50 to-white rounded-xl border border-slate-200 overflow-x-auto p-4 flex items-center justify-center">
               <!-- Rendered via JS -->
             </div>
           </div>
@@ -944,7 +1008,8 @@
                 <span>Bloques Estratégicos Detectados</span>
               </h4>
               <p class="text-[11px] text-slate-500">
-                Los actores que se fusionan en las ramas más tempranas del árbol comparten la mayor cantidad de objetivos con igual signo e intensidad.
+                Los actores que se fusionan en las ramas más tempranas del árbol comparten la mayor cantidad de
+                objetivos con igual signo e intensidad.
               </p>
               <div id="tree-coalitions-container" class="space-y-2 text-xs">
                 <!-- Dynamically populated -->
@@ -958,9 +1023,11 @@
                 <span>Interpretación del Árbol de Godet</span>
               </span>
               <p class="text-emerald-800/90 text-[11px] leading-relaxed">
-                * En el <b>Árbol de Convergencia</b>, una rama corta indica una <b>alianza natural</b> inmediata (objetivos comunes prioritarios).
+                * En el <b>Árbol de Convergencia</b>, una rama corta indica una <b>alianza natural</b> inmediata
+                (objetivos comunes prioritarios).
                 <br><br>
-                * Un actor que se une al árbol en la última rama representa un <b>actor periférico o aislado</b>, cuya agenda difiere de los bloques mayoritarios.
+                * Un actor que se une al árbol en la última rama representa un <b>actor periférico o aislado</b>, cuya
+                agenda difiere de los bloques mayoritarios.
               </p>
             </div>
           </div>
@@ -973,24 +1040,28 @@
     <section id="tab-mobilization" class="tab-pane hidden space-y-6">
 
       <!-- Direct Access to LIPSOR Balance Figures -->
-      <div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div
+        class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <div class="flex items-center space-x-3 text-indigo-900">
-          <span class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-base shadow-xs shrink-0">
+          <span
+            class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-base shadow-xs shrink-0">
             <i class="fa-solid fa-scale-balanced"></i>
           </span>
           <div>
             <h4 class="font-bold text-indigo-950 text-sm">Figuras Canónicas de Posición (Balanza LIPSOR MACTOR)</h4>
-            <p class="text-indigo-700 text-[11px]">Consulte la inclinación física de la balanza de actores a favor (+) versus oposición (-) para cada objetivo estratégico.</p>
+            <p class="text-indigo-700 text-[11px]">Consulte la inclinación física de la balanza de actores a favor (+)
+              versus oposición (-) para cada objetivo estratégico.</p>
           </div>
         </div>
-        <button onclick="document.querySelector('[data-tab=\'tab-mao\']').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg flex items-center space-x-1.5 shadow-xs transition-all shrink-0">
+        <button onclick="document.querySelector('[data-tab=\'tab-mao\']').click()"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg flex items-center space-x-1.5 shadow-xs transition-all shrink-0">
           <span>Abrir Balanzas LIPSOR</span>
           <i class="fa-solid fa-arrow-right text-xs"></i>
         </button>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
+
         <div class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
           <div class="border-b border-slate-100 pb-3">
             <h3 class="font-bold text-sm text-slate-800 flex items-center space-x-2">
@@ -1029,33 +1100,37 @@
             <span>Simulador de Escenarios "¿Qué pasa si...?" & Variantes Avanzadas</span>
           </h3>
           <p class="text-xs text-slate-500 mt-1">
-            Permite proyectar escenarios prospectivos alterando la fuerza de los actores o su postura ante objetivos clave, y contrastar la estabilidad de las coaliciones según la Teoría de Juegos.
+            Permite proyectar escenarios prospectivos alterando la fuerza de los actores o su postura ante objetivos
+            clave, y contrastar la estabilidad de las coaliciones según la Teoría de Juegos.
           </p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           <!-- Scenario Controls -->
           <div class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
             <h4 class="font-bold text-xs uppercase tracking-wider text-slate-700">Parámetros de Simulación</h4>
-            
+
             <div>
               <label class="text-[11px] font-semibold text-slate-600 block mb-1">Actor a Potenciar o Simular</label>
-              <select id="sim-actor-select" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <select id="sim-actor-select"
+                class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
                 <!-- Populated via JS -->
               </select>
             </div>
 
             <div>
               <label class="text-[11px] font-semibold text-slate-600 block mb-1">Objetivo a Modificar</label>
-              <select id="sim-objective-select" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <select id="sim-objective-select"
+                class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
                 <!-- Populated via JS -->
               </select>
             </div>
 
             <div>
               <label class="text-[11px] font-semibold text-slate-600 block mb-1">Nueva Postura en 2MAO</label>
-              <select id="sim-new-posture" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <select id="sim-new-posture"
+                class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
                 <option value="4">+4: Apoyo Vital / Existencial</option>
                 <option value="3">+3: Apoyo Prioritario</option>
                 <option value="2">+2: Apoyo Importante</option>
@@ -1068,7 +1143,8 @@
               </select>
             </div>
 
-            <button id="btn-run-sim" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center space-x-2 shadow transition-all">
+            <button id="btn-run-sim"
+              class="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center space-x-2 shadow transition-all">
               <i class="fa-solid fa-play"></i>
               <span>Ejecutar Simulación de Escenario</span>
             </button>
@@ -1076,16 +1152,19 @@
 
           <!-- Scenario Comparison Delta -->
           <div class="lg:col-span-2 space-y-4">
-            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-700">Impacto en la Jerarquía de Actores (Delta de Convergencia)</h4>
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-700">Impacto en la Jerarquía de Actores
+              (Delta de Convergencia)</h4>
             <div id="sim-delta-results" class="space-y-3">
               <div class="p-8 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-xl">
-                Seleccione parámetros y presione "Ejecutar Simulación" para ver el impacto comparativo frente al escenario base.
+                Seleccione parámetros y presione "Ejecutar Simulación" para ver el impacto comparativo frente al
+                escenario base.
               </div>
             </div>
 
             <!-- Coalitions Table -->
             <div class="pt-4 border-t border-slate-100">
-              <h4 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-2">Estabilidad de Alianzas (Teoría de Juegos)</h4>
+              <h4 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-2">Estabilidad de Alianzas (Teoría
+                de Juegos)</h4>
               <div class="overflow-x-auto" id="coalitions-table-container"></div>
             </div>
           </div>
@@ -1099,19 +1178,22 @@
     <!-- ========================================== -->
     <section id="tab-report" class="tab-pane hidden space-y-6">
       <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 space-y-6">
-        
+
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
           <div>
             <span class="text-xs font-bold text-blue-600 uppercase tracking-widest">Documento Prospectivo Oficial</span>
             <h3 class="text-xl font-bold text-slate-900 mt-1">Informe de Estrategia Territorial & Matriz MACTOR</h3>
-            <p class="text-xs text-slate-500 mt-1">Metodología Michel Godet (LIPSOR) & Variante Multi-criterio SoftProsp</p>
+            <p class="text-xs text-slate-500 mt-1">Metodología Michel Godet (LIPSOR) & Variante Multi-criterio SoftProsp
+            </p>
           </div>
           <div class="flex items-center space-x-3 no-print">
-            <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 shadow transition-all">
+            <button onclick="window.print()"
+              class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 shadow transition-all">
               <i class="fa-solid fa-print"></i>
               <span>Imprimir / Guardar PDF</span>
             </button>
-            <button id="btn-export-excel-2" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 shadow transition-all">
+            <button id="btn-export-excel-2"
+              class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 shadow transition-all">
               <i class="fa-solid fa-file-excel"></i>
               <span>Exportar Excel Completo</span>
             </button>
@@ -1130,17 +1212,21 @@
   <!-- ========================================== -->
   <!-- MODAL: Ficha Técnica Detallada de Actor    -->
   <!-- ========================================== -->
-  <div id="modal-actor-details" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+  <div id="modal-actor-details"
+    class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div
+      class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
         <div class="flex items-center space-x-3">
-          <div id="modal-actor-badge" class="w-9 h-9 rounded-lg bg-blue-600 font-bold flex items-center justify-center text-sm">A1</div>
+          <div id="modal-actor-badge"
+            class="w-9 h-9 rounded-lg bg-blue-600 font-bold flex items-center justify-center text-sm">A1</div>
           <div>
             <h3 id="modal-actor-name" class="font-bold text-base leading-tight">Nombre del Actor</h3>
             <span id="modal-actor-category" class="text-xs text-blue-300 font-medium">Categoría Institucional</span>
           </div>
         </div>
-        <button id="btn-close-actor-modal" class="text-slate-400 hover:text-white text-lg p-1.5 rounded-lg hover:bg-slate-800 transition-all">
+        <button id="btn-close-actor-modal"
+          class="text-slate-400 hover:text-white text-lg p-1.5 rounded-lg hover:bg-slate-800 transition-all">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -1149,11 +1235,13 @@
         <!-- Role and Power -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Rol Institucional en el Territorio</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Rol Institucional en el
+              Territorio</span>
             <p id="modal-actor-role" class="text-slate-800 font-medium leading-relaxed"></p>
           </div>
           <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-xl space-y-1">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Nivel de Poder & Veto (Escala Godet 0-4)</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Nivel de Poder & Veto (Escala
+              Godet 0-4)</span>
             <p id="modal-actor-power-desc" class="text-blue-900 font-semibold"></p>
           </div>
         </div>
@@ -1178,7 +1266,8 @@
 
         <!-- Postures and Rationales Table -->
         <div class="space-y-2">
-          <span class="font-bold uppercase tracking-wider text-slate-800 block text-xs">Posturas Específicas y Justificación por Objetivo Territorial</span>
+          <span class="font-bold uppercase tracking-wider text-slate-800 block text-xs">Posturas Específicas y
+            Justificación por Objetivo Territorial</span>
           <div class="overflow-x-auto border border-slate-200 rounded-xl">
             <table class="w-full text-xs">
               <thead class="bg-slate-100 text-slate-700 font-bold">
@@ -1195,7 +1284,8 @@
 
         <!-- Evidence and Source -->
         <div class="p-3.5 bg-slate-100 rounded-xl space-y-1">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Evidencia de Prensa / Fuente Oficial</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Evidencia de Prensa / Fuente
+            Oficial</span>
           <p id="modal-actor-evidence" class="text-slate-800 italic"></p>
           <div id="modal-actor-link-container" class="pt-1"></div>
         </div>
@@ -1206,8 +1296,10 @@
   <!-- ========================================== -->
   <!-- MODAL: Guía Metodológica de Variantes      -->
   <!-- ========================================== -->
-  <div id="modal-method-guide" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+  <div id="modal-method-guide"
+    class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div
+      class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
       <div class="px-6 py-4 bg-indigo-900 text-white flex items-center justify-between border-b border-indigo-800">
         <div class="flex items-center space-x-3">
           <div class="w-9 h-9 rounded-lg bg-indigo-600 font-bold flex items-center justify-center text-white">
@@ -1215,80 +1307,106 @@
           </div>
           <div>
             <h3 class="font-bold text-base leading-tight">Guía Metodológica MACTOR & Comparativa de Variantes</h3>
-            <span class="text-xs text-indigo-300 font-medium">Fundamentos del Modelo de Michel Godet (LIPSOR) y Extensiones Avanzadas</span>
+            <span class="text-xs text-indigo-300 font-medium">Fundamentos del Modelo de Michel Godet (LIPSOR) y
+              Extensiones Avanzadas</span>
           </div>
         </div>
-        <button id="btn-close-method-modal" class="text-indigo-300 hover:text-white text-lg p-1.5 rounded-lg hover:bg-indigo-800 transition-all">
+        <button id="btn-close-method-modal"
+          class="text-indigo-300 hover:text-white text-lg p-1.5 rounded-lg hover:bg-indigo-800 transition-all">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <div class="p-6 overflow-y-auto space-y-6 text-xs text-slate-700 leading-relaxed">
-        
+
         <!-- Introduction -->
         <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-xl space-y-2">
           <h4 class="font-bold text-sm text-indigo-950">¿Qué es el Método MACTOR y para qué sirve?</h4>
           <p>
-            <b>MACTOR</b> (<i>Matriz de Alianzas y Conflictos: Tácticas, Objetivos y Recomendaciones</i>) fue formulado por <b>Michel Godet</b> en el Laboratorio LIPSOR de París. Su propósito fundamental es <b>modelar las relaciones de fuerza y el juego de poderes</b> entre los actores sociales, económicos y políticos que deciden el futuro de un territorio o proyecto, anticipando alianzas estratégicas probables y conflictos latentes antes de que estallen.
+            <b>MACTOR</b> (<i>Matriz de Alianzas y Conflictos: Tácticas, Objetivos y Recomendaciones</i>) fue formulado
+            por <b>Michel Godet</b> en el Laboratorio LIPSOR de París. Su propósito fundamental es <b>modelar las
+              relaciones de fuerza y el juego de poderes</b> entre los actores sociales, económicos y políticos que
+            deciden el futuro de un territorio o proyecto, anticipando alianzas estratégicas probables y conflictos
+            latentes antes de que estallen.
           </p>
         </div>
 
         <!-- 4 Methods Comparison Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
+
           <!-- Method 1: Clásico Godet -->
-          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 hover:border-blue-400 transition-all">
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 hover:border-blue-400 transition-all">
             <div class="flex items-center space-x-2">
-              <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px]">1</span>
+              <span
+                class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px]">1</span>
               <h5 class="font-bold text-slate-900">Método Clásico LIPSOR (Michel Godet)</h5>
             </div>
             <p>
-              <b>¿Qué significa usarlo?</b> Trata todos los objetivos territoriales con el mismo peso algebraico y se enfoca estrictamente en la <b>Relación de Fuerza ($r_i$)</b> calculada a partir de las influencias directas e indirectas de segundo orden (matriz MIDI).
+              <b>¿Qué significa usarlo?</b> Trata todos los objetivos territoriales con el mismo peso algebraico y se
+              enfoca estrictamente en la <b>Relación de Fuerza ($r_i$)</b> calculada a partir de las influencias
+              directas e indirectas de segundo orden (matriz MIDI).
             </p>
             <p class="text-slate-500 text-[11px]">
-              <b>¿Cuándo usarlo?</b> En diagnósticos geopolíticos puros o corporativos donde no hay una entidad rectora que imponga prioridades superiores y todos los objetivos compiten en igualdad de condiciones.
+              <b>¿Cuándo usarlo?</b> En diagnósticos geopolíticos puros o corporativos donde no hay una entidad rectora
+              que imponga prioridades superiores y todos los objetivos compiten en igualdad de condiciones.
             </p>
           </div>
 
           <!-- Method 2: SoftProsp / Multi-criterio -->
-          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 hover:border-emerald-400 transition-all">
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 hover:border-emerald-400 transition-all">
             <div class="flex items-center space-x-2">
-              <span class="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-[10px]">2</span>
+              <span
+                class="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-[10px]">2</span>
               <h5 class="font-bold text-slate-900">Variante Multi-criterio / SoftProsp (Manual Adjunto)</h5>
             </div>
             <p>
-              <b>¿Qué significa usarlo?</b> Asigna <b>pesos porcentuales diferenciados ($W_j$)</b> a los objetivos. En el manual del caballo de paso (Villabona et al., 2018), el Fenotipo pesa 25%, el Adiestramiento 25% y los Movimientos 50%. La convergencia $3CAA$ pondera tanto la fuerza del actor como el peso del objetivo.
+              <b>¿Qué significa usarlo?</b> Asigna <b>pesos porcentuales diferenciados ($W_j$)</b> a los objetivos. En
+              el manual del caballo de paso (Villabona et al., 2018), el Fenotipo pesa 25%, el Adiestramiento 25% y los
+              Movimientos 50%. La convergencia $3CAA$ pondera tanto la fuerza del actor como el peso del objetivo.
             </p>
             <p class="text-slate-500 text-[11px]">
-              <b>¿Cuándo usarlo?</b> En planificación territorial regida por Planes de Desarrollo (POT) o licitaciones públicas donde ciertas metas (ej. agua potable o empleo) tienen mayor prioridad legal o técnica que otras.
+              <b>¿Cuándo usarlo?</b> En planificación territorial regida por Planes de Desarrollo (POT) o licitaciones
+              públicas donde ciertas metas (ej. agua potable o empleo) tienen mayor prioridad legal o técnica que otras.
             </p>
           </div>
 
           <!-- Method 3: Difusa / Intervalar -->
-          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 hover:border-amber-400 transition-all">
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 hover:border-amber-400 transition-all">
             <div class="flex items-center space-x-2">
-              <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-[10px]">3</span>
+              <span
+                class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-[10px]">3</span>
               <h5 class="font-bold text-slate-900">Variante Difusa / Incertidumbre Geopolítica</h5>
             </div>
             <p>
-              <b>¿Qué significa usarlo?</b> Modela la <b>ambigüedad e información incompleta</b> de las noticias y fuentes orales mediante funciones de pertenencia difusa (Fuzzy Logic). Evalúa si las alianzas son robustas o si colapsan ante pequeñas fluctuaciones en las posturas.
+              <b>¿Qué significa usarlo?</b> Modela la <b>ambigüedad e información incompleta</b> de las noticias y
+              fuentes orales mediante funciones de pertenencia difusa (Fuzzy Logic). Evalúa si las alianzas son robustas
+              o si colapsan ante pequeñas fluctuaciones en las posturas.
             </p>
             <p class="text-slate-500 text-[11px]">
-              <b>¿Cuándo usarlo?</b> En territorios con alta volatilidad política, regiones en conflicto armado o entornos donde los actores cambian frecuentemente de discurso público.
+              <b>¿Cuándo usarlo?</b> En territorios con alta volatilidad política, regiones en conflicto armado o
+              entornos donde los actores cambian frecuentemente de discurso público.
             </p>
           </div>
 
           <!-- Method 4: Teoría de Juegos -->
-          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 hover:border-purple-400 transition-all">
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 hover:border-purple-400 transition-all">
             <div class="flex items-center space-x-2">
-              <span class="w-6 h-6 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-[10px]">4</span>
+              <span
+                class="w-6 h-6 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-[10px]">4</span>
               <h5 class="font-bold text-slate-900">Variante de Teoría de Juegos y Coaliciones</h5>
             </div>
             <p>
-              <b>¿Qué significa usarlo?</b> Calcula el <b>Balance de Afinidad Neta ($3CAA - 3DAA$)</b> para cada par de actores. Determina si una alianza es "Muy Estable" (sin divergencias), una "Alianza Táctica" (frágil con intereses contrapuestos) o un "Frente de Oposición".
+              <b>¿Qué significa usarlo?</b> Calcula el <b>Balance de Afinidad Neta ($3CAA - 3DAA$)</b> para cada par de
+              actores. Determina si una alianza es "Muy Estable" (sin divergencias), una "Alianza Táctica" (frágil con
+              intereses contrapuestos) o un "Frente de Oposición".
             </p>
             <p class="text-slate-500 text-[11px]">
-              <b>¿Cuándo usarlo?</b> Para negociaciones complejas, mesas de concertación socioterritorial y prevención de polarización comunitaria.
+              <b>¿Cuándo usarlo?</b> Para negociaciones complejas, mesas de concertación socioterritorial y prevención
+              de polarización comunitaria.
             </p>
           </div>
 
@@ -1299,13 +1417,17 @@
           <h4 class="font-bold text-sm text-slate-900">Glosario Operativo de Matrices MACTOR</h4>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
             <div class="p-2.5 bg-slate-100 rounded-lg">
-              <b class="text-blue-800">MID (Matriz Influencia Directa):</b> Evalúa en escala 0-4 el grado de subordinación o poder de un actor sobre otro (0: Nulo, 1: Procesos, 2: Proyectos, 3: Misiones, 4: Supervivencia/Veto).
+              <b class="text-blue-800">MID (Matriz Influencia Directa):</b> Evalúa en escala 0-4 el grado de
+              subordinación o poder de un actor sobre otro (0: Nulo, 1: Procesos, 2: Proyectos, 3: Misiones, 4:
+              Supervivencia/Veto).
             </div>
             <div class="p-2.5 bg-slate-100 rounded-lg">
-              <b class="text-indigo-800">2MAO (Matriz Valorada Posición):</b> Intensidad de apoyo (+1 a +4) o rechazo (-1 a -4) que cada actor profesa hacia cada objetivo. 0 indica neutralidad.
+              <b class="text-indigo-800">2MAO (Matriz Valorada Posición):</b> Intensidad de apoyo (+1 a +4) o rechazo
+              (-1 a -4) que cada actor profesa hacia cada objetivo. 0 indica neutralidad.
             </div>
             <div class="p-2.5 bg-slate-100 rounded-lg">
-              <b class="text-emerald-800">3CAA / 3DAA (Convergencias / Divergencias):</b> Grado en que dos actores luchan juntos por los mismos objetivos (alianzas) o compiten en bandos opuestos (conflictos).
+              <b class="text-emerald-800">3CAA / 3DAA (Convergencias / Divergencias):</b> Grado en que dos actores
+              luchan juntos por los mismos objetivos (alianzas) o compiten en bandos opuestos (conflictos).
             </div>
           </div>
         </div>
@@ -1317,60 +1439,83 @@
   <!-- ============================================================== -->
   <!-- MODAL POPUP: DETALLE DE INTERPRETACIÓN DE LOS 4 MÉTODOS MACTOR -->
   <!-- ============================================================== -->
-  <div id="modal-method-interpretation" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-      
+  <div id="modal-method-interpretation"
+    class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div
+      class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+
       <!-- Modal Header -->
-      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+      <div
+        class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
             <i class="fa-solid fa-calculator text-lg"></i>
           </div>
           <div>
             <h3 class="font-bold text-base leading-tight">Guía de Interpretación: 4 Métodos de Cálculo MACTOR</h3>
-            <span class="text-xs text-slate-400">Jerarquía analítica: Del método prospectivo clásico de Michel Godet a extensiones avanzadas</span>
+            <span class="text-xs text-slate-400">Jerarquía analítica: Del método prospectivo clásico de Michel Godet a
+              extensiones avanzadas</span>
           </div>
         </div>
-        <button id="btn-close-interpretation-modal" class="text-slate-400 hover:text-white text-lg p-1.5 rounded-lg hover:bg-slate-800 transition-all">
+        <button id="btn-close-interpretation-modal"
+          class="text-slate-400 hover:text-white text-lg p-1.5 rounded-lg hover:bg-slate-800 transition-all">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <!-- Navigation Tabs inside the Modal -->
       <div class="bg-slate-100 border-b border-slate-200 px-6 pt-2 flex space-x-2 overflow-x-auto text-xs shrink-0">
-        <button class="modal-tab-btn py-2.5 px-3.5 border-b-2 font-bold text-blue-700 border-blue-600 transition-all flex items-center space-x-1.5 active" data-interp-tab="interp-lipsor">
-          <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center text-[10px]">1</span>
+        <button
+          class="modal-tab-btn py-2.5 px-3.5 border-b-2 font-bold text-blue-700 border-blue-600 transition-all flex items-center space-x-1.5 active"
+          data-interp-tab="interp-lipsor">
+          <span
+            class="w-4 h-4 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center text-[10px]">1</span>
           <span>1. Godet Clásico (LIPSOR Base)</span>
         </button>
-        <button class="modal-tab-btn py-2.5 px-3.5 border-b-2 font-semibold text-slate-600 border-transparent hover:text-slate-900 transition-all flex items-center space-x-1.5" data-interp-tab="interp-softprosp">
-          <span class="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">2</span>
+        <button
+          class="modal-tab-btn py-2.5 px-3.5 border-b-2 font-semibold text-slate-600 border-transparent hover:text-slate-900 transition-all flex items-center space-x-1.5"
+          data-interp-tab="interp-softprosp">
+          <span
+            class="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">2</span>
           <span>2. SoftProsp (Manual Adjunto)</span>
         </button>
-        <button class="modal-tab-btn py-2.5 px-3.5 border-b-2 font-semibold text-slate-600 border-transparent hover:text-slate-900 transition-all flex items-center space-x-1.5" data-interp-tab="interp-fuzzy">
-          <span class="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px]">3</span>
+        <button
+          class="modal-tab-btn py-2.5 px-3.5 border-b-2 font-semibold text-slate-600 border-transparent hover:text-slate-900 transition-all flex items-center space-x-1.5"
+          data-interp-tab="interp-fuzzy">
+          <span
+            class="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px]">3</span>
           <span>3. Variante Difusa (Fuzzy)</span>
         </button>
-        <button class="modal-tab-btn py-2.5 px-3.5 border-b-2 font-semibold text-slate-600 border-transparent hover:text-slate-900 transition-all flex items-center space-x-1.5" data-interp-tab="interp-game-theory">
-          <span class="w-4 h-4 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px]">4</span>
+        <button
+          class="modal-tab-btn py-2.5 px-3.5 border-b-2 font-semibold text-slate-600 border-transparent hover:text-slate-900 transition-all flex items-center space-x-1.5"
+          data-interp-tab="interp-game-theory">
+          <span
+            class="w-4 h-4 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px]">4</span>
           <span>4. Teoría de Juegos</span>
         </button>
       </div>
 
       <!-- Modal Body (Content per method) -->
       <div class="p-6 overflow-y-auto space-y-6 text-xs text-slate-700 leading-relaxed flex-grow">
-        
+
         <!-- ============================================== -->
         <!-- TAB 1: GODET CLÁSICO (LIPSOR) - MÉTODO BASE    -->
         <!-- ============================================== -->
         <div id="interp-lipsor" class="interp-tab-pane space-y-4">
           <div class="p-4 bg-slate-50 border-l-4 border-slate-700 rounded-r-xl space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Método 1 &bull; Modelo Clásico Internacional</span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-800">Básico / Fundacional</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Método 1 &bull; Modelo Clásico
+                Internacional</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-800">Básico /
+                Fundacional</span>
             </div>
-            <h4 class="font-bold text-sm text-slate-900">Método Clásico MACTOR de Michel Godet (Laboratorio LIPSOR, París)</h4>
+            <h4 class="font-bold text-sm text-slate-900">Método Clásico MACTOR de Michel Godet (Laboratorio LIPSOR,
+              París)</h4>
             <p class="text-slate-600">
-              Es el punto de partida y la formulación fundacional de la prospectiva estratégica mundial (Godet & Durance, 2007/2009). Asume que <b>todos los objetivos territoriales compiten con igual peso intrínseco ($W_j = 1$)</b>. La dinámica del sistema depende de la correlación de fuerzas puras y de la capacidad de influencia de unos actores sobre otros.
+              Es el punto de partida y la formulación fundacional de la prospectiva estratégica mundial (Godet &
+              Durance, 2007/2009). Asume que <b>todos los objetivos territoriales compiten con igual peso intrínseco
+                ($W_j = 1$)</b>. La dinámica del sistema depende de la correlación de fuerzas puras y de la capacidad de
+              influencia de unos actores sobre otros.
             </p>
           </div>
 
@@ -1382,9 +1527,12 @@
               </h5>
               <ul class="space-y-1.5 text-[11px] text-blue-950">
                 <li>&bull; <b>Matriz MID ($N \times N$):</b> Influencias directas escala 0 a 4.</li>
-                <li>&bull; <b>Matriz MIDI:</b> $MIDI = MID + \frac{MID \times MID}{\text{Norma}}$, incluye intermediarios o poderes indirectos de 2° orden.</li>
-                <li>&bull; <b>Relación de Fuerza ($r_i$):</b> $r_i = \frac{I_i^*}{\sum I^*} \times \frac{I_i^*}{I_i^* + D_i^*}$ normalizado para que el promedio sea 1.0.</li>
-                <li>&bull; <b>Convergencia $3CAA_{ik}$</b>: Ponderada únicamente por la fuerza $r_i$ y $r_k$ de los actores frente al acuerdo en los objetivos.</li>
+                <li>&bull; <b>Matriz MIDI:</b> $MIDI = MID + \frac{MID \times MID}{\text{Norma}}$, incluye
+                  intermediarios o poderes indirectos de 2° orden.</li>
+                <li>&bull; <b>Relación de Fuerza ($r_i$):</b> $r_i = \frac{I_i^*}{\sum I^*} \times \frac{I_i^*}{I_i^* +
+                  D_i^*}$ normalizado para que el promedio sea 1.0.</li>
+                <li>&bull; <b>Convergencia $3CAA_{ik}$</b>: Ponderada únicamente por la fuerza $r_i$ y $r_k$ de los
+                  actores frente al acuerdo en los objetivos.</li>
               </ul>
             </div>
 
@@ -1394,16 +1542,23 @@
                 <span>¿Cómo interpretar los resultados de este método?</span>
               </h5>
               <ul class="space-y-1.5 text-[11px] text-emerald-950">
-                <li>&bull; <b>Actor Ganador:</b> Aquel que tiene la mayor suma de convergencia en $3CAA$. En el método básico, significa que es el <b>actor con mayor capacidad de aglutinar poder</b> sin importar qué objetivo específico se debata.</li>
-                <li>&bull; <b>Cuadrante Dominante:</b> Actores con alta influencia ($I_i$) y baja dependencia ($D_i$) controlan el juego; sus decisiones arrastran al resto.</li>
-                <li>&bull; <b>Límite del método:</b> No distingue si un objetivo es reglamentariamente más urgente que otro (ej. el agua potable pesa igual que una ciclorruta).</li>
+                <li>&bull; <b>Actor Ganador:</b> Aquel que tiene la mayor suma de convergencia en $3CAA$. En el método
+                  básico, significa que es el <b>actor con mayor capacidad de aglutinar poder</b> sin importar qué
+                  objetivo específico se debata.</li>
+                <li>&bull; <b>Cuadrante Dominante:</b> Actores con alta influencia ($I_i$) y baja dependencia ($D_i$)
+                  controlan el juego; sus decisiones arrastran al resto.</li>
+                <li>&bull; <b>Límite del método:</b> No distingue si un objetivo es reglamentariamente más urgente que
+                  otro (ej. el agua potable pesa igual que una ciclorruta).</li>
               </ul>
             </div>
           </div>
 
           <div class="p-3 bg-slate-100 rounded-xl flex items-center justify-between text-xs">
-            <span class="text-slate-600 font-medium">¿Cuándo usarlo? Diagnósticos geopolíticos macro o exploraciones donde no exista una jerarquía legal de objetivos.</span>
-            <button class="btn-activate-method bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-lg transition-all" data-target-method="lipsor_standard">
+            <span class="text-slate-600 font-medium">¿Cuándo usarlo? Diagnósticos geopolíticos macro o exploraciones
+              donde no exista una jerarquía legal de objetivos.</span>
+            <button
+              class="btn-activate-method bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-lg transition-all"
+              data-target-method="lipsor_standard">
               Calcular con Godet Clásico
             </button>
           </div>
@@ -1415,12 +1570,17 @@
         <div id="interp-softprosp" class="interp-tab-pane hidden space-y-4">
           <div class="p-4 bg-blue-50 border-l-4 border-blue-600 rounded-r-xl space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Método 2 &bull; Referencia del Manual Adjunto</span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-600 text-white">Manual Villabona et al. (2018)</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Método 2 &bull; Referencia del
+                Manual Adjunto</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-600 text-white">Manual Villabona et al.
+                (2018)</span>
             </div>
             <h4 class="font-bold text-sm text-blue-950">Variante SoftProsp / Multi-criterio Ponderado</h4>
             <p class="text-blue-900/90">
-              Es la metodología exacta empleada en el artículo de investigación adjunto (<i>"Aplicación de la técnica MACTOR para la selección del caballo ganador en una competencia de paso"</i>, Revista AGLALA, 2018; Martelo, Moncaris & Vélez, 2016). Rompe el supuesto de igualdad entre objetivos e introduce <b>ponderaciones porcentuales específicas ($W_j$, donde $\sum W_j = 100\%$)</b>.
+              Es la metodología exacta empleada en el artículo de investigación adjunto (<i>"Aplicación de la técnica
+                MACTOR para la selección del caballo ganador en una competencia de paso"</i>, Revista AGLALA, 2018;
+              Martelo, Moncaris & Vélez, 2016). Rompe el supuesto de igualdad entre objetivos e introduce
+              <b>ponderaciones porcentuales específicas ($W_j$, donde $\sum W_j = 100\%$)</b>.
             </p>
           </div>
 
@@ -1436,7 +1596,8 @@
                 <br>&bull; <b>Adiestramiento (ADI):</b> 25% de la nota final.
                 <br>&bull; <b>Movimientos (MOV):</b> 50% de la nota final (fase reina).
                 <br>
-                En la matriz 2MAO, <b>Carolina de Querencia Sinuana (CQ)</b> obtuvo la máxima calificación en Movimientos (4) y Fenotipo (4).
+                En la matriz 2MAO, <b>Carolina de Querencia Sinuana (CQ)</b> obtuvo la máxima calificación en
+                Movimientos (4) y Fenotipo (4).
               </p>
             </div>
 
@@ -1446,19 +1607,24 @@
                 <span>¿Cómo interpretar el resultado (Figura 3 del Manual)?</span>
               </h5>
               <p class="text-[11px] text-emerald-950 leading-relaxed">
-                Al multiplicar el acuerdo por el peso del objetivo ($W_j$) y la fuerza ($r_i$), se obtiene la matriz <b>3CAA</b>:
+                Al multiplicar el acuerdo por el peso del objetivo ($W_j$) y la fuerza ($r_i$), se obtiene la matriz
+                <b>3CAA</b>:
                 <br>&bull; <b>CQ (Carolina):</b> Convergencia total de <b>50.6 puntos</b> (Ganadora indiscutible).
                 <br>&bull; <b>CB (Candela):</b> 32.9 puntos (Segundo puesto).
                 <br>&bull; <b>DQ (Dinastía):</b> 23.0 puntos | <b>ME (María Espejo):</b> 21.4 puntos.
                 <br>
-                <b>Regla de Interpretación:</b> Gana quien domina los objetivos con mayor peso, eliminando el sesgo o confabulación de jueces.
+                <b>Regla de Interpretación:</b> Gana quien domina los objetivos con mayor peso, eliminando el sesgo o
+                confabulación de jueces.
               </p>
             </div>
           </div>
 
           <div class="p-3 bg-blue-100/60 rounded-xl flex items-center justify-between text-xs">
-            <span class="text-blue-900 font-medium">¿Cuándo usarlo? Planes de Desarrollo Territorial (POT), licitaciones y proyectos donde existan metas legales priorizadas.</span>
-            <button class="btn-activate-method bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all" data-target-method="softprosp">
+            <span class="text-blue-900 font-medium">¿Cuándo usarlo? Planes de Desarrollo Territorial (POT), licitaciones
+              y proyectos donde existan metas legales priorizadas.</span>
+            <button
+              class="btn-activate-method bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all"
+              data-target-method="softprosp">
               Calcular con SoftProsp (Manual)
             </button>
           </div>
@@ -1470,12 +1636,16 @@
         <div id="interp-fuzzy" class="interp-tab-pane hidden space-y-4">
           <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-xl space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Método 3 &bull; Incertidumbre & Fuentes Contradictorias</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Método 3 &bull; Incertidumbre
+                & Fuentes Contradictorias</span>
               <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500 text-white">Fuzzy MACTOR</span>
             </div>
             <h4 class="font-bold text-sm text-amber-950">Variante Difusa / Intervalar (Fuzzy Sets Theory)</h4>
             <p class="text-amber-900/90">
-              En entornos de noticias dinámicas y redes sociales, las posturas de los actores no son números enteros rígidos. Los políticos y gremios cambian de discurso y las noticias expresan matices ambiguos. Esta variante sustituye valores escalares por <b>intervalos difusos $[\min, \text{modal}, \max]$</b> para medir la <b>robustez de las alianzas</b> ante la volatilidad de la opinión pública.
+              En entornos de noticias dinámicas y redes sociales, las posturas de los actores no son números enteros
+              rígidos. Los políticos y gremios cambian de discurso y las noticias expresan matices ambiguos. Esta
+              variante sustituye valores escalares por <b>intervalos difusos $[\min, \text{modal}, \max]$</b> para medir
+              la <b>robustez de las alianzas</b> ante la volatilidad de la opinión pública.
             </p>
           </div>
 
@@ -1486,7 +1656,9 @@
                 <span>Tratamiento de la Incertidumbre en Redes Sociales</span>
               </h5>
               <p class="text-[11px] text-slate-600 leading-relaxed">
-                Si un alcalde declara en televisión apoyo irrestricto (+4) a una obra, pero en redes sociales los líderes comunitarios denuncian incumplimientos, la postura se modela como el intervalo $[+2, +4]$. El motor calcula la convergencia pesimista y optimista.
+                Si un alcalde declara en televisión apoyo irrestricto (+4) a una obra, pero en redes sociales los
+                líderes comunitarios denuncian incumplimientos, la postura se modela como el intervalo $[+2, +4]$. El
+                motor calcula la convergencia pesimista y optimista.
               </p>
             </div>
 
@@ -1496,15 +1668,20 @@
                 <span>¿Cómo interpretar el Índice de Robustez?</span>
               </h5>
               <ul class="space-y-1 text-[11px] text-amber-950">
-                <li>&bull; <b>Robustez > 0.75:</b> Alianza sólida e inmune a las noticias falsas o cambios de discurso.</li>
-                <li>&bull; <b>Robustez < 0.45:</b> Alianza altamente frágil; cualquier fricción en redes sociales puede detonar la ruptura de la coalición.</li>
+                <li>&bull; <b>Robustez > 0.75:</b> Alianza sólida e inmune a las noticias falsas o cambios de discurso.
+                </li>
+                <li>&bull; <b>Robustez < 0.45:</b> Alianza altamente frágil; cualquier fricción en redes sociales puede
+                      detonar la ruptura de la coalición.</li>
               </ul>
             </div>
           </div>
 
           <div class="p-3 bg-amber-100/60 rounded-xl flex items-center justify-between text-xs">
-            <span class="text-amber-900 font-medium">¿Cuándo usarlo? Territorios en conflicto sociopolítico, periodos preelectorales o debates con alta desinformación en redes.</span>
-            <button class="btn-activate-method bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all" data-target-method="fuzzy">
+            <span class="text-amber-900 font-medium">¿Cuándo usarlo? Territorios en conflicto sociopolítico, periodos
+              preelectorales o debates con alta desinformación en redes.</span>
+            <button
+              class="btn-activate-method bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all"
+              data-target-method="fuzzy">
               Calcular con Variante Difusa
             </button>
           </div>
@@ -1516,12 +1693,16 @@
         <div id="interp-game-theory" class="interp-tab-pane hidden space-y-4">
           <div class="p-4 bg-purple-50 border-l-4 border-purple-600 rounded-r-xl space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-purple-700">Método 4 &bull; Análisis Estratégico de Coaliciones</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-purple-700">Método 4 &bull; Análisis
+                Estratégico de Coaliciones</span>
               <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-600 text-white">Game Theory MACTOR</span>
             </div>
-            <h4 class="font-bold text-sm text-purple-950">Variante de Teoría de Juegos: Estabilidad y Veto de Coaliciones</h4>
+            <h4 class="font-bold text-sm text-purple-950">Variante de Teoría de Juegos: Estabilidad y Veto de
+              Coaliciones</h4>
             <p class="text-purple-900/90">
-              Basada en los conceptos de equilibrios cooperativos (Von Neumann, Nash, Shapley). Evalúa el <b>riesgo de ruptura o traición</b> cruzando simultáneamente las matrices de convergencia ($3CAA$, alianzas) con las de divergencia ($3DAA$, conflictos).
+              Basada en los conceptos de equilibrios cooperativos (Von Neumann, Nash, Shapley). Evalúa el <b>riesgo de
+                ruptura o traición</b> cruzando simultáneamente las matrices de convergencia ($3CAA$, alianzas) con las
+              de divergencia ($3DAA$, conflictos).
             </p>
           </div>
 
@@ -1533,7 +1714,9 @@
               </h5>
               <p class="text-[11px] text-slate-600 leading-relaxed">
                 $$AN_{ik} = 3CAA_{ik} - 3DAA_{ik}$$
-                Dos actores pueden coincidir en 3 objetivos de infraestructura (alto $3CAA$), pero tener una oposición encarnizada en la protección de un páramo (alto $3DAA$). La afinidad neta revela si el pacto es viable en la práctica.
+                Dos actores pueden coincidir en 3 objetivos de infraestructura (alto $3CAA$), pero tener una oposición
+                encarnizada en la protección de un páramo (alto $3DAA$). La afinidad neta revela si el pacto es viable
+                en la práctica.
               </p>
             </div>
 
@@ -1544,16 +1727,21 @@
               </h5>
               <ul class="space-y-1 text-[11px] text-purple-950">
                 <li>&bull; <b>Muy Estable ($3DAA=0$):</b> Sin discrepancias. Alianza natural duradera.</li>
-                <li>&bull; <b>Alianza Táctica ($AN > 0$):</b> Conveniencia coyuntural. Requiere supervisión porque existen desacuerdos secundarios.</li>
+                <li>&bull; <b>Alianza Táctica ($AN > 0$):</b> Conveniencia coyuntural. Requiere supervisión porque
+                  existen desacuerdos secundarios.</li>
                 <li>&bull; <b>Tensión Latente ($AN \approx 0$):</b> Empate inestable.</li>
-                <li>&bull; <b>Conflicto Severo ($AN < -5$):</b> Enemistad estratégica abierta. Bloques opuestos irreconciliables.</li>
+                <li>&bull; <b>Conflicto Severo ($AN < -5$):</b> Enemistad estratégica abierta. Bloques opuestos
+                      irreconciliables.</li>
               </ul>
             </div>
           </div>
 
           <div class="p-3 bg-purple-100/60 rounded-xl flex items-center justify-between text-xs">
-            <span class="text-purple-900 font-medium">¿Cuándo usarlo? Mesas de concertación territorial, mediación de paros y diseño de acuerdos políticos viables.</span>
-            <button class="btn-activate-method bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all" data-target-method="game_theory">
+            <span class="text-purple-900 font-medium">¿Cuándo usarlo? Mesas de concertación territorial, mediación de
+              paros y diseño de acuerdos políticos viables.</span>
+            <button
+              class="btn-activate-method bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all"
+              data-target-method="game_theory">
               Calcular con Teoría de Juegos
             </button>
           </div>
@@ -1562,9 +1750,11 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 shrink-0">
+      <div
+        class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 shrink-0">
         <span>Puede alternar entre cualquiera de los 4 métodos en tiempo real sin perder datos cargados.</span>
-        <button id="btn-modal-close-footer" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-1.5 rounded-lg transition-all">
+        <button id="btn-modal-close-footer"
+          class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-1.5 rounded-lg transition-all">
           Cerrar Guía
         </button>
       </div>
@@ -1575,8 +1765,9 @@
   <!-- ============================================================== -->
   <!-- VENTANA FLOTANTE AL FINAL: MONITOREO DE BÚSQUEDA DE NOTICIAS   -->
   <!-- ============================================================== -->
-  <div id="live-search-dock" class="fixed bottom-4 right-4 max-w-xl w-full z-40 hidden shadow-2xl rounded-2xl overflow-hidden border border-slate-700 bg-slate-900 text-white animate-in slide-in-from-bottom-6 duration-200">
-    
+  <div id="live-search-dock"
+    class="fixed bottom-4 right-4 max-w-xl w-full z-40 hidden shadow-2xl rounded-2xl overflow-hidden border border-slate-700 bg-slate-900 text-white animate-in slide-in-from-bottom-6 duration-200">
+
     <!-- Window Header -->
     <div class="px-4 py-2.5 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
       <div class="flex items-center space-x-2.5">
@@ -1587,10 +1778,12 @@
         </span>
       </div>
       <div class="flex items-center space-x-1.5">
-        <button id="btn-toggle-search-dock" class="text-slate-400 hover:text-white text-xs p-1 rounded hover:bg-slate-700" title="Minimizar / Expandir">
+        <button id="btn-toggle-search-dock"
+          class="text-slate-400 hover:text-white text-xs p-1 rounded hover:bg-slate-700" title="Minimizar / Expandir">
           <i class="fa-solid fa-chevron-down"></i>
         </button>
-        <button id="btn-close-search-dock" class="text-slate-400 hover:text-rose-400 text-xs p-1 rounded hover:bg-slate-700" title="Cerrar ventana">
+        <button id="btn-close-search-dock"
+          class="text-slate-400 hover:text-rose-400 text-xs p-1 rounded hover:bg-slate-700" title="Cerrar ventana">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -1598,7 +1791,7 @@
 
     <!-- Window Body -->
     <div id="search-dock-body" class="p-3.5 space-y-3">
-      
+
       <!-- Progress Bar & Active State -->
       <div>
         <div class="flex items-center justify-between text-[11px] mb-1">
@@ -1609,24 +1802,31 @@
           <span id="search-dock-percent" class="font-mono text-emerald-400 font-bold">15%</span>
         </div>
         <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
-          <div id="search-dock-progress-bar" class="bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 h-2 rounded-full transition-all duration-300" style="width: 15%"></div>
+          <div id="search-dock-progress-bar"
+            class="bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 h-2 rounded-full transition-all duration-300"
+            style="width: 15%"></div>
         </div>
       </div>
 
       <!-- Live Terminal / Log Console -->
-      <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1 max-h-48 overflow-y-auto scrollbar-none" id="search-dock-logs">
+      <div
+        class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1 max-h-48 overflow-y-auto scrollbar-none"
+        id="search-dock-logs">
         <div class="text-slate-500 text-[10px]">&gt; Inicializando consola de inteligencia territorial...</div>
       </div>
 
       <!-- Live Retrieved Headlines Ticker -->
-      <div id="search-dock-ticker" class="hidden text-[10px] bg-slate-800/80 p-2 rounded-lg border border-slate-700 flex items-center justify-between text-slate-300">
+      <div id="search-dock-ticker"
+        class="hidden text-[10px] bg-slate-800/80 p-2 rounded-lg border border-slate-700 flex items-center justify-between text-slate-300">
         <span class="truncate max-w-[400px]" id="search-dock-ticker-text">Conectando...</span>
-        <span id="search-dock-sources-badge" class="px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-bold shrink-0">0 fuentes</span>
+        <span id="search-dock-sources-badge"
+          class="px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-bold shrink-0">0 fuentes</span>
       </div>
 
       <!-- Action Button: Go to extracted results -->
       <div id="search-dock-actions" class="hidden pt-1 flex justify-end">
-        <button id="btn-scroll-to-results" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow transition-all">
+        <button id="btn-scroll-to-results"
+          class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow transition-all">
           <i class="fa-solid fa-arrow-down"></i>
           <span>Ver Actores y Objetivos Extraídos</span>
         </button>
@@ -1638,8 +1838,10 @@
 
   <!-- Footer -->
   <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-      <p>Plataforma Prospectiva MACTOR &copy; 2026. Basado en Michel Godet (LIPSOR) y Villabona, Oyola & Franco (2018).</p>
+    <div
+      class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <p>Plataforma Prospectiva MACTOR &copy; 2026. Basado en Michel Godet (LIPSOR) y Villabona, Oyola & Franco (2018).
+      </p>
       <div class="flex items-center space-x-4">
         <span>Inteligencia Territorial en Vivo</span>
         <span>&bull;</span>
@@ -1651,4 +1853,5 @@
   <!-- Application Script -->
   <script src="app.js"></script>
 </body>
+
 </html>

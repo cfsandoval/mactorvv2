@@ -104,7 +104,7 @@ def build_case_territory_analysis(case_data: Dict[str, Any]) -> Dict[str, Any]:
         "channel_counts": channel_counts,
         "social_pulse": social_pulse,
         "news_sources": news_items,
-        "sources": news_items, # backward compatibility
+        "sources": news_items,
         "actors": actors,
         "objectives": objectives,
         "mid": case_data.get("mid", []),

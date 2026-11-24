@@ -42,7 +42,7 @@ function setupTabNavigation() {
   tabs.forEach(tab => {
     tab.addEventListener("click", () => {
       const targetPaneId = tab.getAttribute("data-tab");
-      
+
       // Update tab active classes
       tabs.forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
@@ -84,7 +84,7 @@ function syncTopContextBar() {
   const terr = inputTerr ? inputTerr.value.trim() : "";
   const country = inputCountry ? inputCountry.value : "Colombia";
   const sect = inputSect ? inputSect.value.trim() : "";
-  
+
   // 1:1 exact match with user input
   if (document.getElementById("banner-title")) {
     document.getElementById("banner-title").textContent = terr || "Sin definir";
@@ -589,8 +589,9 @@ async function analyzeTerritoryLive() {
   const territory = territoryInput ? territoryInput.value.trim() : "";
   const country = document.getElementById("input-country") ? document.getElementById("input-country").value : "Colombia";
   const sector = document.getElementById("input-sector") ? document.getElementById("input-sector").value.trim() : "";
+  const newsapiKey = document.getElementById("input-newsapi-key") ? document.getElementById("input-newsapi-key").value.trim() : "";
   const targetActors = parseInt(document.getElementById("input-target-actors")?.value, 10) || 8;
-  
+
   if (!territory) {
     alert("Por favor ingrese el nombre de un territorio real (ej. Medellín, Antioquia, La Guajira, Salar de Atacama).");
     if (territoryInput) territoryInput.focus();
@@ -681,82 +682,82 @@ async function analyzeTerritoryLive() {
     }, 3400)
   ];
 
-  try {
-    const resp = await fetch("/api/territory/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        territory, 
-        country,
-        sector,
-        target_actors: targetActors,
-        max_news: 45 
-      })
-    });
+try {
+  const resp = await fetch("/api/territory/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      territory,
+      country,
+      sector,
+      newsapi_key: newsapiKey,
+      target_actors: targetActors,
+      max_news: 45
+    })
+  });
 
-    stageTimeouts.forEach(t => clearTimeout(t));
+  stageTimeouts.forEach(t => clearTimeout(t));
 
-    if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.detail || "Error analizando territorio");
-    }
-
-    const json = await resp.json();
-    state.territoryAnalysis = json.data;
-
-    // Update Dock to 100% Success
-    if (dockProgress) dockProgress.style.width = "100%";
-    if (dockPercent) dockPercent.textContent = "100%";
-    if (dockStatus) {
-      dockStatus.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i><span class="text-emerald-300 font-bold">¡Rastreo de fuentes completado con éxito!</span>`;
-    }
-
-    addDockLog(`✅ <strong>Éxito:</strong> Se indexaron ${(json.data.news_sources || json.data.sources || []).length} fuentes y se extrajeron ${json.data.actors ? json.data.actors.length : 0} actores específicos.`, "text-emerald-300 font-bold");
-
-    if (dockTicker) {
-      dockTicker.classList.remove("hidden");
-      const allSrcs = json.data.news_sources || json.data.sources || [];
-      const sampleHeadline = (allSrcs.length > 0) ? allSrcs[0].title : `Noticias recopiladas para ${territory}`;
-      const tickerText = document.getElementById("search-dock-ticker-text");
-      if (tickerText) tickerText.textContent = `📰 Fuente: "${sampleHeadline}"`;
-      const badge = document.getElementById("search-dock-sources-badge");
-      if (badge) badge.textContent = `${allSrcs.length} fuentes`;
-    }
-
-    if (dockActions) {
-      dockActions.classList.remove("hidden");
-    }
-
-    renderTerritoryAnalysisResults(json.data);
-
-    // Scroll smoothly to results
-    const resultsContainer = document.getElementById("territory-results");
-    if (resultsContainer) {
-      resultsContainer.scrollIntoView({ behavior: "smooth" });
-    }
-
-  } catch (err) {
-    stageTimeouts.forEach(t => clearTimeout(t));
-    console.error("Territory error:", err);
-    
-    if (dockProgress) {
-      dockProgress.style.width = "100%";
-      dockProgress.className = "bg-rose-500 h-2 rounded-full";
-    }
-    if (dockPercent) dockPercent.textContent = "Error";
-    if (dockStatus) {
-      dockStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-400"></i><span class="text-rose-300 font-bold">Error durante el rastreo</span>`;
-    }
-    addDockLog(`❌ <strong>Fallo:</strong> ${err.message}`, "text-rose-400 font-bold");
-    alert("Error en el análisis de fuentes del territorio: " + err.message);
-  } finally {
-    if (indicator) indicator.classList.add("hidden");
-    if (btnStartAi) {
-      btnStartAi.disabled = false;
-      btnStartAi.innerHTML = origBtnHtml;
-      btnStartAi.classList.remove("opacity-80");
-    }
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.detail || "Error analizando territorio");
   }
+
+  const json = await resp.json();
+  state.territoryAnalysis = json.data;
+
+  // Update Dock to 100% Success
+  if (dockProgress) dockProgress.style.width = "100%";
+  if (dockPercent) dockPercent.textContent = "100%";
+  if (dockStatus) {
+    dockStatus.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i><span class="text-emerald-300 font-bold">¡Rastreo de fuentes completado con éxito!</span>`;
+  }
+
+  addDockLog(`✅ <strong>Éxito:</strong> Se indexaron ${json.data.sources ? json.data.sources.length : 0} fuentes y se extrajeron ${json.data.actors ? json.data.actors.length : 0} actores específicos.`, "text-emerald-300 font-bold");
+
+  if (dockTicker) {
+    dockTicker.classList.remove("hidden");
+    const sampleHeadline = (json.data.sources && json.data.sources.length > 0) ? json.data.sources[0].title : `Noticias recopiladas para ${territory}`;
+    const tickerText = document.getElementById("search-dock-ticker-text");
+    if (tickerText) tickerText.textContent = `📰 Fuente: "${sampleHeadline}"`;
+    const badge = document.getElementById("search-dock-sources-badge");
+    if (badge) badge.textContent = `${json.data.sources ? json.data.sources.length : 0} fuentes`;
+  }
+
+  if (dockActions) {
+    dockActions.classList.remove("hidden");
+  }
+
+  renderTerritoryAnalysisResults(json.data);
+
+  // Scroll smoothly to results
+  const resultsContainer = document.getElementById("territory-results");
+  if (resultsContainer) {
+    resultsContainer.scrollIntoView({ behavior: "smooth" });
+  }
+
+} catch (err) {
+  stageTimeouts.forEach(t => clearTimeout(t));
+  console.error("Territory error:", err);
+
+  if (dockProgress) {
+    dockProgress.style.width = "100%";
+    dockProgress.className = "bg-rose-500 h-2 rounded-full";
+  }
+  if (dockPercent) dockPercent.textContent = "Error";
+  if (dockStatus) {
+    dockStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-400"></i><span class="text-rose-300 font-bold">Error durante el rastreo</span>`;
+  }
+  addDockLog(`❌ <strong>Fallo:</strong> ${err.message}`, "text-rose-400 font-bold");
+  alert("Error en el análisis de fuentes del territorio: " + err.message);
+} finally {
+  if (indicator) indicator.classList.add("hidden");
+  if (btnStartAi) {
+    btnStartAi.disabled = false;
+    btnStartAi.innerHTML = origBtnHtml;
+    btnStartAi.classList.remove("opacity-80");
+  }
+}
 }
 
 // Render Territory Extraction Results
@@ -806,17 +807,26 @@ function renderTerritoryAnalysisResults(data) {
   `).join("");
 
   // Update channel counter badges
-  const bhrrcCount = data.news_sources.filter(n => n.channel === 'bhrrc').length;
+  const allNews = data.news_sources || data.sources || [];
+  const bhrrcCount = allNews.filter(n => n.channel === 'bhrrc').length;
   if (document.getElementById("count-bhrrc-sources")) {
     document.getElementById("count-bhrrc-sources").textContent = bhrrcCount;
   }
 
-  if (data.channel_counts) {
-    document.getElementById("count-all-sources").textContent = data.channel_counts.all || data.news_sources.length;
-    document.getElementById("count-social-sources").textContent = data.channel_counts.social || 0;
-    document.getElementById("count-official-sources").textContent = data.channel_counts.official || 0;
-    document.getElementById("count-press-sources").textContent = data.channel_counts.press || 0;
-    document.getElementById("count-academic-sources").textContent = data.channel_counts.academic || 0;
+  if (document.getElementById("count-all-sources")) {
+    document.getElementById("count-all-sources").textContent = (data.channel_counts && data.channel_counts.all) || allNews.length;
+  }
+  if (document.getElementById("count-social-sources")) {
+    document.getElementById("count-social-sources").textContent = (data.channel_counts && data.channel_counts.social) || 0;
+  }
+  if (document.getElementById("count-official-sources")) {
+    document.getElementById("count-official-sources").textContent = (data.channel_counts && data.channel_counts.official) || 0;
+  }
+  if (document.getElementById("count-press-sources")) {
+    document.getElementById("count-press-sources").textContent = (data.channel_counts && data.channel_counts.press) || 0;
+  }
+  if (document.getElementById("count-academic-sources")) {
+    document.getElementById("count-academic-sources").textContent = (data.channel_counts && data.channel_counts.academic) || 0;
   }
 
   // Social Pulse Banner
@@ -828,7 +838,7 @@ function renderTerritoryAnalysisResults(data) {
   }
 
   // Render news cards
-  renderNewsCards(data.news_sources);
+  renderNewsCards(allNews);
 }
 
 // Render filtered news cards
@@ -860,7 +870,7 @@ function renderNewsCards(items) {
 // Filter news cards by channel
 function filterNewsCardsByChannel(channel) {
   if (!state.territoryAnalysis) return;
-  const allItems = state.territoryAnalysis.news_sources || [];
+  const allItems = state.territoryAnalysis.news_sources || state.territoryAnalysis.sources || [];
   if (channel === "all") {
     renderNewsCards(allItems);
   } else {
@@ -876,7 +886,7 @@ function openActorDetailsModal(idx) {
 
   const objectives = state.territoryAnalysis ? state.territoryAnalysis.objectives : state.objectives;
 
-  document.getElementById("modal-actor-badge").textContent = actor.id || `A${idx+1}`;
+  document.getElementById("modal-actor-badge").textContent = actor.id || `A${idx + 1}`;
   document.getElementById("modal-actor-name").textContent = actor.name;
   document.getElementById("modal-actor-category").textContent = actor.category || "Actor Territorial";
   document.getElementById("modal-actor-role").textContent = actor.role_description || "Actor con intereses y capacidad de movilización en el territorio analizado.";
@@ -957,7 +967,7 @@ function applyTerritoryToWorkspace() {
   calculateMactor();
 
   alert(`¡Se han transferido exitosamente ${d.actors.length} actores y ${d.objectives.length} objetivos a las matrices de trabajo!`);
-  
+
   // Switch to MID tab
   document.querySelector('[data-tab="tab-mid"]').click();
 }
@@ -968,7 +978,7 @@ function renderActorsConfig() {
   container.innerHTML = state.actors.map((act, idx) => `
     <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-lg gap-2 text-xs">
       <div class="w-8 h-8 rounded bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 cursor-pointer" onclick="openActorDetailsModal(${idx})" title="Ver ficha técnica">
-        ${act.id || 'A' + (idx+1)}
+        ${act.id || 'A' + (idx + 1)}
       </div>
       <div class="flex-grow">
         <input type="text" value="${act.name}" onchange="updateActorName(${idx}, this.value)" class="w-full font-bold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-none">
@@ -990,7 +1000,7 @@ function renderObjectivesConfig() {
   container.innerHTML = state.objectives.map((obj, idx) => `
     <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-lg gap-2 text-xs">
       <div class="w-8 h-8 rounded bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0">
-        ${obj.id || 'O' + (idx+1)}
+        ${obj.id || 'O' + (idx + 1)}
       </div>
       <div class="flex-grow">
         <input type="text" value="${obj.name}" onchange="updateObjectiveName(${idx}, this.value)" class="w-full font-bold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-emerald-500 focus:outline-none">
@@ -1097,7 +1107,7 @@ function updateObjectiveWeight(idx, val) {
 function renderMidTable() {
   const container = document.getElementById("mid-table-container");
   const N = state.actors.length;
-  
+
   let html = `<table class="w-full text-xs border border-slate-200 rounded-lg overflow-hidden table-matrix">
     <thead class="bg-slate-800 text-white font-bold">
       <tr>
@@ -1110,9 +1120,9 @@ function renderMidTable() {
 
   for (let i = 0; i < N; i++) {
     const actRow = state.actors[i];
-    const rowSum = state.results ? state.results.mid_metrics.influence[i] : state.mid[i].reduce((a,b)=>a+b,0);
+    const rowSum = state.results ? state.results.mid_metrics.influence[i] : state.mid[i].reduce((a, b) => a + b, 0);
     html += `<tr>
-      <td class="p-2 font-bold bg-slate-100 border border-slate-200 text-left">${actRow.id || 'A'+(i+1)} - ${actRow.name}</td>`;
+      <td class="p-2 font-bold bg-slate-100 border border-slate-200 text-left">${actRow.id || 'A' + (i + 1)} - ${actRow.name}</td>`;
 
     for (let j = 0; j < N; j++) {
       if (i === j) {
@@ -1134,9 +1144,9 @@ function renderMidTable() {
   html += `<tr class="bg-blue-900 text-white font-bold">
     <td class="p-2 border border-slate-700 text-left">Total Dep. (D_i)</td>
     ${state.actors.map((_, j) => {
-      const colSum = state.results ? state.results.mid_metrics.dependence[j] : 0;
-      return `<td class="p-2 border border-slate-700">${colSum}</td>`;
-    }).join("")}
+    const colSum = state.results ? state.results.mid_metrics.dependence[j] : 0;
+    return `<td class="p-2 border border-slate-700">${colSum}</td>`;
+  }).join("")}
     <td class="p-2 border border-slate-700 bg-blue-950">${state.results ? state.results.mid_metrics.total_influence : 0}</td>
   </tr>
   </tbody></table>`;
@@ -1170,7 +1180,7 @@ function renderMidiTable() {
     html += `<tr>
       <td class="p-2 font-bold bg-slate-50 border border-slate-200 text-left">${state.actors[i].id} - ${state.actors[i].name}</td>`;
     for (let j = 0; j < N; j++) {
-      html += `<td class="p-2 border border-slate-200 ${i===j ? 'bg-slate-100 text-slate-400':''}">${midi[i][j]}</td>`;
+      html += `<td class="p-2 border border-slate-200 ${i === j ? 'bg-slate-100 text-slate-400' : ''}">${midi[i][j]}</td>`;
     }
     html += `<td class="p-2 font-bold bg-amber-50 text-amber-900 border border-slate-200">${force.r_i[i].toFixed(2)}</td>
     </tr>`;
@@ -1335,7 +1345,7 @@ function setupBalanceScaleHandlers() {
 
 function setBalanceMode(mode) {
   state.balanceScale.mode = mode;
-  
+
   const btnSingle = document.getElementById("btn-balance-mode-single");
   const btnGallery = document.getElementById("btn-balance-mode-gallery");
   const btnActor = document.getElementById("btn-balance-mode-actor");
@@ -1390,7 +1400,7 @@ function populateBalanceDropdowns() {
     const curVal = parseInt(selObj.value, 10);
     selObj.innerHTML = state.objectives.map((o, idx) => `
       <option value="${idx}" ${idx === state.balanceScale.objIndex ? "selected" : ""}>
-        ${o.id || `O${idx+1}`}: ${o.name || o.short_name}
+        ${o.id || `O${idx + 1}`}: ${o.name || o.short_name}
       </option>
     `).join("");
     if (!isNaN(curVal) && curVal >= 0 && curVal < state.objectives.length) {
@@ -1404,7 +1414,7 @@ function populateBalanceDropdowns() {
     const curActor = parseInt(selActor.value, 10);
     selActor.innerHTML = state.actors.map((a, idx) => `
       <option value="${idx}" ${idx === state.balanceScale.actorIndex ? "selected" : ""}>
-        ${a.id || `A${idx+1}`}: ${a.name}
+        ${a.id || `A${idx + 1}`}: ${a.name}
       </option>
     `).join("");
     if (!isNaN(curActor) && curActor >= 0 && curActor < state.actors.length) {
@@ -1625,9 +1635,9 @@ function generateSingleBalanceSvg(objIdx, isWeighted, width = 820, height = 520,
   const panLip = isMini ? 8 : 18;
 
   const needleLen = isMini ? 190 : 340;
-  const needlePath = isMini 
-    ? `M ${cX-2} ${pivotY} L ${cX-1} ${pivotY + needleLen - 20} L ${cX} ${pivotY + needleLen} L ${cX+1} ${pivotY + needleLen - 20} L ${cX+2} ${pivotY} Z`
-    : `M ${cX-3} ${pivotY} L ${cX-2} ${pivotY + needleLen - 35} L ${cX} ${pivotY + needleLen} L ${cX+2} ${pivotY + needleLen - 35} L ${cX+3} ${pivotY} Z`;
+  const needlePath = isMini
+    ? `M ${cX - 2} ${pivotY} L ${cX - 1} ${pivotY + needleLen - 20} L ${cX} ${pivotY + needleLen} L ${cX + 1} ${pivotY + needleLen - 20} L ${cX + 2} ${pivotY} Z`
+    : `M ${cX - 3} ${pivotY} L ${cX - 2} ${pivotY + needleLen - 35} L ${cX} ${pivotY + needleLen} L ${cX + 2} ${pivotY + needleLen - 35} L ${cX + 3} ${pivotY} Z`;
 
   const archSpan = isMini ? 70 : 140;
   const archSag = isMini ? 20 : 42;
@@ -1752,7 +1762,7 @@ function renderBalanceGallery() {
     html += `
       <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-indigo-400 hover:shadow-sm transition-all flex flex-col items-center cursor-pointer" onclick="selectObjectiveFromGallery(${idx})">
         <div class="w-full flex justify-between items-center text-xs font-bold text-slate-800 mb-1 px-1">
-          <span class="truncate max-w-[280px]" title="${obj.name}">${obj.id || `O${idx+1}`}: ${obj.name}</span>
+          <span class="truncate max-w-[280px]" title="${obj.name}">${obj.id || `O${idx + 1}`}: ${obj.name}</span>
           <span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[10px] shrink-0">${obj.weight ? `${obj.weight}%` : ''}</span>
         </div>
         ${miniSvg}
@@ -1792,10 +1802,10 @@ function renderActorProfileSvg(actorIdx) {
     const y = startY + (j * rowH);
 
     // Grid row background
-    barsSvg += `<line x1="80" y1="${y + rowH/2}" x2="740" y2="${y + rowH/2}" stroke="#f1f5f9" stroke-width="1" />`;
+    barsSvg += `<line x1="80" y1="${y + rowH / 2}" x2="740" y2="${y + rowH / 2}" stroke="#f1f5f9" stroke-width="1" />`;
 
     // Objective Label on the left
-    const objLabel = `${obj.id || `O${j+1}`}: ${obj.short_name || obj.name}`;
+    const objLabel = `${obj.id || `O${j + 1}`}: ${obj.short_name || obj.name}`;
     barsSvg += `<text x="70" y="${y + 15}" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="11" font-weight="600" fill="#334155" title="${escapeXml(obj.name)}">${escapeXml(objLabel.substring(0, 32))}</text>`;
 
     if (rawVal > 0) {
@@ -1812,7 +1822,7 @@ function renderActorProfileSvg(actorIdx) {
       `;
     } else {
       barsSvg += `
-        <circle cx="${cX}" cy="${y + barH/2}" r="4" fill="#94a3b8" />
+        <circle cx="${cX}" cy="${y + barH / 2}" r="4" fill="#94a3b8" />
         <text x="${cX + 10}" y="${y + 15}" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#94a3b8">0 (Neutro)</text>
       `;
     }
@@ -1897,7 +1907,7 @@ function renderAlliancesAndConflictsTables() {
     for (let j = 0; j < N; j++) {
       const v = caa3[i][j];
       const isWinner = convSums[i] === Math.max(...convSums);
-      htmlC += `<td class="p-2 border border-slate-200 ${i===j ? 'bg-slate-100 text-slate-300': (v > 10 ? 'bg-emerald-100 font-bold text-emerald-900' : '')}">${i===j ? '-' : v.toFixed(1)}</td>`;
+      htmlC += `<td class="p-2 border border-slate-200 ${i === j ? 'bg-slate-100 text-slate-300' : (v > 10 ? 'bg-emerald-100 font-bold text-emerald-900' : '')}">${i === j ? '-' : v.toFixed(1)}</td>`;
     }
     htmlC += `<td class="p-2 font-bold bg-emerald-50 text-emerald-900 border border-slate-200">${convSums[i].toFixed(1)}</td>
     </tr>`;
@@ -1919,7 +1929,7 @@ function renderAlliancesAndConflictsTables() {
       <td class="p-2 font-bold bg-slate-50 border border-slate-200 text-left">${state.actors[i].id}</td>`;
     for (let j = 0; j < N; j++) {
       const v = daa3[i][j];
-      htmlD += `<td class="p-2 border border-slate-200 ${i===j ? 'bg-slate-100 text-slate-300': (v > 5 ? 'bg-rose-100 font-bold text-rose-900' : '')}">${i===j ? '-' : v.toFixed(1)}</td>`;
+      htmlD += `<td class="p-2 border border-slate-200 ${i === j ? 'bg-slate-100 text-slate-300' : (v > 5 ? 'bg-rose-100 font-bold text-rose-900' : '')}">${i === j ? '-' : v.toFixed(1)}</td>`;
     }
     htmlD += `</tr>`;
   }
@@ -2077,11 +2087,11 @@ function renderCoalitionsList(root, isConv) {
   clusters.sort((a, b) => a.height - b.height);
 
   container.innerHTML = clusters.map((c, i) => {
-    const names = c.elements.map(e => state.actors[e] ? (state.actors[e].id || state.actors[e].name) : `A${e+1}`).join(" + ");
+    const names = c.elements.map(e => state.actors[e] ? (state.actors[e].id || state.actors[e].name) : `A${e + 1}`).join(" + ");
     return `
       <div class="p-2.5 bg-white border border-slate-200 rounded-lg shadow-2xs hover:border-emerald-300 transition-all">
         <div class="flex items-center justify-between text-xs">
-          <span class="font-bold text-slate-800">Bloque ${i+1}: <span class="${isConv ? 'text-emerald-700':'text-rose-700'}">${names}</span></span>
+          <span class="font-bold text-slate-800">Bloque ${i + 1}: <span class="${isConv ? 'text-emerald-700' : 'text-rose-700'}">${names}</span></span>
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">d = ${c.height.toFixed(1)}</span>
         </div>
         <p class="text-[10px] text-slate-500 mt-1">
@@ -2099,9 +2109,9 @@ function renderQuadrantChart() {
   const quads = state.results.quadrants;
   const infValues = quads.map(q => q.influence);
   const depValues = quads.map(q => q.dependence);
-  
-  const meanInf = infValues.reduce((a,b)=>a+b,0) / (infValues.length || 1);
-  const meanDep = depValues.reduce((a,b)=>a+b,0) / (depValues.length || 1);
+
+  const meanInf = infValues.reduce((a, b) => a + b, 0) / (infValues.length || 1);
+  const meanDep = depValues.reduce((a, b) => a + b, 0) / (depValues.length || 1);
 
   const dataPoints = quads.map(q => ({
     x: q.dependence,
@@ -2146,7 +2156,7 @@ function renderQuadrantChart() {
       plugins: {
         tooltip: {
           callbacks: {
-            label: function(context) {
+            label: function (context) {
               const p = context.raw;
               return [`${p.label}`, `Influencia: ${p.y}, Dependencia: ${p.x}`, `Cuadrante: ${p.quadrant}`];
             }
@@ -2359,7 +2369,7 @@ function renderMobilizationChart() {
         legend: { position: 'top', labels: { font: { size: 11 } } },
         tooltip: {
           callbacks: {
-            afterLabel: function(ctx) {
+            afterLabel: function (ctx) {
               const m = metrics[ctx.dataIndex];
               return `Diagnóstico: ${m.status}\nA Favor: ${m.favorable_actors} | En Contra: ${m.opposed_actors}`;
             }
@@ -2386,9 +2396,9 @@ function renderObjectivesDiagnostic() {
           <span class="text-[10px] font-bold px-2 py-0.5 rounded ${badgeBg}">${m.status}</span>
         </div>
         <div class="flex items-center space-x-4 text-[11px] text-slate-500">
-          <span>Ponderación: <b class="text-slate-700">${(m.weight*100).toFixed(0)}%</b></span>
+          <span>Ponderación: <b class="text-slate-700">${(m.weight * 100).toFixed(0)}%</b></span>
           <span>Movilización: <b class="text-slate-700">${m.mobilization}</b></span>
-          <span>Balance: <b class="${m.net_balance >= 0 ? 'text-emerald-600':'text-rose-600'}">${m.net_balance > 0 ? '+'+m.net_balance : m.net_balance}</b></span>
+          <span>Balance: <b class="${m.net_balance >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${m.net_balance > 0 ? '+' + m.net_balance : m.net_balance}</b></span>
           <span>Índice Conflicto: <b class="text-slate-700">${m.conflict_index}</b></span>
         </div>
       </div>
@@ -2420,9 +2430,9 @@ function renderCoalitionsTable() {
       <td class="p-2 font-medium text-slate-800">${c.actor1} <i class="fa-solid fa-arrows-left-right text-[10px] text-slate-400 mx-1"></i> ${c.actor2}</td>
       <td class="p-2 text-center text-emerald-700 font-bold">${c.convergence}</td>
       <td class="p-2 text-center text-rose-700 font-bold">${c.divergence}</td>
-      <td class="p-2 text-center font-bold ${c.net_affinity >= 0 ? 'text-blue-700':'text-rose-700'}">${c.net_affinity > 0 ? '+'+c.net_affinity : c.net_affinity}</td>
+      <td class="p-2 text-center font-bold ${c.net_affinity >= 0 ? 'text-blue-700' : 'text-rose-700'}">${c.net_affinity > 0 ? '+' + c.net_affinity : c.net_affinity}</td>
       <td class="p-2 text-center">
-        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isStable ? 'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'}">${c.stability}</span>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isStable ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${c.stability}</span>
       </td>
     </tr>`;
   });
@@ -2437,10 +2447,10 @@ function populateSimulationDropdowns() {
   const objSel = document.getElementById("sim-objective-select");
 
   if (actorSel) {
-    actorSel.innerHTML = state.actors.map((a, i) => `<option value="${i}">${a.id || 'A'+(i+1)} - ${a.name}</option>`).join("");
+    actorSel.innerHTML = state.actors.map((a, i) => `<option value="${i}">${a.id || 'A' + (i + 1)} - ${a.name}</option>`).join("");
   }
   if (objSel) {
-    objSel.innerHTML = state.objectives.map((o, j) => `<option value="${j}">${o.id || 'O'+(j+1)} - ${o.name}</option>`).join("");
+    objSel.innerHTML = state.objectives.map((o, j) => `<option value="${j}">${o.id || 'O' + (j + 1)} - ${o.name}</option>`).join("");
   }
 }
 
@@ -2498,16 +2508,16 @@ function renderSimulationResults(data, actorIdx, objIdx, newPosture) {
   const winnerChanged = baseWinner.name !== simWinner.name;
 
   container.innerHTML = `
-    <div class="p-4 ${winnerChanged ? 'bg-amber-50 border-amber-300':'bg-blue-50 border-blue-200'} border rounded-xl space-y-3">
+    <div class="p-4 ${winnerChanged ? 'bg-amber-50 border-amber-300' : 'bg-blue-50 border-blue-200'} border rounded-xl space-y-3">
       <div class="flex items-center justify-between">
         <span class="font-bold text-xs uppercase tracking-wider text-slate-700">Resultado del Escenario Proyectado</span>
-        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${winnerChanged ? 'bg-amber-200 text-amber-900':'bg-blue-200 text-blue-900'}">
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${winnerChanged ? 'bg-amber-200 text-amber-900' : 'bg-blue-200 text-blue-900'}">
           ${winnerChanged ? '⚠️ Cambio en Actor Ganador' : 'Consistencia Estratégica'}
         </span>
       </div>
 
       <p class="text-xs text-slate-600">
-        Se modificó la postura de <b>${targetActor.name}</b> ante el objetivo <b>${targetObj.name}</b> a una intensidad de <b>${newPosture > 0 ? '+'+newPosture : newPosture}</b>.
+        Se modificó la postura de <b>${targetActor.name}</b> ante el objetivo <b>${targetObj.name}</b> a una intensidad de <b>${newPosture > 0 ? '+' + newPosture : newPosture}</b>.
       </p>
 
       <div class="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-200">
@@ -2517,7 +2527,7 @@ function renderSimulationResults(data, actorIdx, objIdx, newPosture) {
         </div>
         <div>
           <span class="text-[10px] text-slate-400 block font-semibold uppercase">Escenario Simulado</span>
-          <span class="font-bold ${winnerChanged ? 'text-amber-700':'text-blue-700'}">${simWinner.name} (${simWinner.convergence_score})</span>
+          <span class="font-bold ${winnerChanged ? 'text-amber-700' : 'text-blue-700'}">${simWinner.name} (${simWinner.convergence_score})</span>
         </div>
       </div>
 
@@ -2525,10 +2535,10 @@ function renderSimulationResults(data, actorIdx, objIdx, newPosture) {
         <span class="text-[10px] text-slate-500 font-bold block mb-1">Deltas de Convergencia por Actor:</span>
         <div class="flex flex-wrap gap-2 text-[11px]">
           ${state.actors.map((a, i) => {
-            const d = deltas[i];
-            const bg = d > 0 ? 'bg-emerald-100 text-emerald-800' : (d < 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-600');
-            return `<span class="px-2 py-0.5 rounded font-semibold ${bg}">${a.id}: ${d > 0 ? '+'+d : d}</span>`;
-          }).join("")}
+    const d = deltas[i];
+    const bg = d > 0 ? 'bg-emerald-100 text-emerald-800' : (d < 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-600');
+    return `<span class="px-2 py-0.5 rounded font-semibold ${bg}">${a.id}: ${d > 0 ? '+' + d : d}</span>`;
+  }).join("")}
         </div>
       </div>
     </div>
@@ -2597,7 +2607,7 @@ function renderExecutiveReport() {
             <div class="p-3 border border-slate-200 rounded-lg bg-slate-50">
               <div class="flex items-center justify-between font-bold">
                 <span class="text-slate-800">${om.id} - ${om.name}</span>
-                <span class="text-[10px] px-2 py-0.5 rounded ${om.conflict_index > 0.5 ? 'bg-rose-100 text-rose-800':'bg-emerald-100 text-emerald-800'}">${om.status}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded ${om.conflict_index > 0.5 ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}">${om.status}</span>
               </div>
               <p class="text-[11px] text-slate-500 mt-1">Movilización: <b>${om.mobilization}</b> | Balance: <b>${om.net_balance}</b> | Índice Disputa: <b>${om.conflict_index}</b></p>
             </div>
