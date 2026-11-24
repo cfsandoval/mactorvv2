@@ -745,6 +745,13 @@
               <i class="fa-solid fa-download text-xs text-slate-500"></i>
               <span>Descargar SVG</span>
             </button>
+
+            <button id="btn-open-balance-guide"
+              class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold flex items-center space-x-1.5 shadow-2xs transition-all cursor-pointer"
+              title="¿Cómo interpretar la Balanza de Posición y sus diagnósticos?">
+              <i class="fa-solid fa-circle-question text-indigo-600"></i>
+              <span>¿Cómo interpretar esta Balanza?</span>
+            </button>
           </div>
         </div>
 
@@ -854,6 +861,96 @@
             (0)</span>
           <span id="balance-neutral-list" class="text-slate-600 font-medium">Ninguno</span>
         </div>
+
+        <!-- Expandable Practical Guide Card -->
+        <details class="bg-indigo-50/60 border border-indigo-200/80 rounded-xl overflow-hidden group">
+          <summary class="px-4 py-3 cursor-pointer text-xs font-bold text-indigo-900 flex items-center justify-between hover:bg-indigo-100/50 transition-colors select-none">
+            <span class="flex items-center space-x-2">
+              <i class="fa-solid fa-graduation-cap text-indigo-600 text-sm"></i>
+              <span>Guía Rápida: ¿Cómo se interpreta la Balanza Canónica LIPSOR MACTOR?</span>
+            </span>
+            <span class="text-[11px] text-indigo-600 font-medium group-open:rotate-180 transition-transform">
+              <i class="fa-solid fa-chevron-down"></i>
+            </span>
+          </summary>
+          <div class="px-5 pb-5 pt-1 space-y-4 text-xs text-slate-700 border-t border-indigo-100 bg-white">
+            <!-- Concepto clave -->
+            <div class="p-3 bg-indigo-50/70 border-l-4 border-indigo-600 rounded-r-lg space-y-1">
+              <span class="font-bold text-indigo-950">Principio Fundamental del Método Michel Godet:</span>
+              <p class="leading-relaxed">
+                La balanza <b>no mide una votación democrática</b> (donde cada actor contaría como 1 voto). Representa un <b>pulso de poder geopolítico y territorial</b>: cada actor pesa en el platillo según su postura nominal multiplicada por su coeficiente de fuerza relativo (<span class="font-mono font-bold text-indigo-800">r_i × 2MAO</span>). Un solo actor hegemónico con alto poder puede inclinar la balanza en contra de múltiples actores débiles.
+              </p>
+            </div>
+
+            <!-- 3 Componentes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-lg">
+                <span class="font-bold text-emerald-950 flex items-center space-x-1.5">
+                  <i class="fa-solid fa-scale-unbalanced-flip text-emerald-600"></i>
+                  <span>Platillo Verde (A Favor: F+)</span>
+                </span>
+                <p class="text-[11px] text-emerald-900 mt-1">
+                  Suma del peso ponderado de todos los actores que respaldan el objetivo (<span class="font-mono">2MAO &gt; 0</span>). Representa la viabilidad y energía política impulsora.
+                </p>
+              </div>
+
+              <div class="p-3 bg-rose-50/70 border border-rose-200 rounded-lg">
+                <span class="font-bold text-rose-950 flex items-center space-x-1.5">
+                  <i class="fa-solid fa-scale-unbalanced text-rose-600"></i>
+                  <span>Platillo Rojo (Oposición: F-)</span>
+                </span>
+                <p class="text-[11px] text-rose-900 mt-1">
+                  Suma del peso ponderado de los actores que rechazan el objetivo (<span class="font-mono">2MAO &lt; 0</span>). Mide la capacidad de veto, resistencia social o bloqueo.
+                </p>
+              </div>
+
+              <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <span class="font-bold text-slate-900 flex items-center space-x-1.5">
+                  <i class="fa-solid fa-circle-dot text-slate-500"></i>
+                  <span>Actores Neutros (0)</span>
+                </span>
+                <p class="text-[11px] text-slate-600 mt-1">
+                  Actores indiferentes o sin postura explícita. Constituyen el <b>terreno en disputa</b> que ambos bandos buscarán convencer para desnivelar la balanza.
+                </p>
+              </div>
+            </div>
+
+            <!-- Reglas de Diagnóstico -->
+            <div class="space-y-2">
+              <h5 class="font-bold text-slate-900">¿Qué significa el Diagnóstico obtenido?</h5>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[11px]">
+                <div class="p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/50">
+                  <span class="font-bold text-emerald-800">🟢 Consenso Favorable Absoluto</span>
+                  <p class="text-slate-600 mt-0.5">F- = 0 y F+ &gt; 0. Vía libre total. No hay objeciones registradas.</p>
+                </div>
+                <div class="p-2.5 rounded-lg border border-rose-200 bg-rose-50/50">
+                  <span class="font-bold text-rose-800">🔴 Rechazo Total / Veto</span>
+                  <p class="text-slate-600 mt-0.5">F+ = 0 y F- &gt; 0. Inviable. El objetivo será bloqueado de inmediato.</p>
+                </div>
+                <div class="p-2.5 rounded-lg border border-blue-200 bg-blue-50/50">
+                  <span class="font-bold text-blue-800">✅ Dominio Favorable</span>
+                  <p class="text-slate-600 mt-0.5">F+ ≥ 2 × F-. La coalición favorable supera con holgura a la oposición.</p>
+                </div>
+                <div class="p-2.5 rounded-lg border border-red-200 bg-red-50/50">
+                  <span class="font-bold text-red-800">⛔ Oposición Dominante</span>
+                  <p class="text-slate-600 mt-0.5">F- ≥ 2 × F+. Zona crítica. Imponer la obra detonará paros o demandas.</p>
+                </div>
+                <div class="p-2.5 rounded-lg border border-amber-200 bg-amber-50/50 sm:col-span-2 lg:col-span-1">
+                  <span class="font-bold text-amber-800">⚠️ Conflicto Agudo / Empate</span>
+                  <p class="text-slate-600 mt-0.5">Diferencia ≤ 25%. Fuerzas equivalentes. Parálisis hasta negociar pactos.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botón para abrir modal completo -->
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-slate-500 italic">¿Desea una explicación metodológica profunda con formulación matemática completa?</span>
+              <button id="btn-open-balance-guide-from-details" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-[11px] transition-all cursor-pointer">
+                Abrir Guía Metodológica Completa
+              </button>
+            </div>
+          </div>
+        </details>
 
       </div>
 
@@ -1799,6 +1896,201 @@
         <button id="btn-modal-close-footer"
           class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-1.5 rounded-lg transition-all">
           Cerrar Guía
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: Guía de la Balanza Canónica LIPSOR  -->
+  <!-- ========================================== -->
+  <div id="modal-balance-guide"
+    class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div
+      class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 bg-indigo-900 text-white flex items-center justify-between border-b border-indigo-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-lg bg-indigo-600 font-bold flex items-center justify-center text-white">
+            <i class="fa-solid fa-scale-balanced text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base leading-tight">Guía Metodológica: ¿Cómo se interpreta la Balanza Canónica LIPSOR MACTOR?</h3>
+            <span class="text-xs text-indigo-300 font-medium">Pulso de Fuerzas Ponderadas, Inclinación y Diagnósticos de Viabilidad (Michel Godet)</span>
+          </div>
+        </div>
+        <button id="btn-close-balance-modal"
+          class="text-indigo-300 hover:text-white text-lg p-1.5 rounded-lg hover:bg-indigo-800 transition-all cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-6 text-xs text-slate-700 leading-relaxed">
+
+        <!-- Introduction Banner -->
+        <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-xl space-y-2">
+          <div class="flex items-center space-x-2 text-indigo-900 font-bold text-sm">
+            <i class="fa-solid fa-lightbulb text-indigo-600"></i>
+            <h4>¿Qué responde la Balanza Canónica en la Prospectiva Territorial?</h4>
+          </div>
+          <p class="text-indigo-950 leading-relaxed">
+            La Balanza Canónica fue concebida por <b>Michel Godet</b> en el Laboratorio LIPSOR para responder visual y matemáticamente a la pregunta clave: 
+            <i>«Frente a este objetivo estratégico, ¿quién tiene realmente la fuerza para impulsarlo, quién tiene la capacidad de bloquearlo y hacia dónde se decanta el equilibrio de poder?»</i>
+          </p>
+          <div class="p-2.5 bg-white border border-indigo-200 rounded-lg text-indigo-900 font-medium">
+            ⚠️ <b>Principio Rector:</b> No es una votación democrática de "1 actor = 1 voto". Es un <b>pulso de fuerzas asimétricas</b> donde cada postura está multiplicada por la capacidad de influencia y dependencia (<span class="font-mono font-bold">r_i</span>) de cada actor.
+          </div>
+        </div>
+
+        <!-- Visual Anatomy -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-sm text-slate-900 flex items-center space-x-2">
+            <i class="fa-solid fa-layer-group text-indigo-600"></i>
+            <span>1. Anatomía Visual de los Componentes</span>
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-1.5">
+              <span class="font-bold text-emerald-950 flex items-center space-x-1.5">
+                <i class="fa-solid fa-scale-unbalanced-flip text-emerald-600"></i>
+                <span>Platillo Izquierdo (Verde &bull; Fuerza a Favor F+)</span>
+              </span>
+              <p class="text-[11px] text-emerald-900 leading-relaxed">
+                Apila a todos los actores con postura favorable (<span class="font-mono">2MAO &gt; 0</span>). Su peso total equivale a la suma ponderada de voluntades a favor: <span class="font-mono font-bold">F+ = ∑ (r_i × |2MAO_ij|)</span>. Representa la energía política impulsora del objetivo.
+              </p>
+            </div>
+
+            <div class="p-3.5 bg-rose-50/70 border border-rose-200 rounded-xl space-y-1.5">
+              <span class="font-bold text-rose-950 flex items-center space-x-1.5">
+                <i class="fa-solid fa-scale-unbalanced text-rose-600"></i>
+                <span>Platillo Derecho (Rojo &bull; Fuerza Opositora F-)</span>
+              </span>
+              <p class="text-[11px] text-rose-900 leading-relaxed">
+                Apila a todos los actores con postura de rechazo (<span class="font-mono">2MAO &lt; 0</span>). Su peso total equivale a: <span class="font-mono font-bold">F- = ∑ (r_i × |2MAO_ij|)</span>. Mide el poder de veto, resistencia social, bloqueo gremial o judicialización.
+              </p>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+              <span class="font-bold text-slate-900 flex items-center space-x-1.5">
+                <i class="fa-solid fa-arrows-split-up-and-left text-slate-600"></i>
+                <span>Inclinación del Brazo Oscilante (&theta;)</span>
+              </span>
+              <p class="text-[11px] text-slate-600 leading-relaxed">
+                El brazo de la balanza desciende hacia el platillo con mayor peso. El ángulo de inclinación refleja visualmente la brecha normalizada: <span class="font-mono font-bold">&Delta; = (F+ - F-) / (F+ + F-)</span>. Si el resultado es positivo, desciende a la izquierda (favorable); si es negativo, desciende a la derecha (oposición).
+              </p>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+              <span class="font-bold text-slate-900 flex items-center space-x-1.5">
+                <i class="fa-solid fa-users-viewfinder text-slate-600"></i>
+                <span>Actores Neutros (Fuera de los Platillos)</span>
+              </span>
+              <p class="text-[11px] text-slate-600 leading-relaxed">
+                Actores con postura 0 (indiferentes). Aparecen listados al pie de la balanza. En términos de negociación prospectiva, representan el <b>terreno disputable</b>: convencer a un actor neutro de peso relevante puede inclinar definitivamente la balanza hacia el lado deseado.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mathematical Foundation -->
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+          <h4 class="font-bold text-sm text-slate-900 flex items-center space-x-2">
+            <i class="fa-solid fa-square-root-variable text-indigo-600"></i>
+            <span>2. Formulación Matemática: ¿Por qué es Ponderada por r_i?</span>
+          </h4>
+          <p class="leading-relaxed">
+            Cada actor <span class="font-mono font-bold">i</span> tiene asignada una postura nominal en la matriz <b>2MAO</b> entre <span class="font-mono">-4 y +4</span>. Sin embargo, no todos los actores tienen la misma capacidad de hacer cumplir sus deseos. Por ello, el modelo MACTOR multiplica la postura por el coeficiente <span class="font-mono font-bold">r_i</span> (Relación de Fuerza del actor calculada a partir de las matrices MID y MIDI de influencias directas e indirectas):
+          </p>
+          <div class="p-3 bg-white border border-slate-300 rounded-lg font-mono text-[11px] text-slate-800 space-y-1">
+            <div>&bull; Postura Ponderada (3MAO_ij) = r_i &times; 2MAO_ij</div>
+            <div>&bull; Fuerza Favorable F+(j) = &sum; [ r_i &times; |2MAO_ij| ]  para todos los actores con 2MAO &gt; 0</div>
+            <div>&bull; Fuerza Opositora F-(j) = &sum; [ r_i &times; |2MAO_ij| ]  para todos los actores con 2MAO &lt; 0</div>
+            <div>&bull; Saldo Neto = F+(j) - F-(j)</div>
+          </div>
+          <div class="p-3 bg-blue-50 border-l-4 border-blue-600 rounded-r-lg text-[11px] text-blue-950">
+            <b>Ejemplo Clarificador:</b> Si 3 actores comunitarios con fuerza baja (<span class="font-mono">r_i = 0.8</span>) apoyan con entusiasmo (+4), aportan <span class="font-mono">3 &times; 3.2 = 9.6</span>. Si un ministerio o multinacional dominante con fuerza alta (<span class="font-mono">r_i = 3.5</span>) se opone con fuerza (-4), su peso en contra es <span class="font-mono">14.0</span>. <b>La balanza se inclinará hacia la oposición</b> a pesar de que hay 3 actores a favor y solo 1 en contra.
+          </div>
+        </div>
+
+        <!-- 5 Canonical Diagnoses -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-sm text-slate-900 flex items-center space-x-2">
+            <i class="fa-solid fa-traffic-light text-indigo-600"></i>
+            <span>3. Los 5 Diagnósticos Canónicos de la Balanza</span>
+          </h4>
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <table class="w-full text-[11px]">
+              <thead class="bg-slate-800 text-white">
+                <tr>
+                  <th class="p-2.5 text-left">Diagnóstico</th>
+                  <th class="p-2.5 text-center">Condición Matemática</th>
+                  <th class="p-2.5 text-left">Significado para la Gobernanza y Toma de Decisiones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="bg-emerald-50/50">
+                  <td class="p-2.5 font-bold text-emerald-800 flex items-center space-x-1.5">
+                    <span>🟢</span> <span>Consenso Favorable Absoluto</span>
+                  </td>
+                  <td class="p-2.5 text-center font-mono font-bold text-emerald-900">F- = 0 &bull; F+ &gt; 0</td>
+                  <td class="p-2.5 text-slate-700"><b>Vía libre inmediata.</b> No existe resistencia registrada. El proyecto puede ejecutarse sin costos de conflicto político.</td>
+                </tr>
+                <tr class="bg-rose-50/50">
+                  <td class="p-2.5 font-bold text-rose-800 flex items-center space-x-1.5">
+                    <span>🔴</span> <span>Rechazo Total / Veto</span>
+                  </td>
+                  <td class="p-2.5 text-center font-mono font-bold text-rose-900">F+ = 0 &bull; F- &gt; 0</td>
+                  <td class="p-2.5 text-slate-700"><b>Inviabilidad total.</b> Nadie respalda el objetivo y existen actores de peso que lo rechazan. Su imposición derivará en fracaso.</td>
+                </tr>
+                <tr class="bg-blue-50/50">
+                  <td class="p-2.5 font-bold text-blue-800 flex items-center space-x-1.5">
+                    <span>✅</span> <span>Dominio Favorable Mayoritario</span>
+                  </td>
+                  <td class="p-2.5 text-center font-mono font-bold text-blue-900">F+ &ge; 2 &times; F-</td>
+                  <td class="p-2.5 text-slate-700"><b>Hegemonía consolidada.</b> El bloque a favor duplica con creces la resistencia. Se pueden asumir los costos y avanzar.</td>
+                </tr>
+                <tr class="bg-red-50/50">
+                  <td class="p-2.5 font-bold text-red-800 flex items-center space-x-1.5">
+                    <span>⛔</span> <span>Oposición Dominante</span>
+                  </td>
+                  <td class="p-2.5 text-center font-mono font-bold text-red-900">F- &ge; 2 &times; F+</td>
+                  <td class="p-2.5 text-slate-700"><b>Zona de alto riesgo.</b> La resistencia duplica el apoyo. Forzar el proyecto detonará paros, litigios o disturbios territoriales.</td>
+                </tr>
+                <tr class="bg-amber-50/50">
+                  <td class="p-2.5 font-bold text-amber-800 flex items-center space-x-1.5">
+                    <span>⚠️</span> <span>Conflicto Agudo / Empate</span>
+                  </td>
+                  <td class="p-2.5 text-center font-mono font-bold text-amber-900">|F+ - F-| &le; 0.25 &times; (F+ + F-)</td>
+                  <td class="p-2.5 text-slate-700"><b>Parálisis y bloqueo mutuo.</b> Ambas fuerzas son casi equivalentes. Obliga a abrir mesas de diálogo y negociar compensaciones.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Actionable Recommendations -->
+        <div class="p-4 bg-slate-900 text-slate-200 rounded-xl space-y-2">
+          <h4 class="font-bold text-sm text-white flex items-center space-x-2">
+            <i class="fa-solid fa-chess-knight text-amber-400"></i>
+            <span>4. Recomendaciones Tácticas según la Balanza</span>
+          </h4>
+          <ul class="space-y-1.5 text-[11px] leading-relaxed text-slate-300">
+            <li>&bull; <b>Si hay Empate / Conflicto Agudo:</b> No intente imponer la obra por la fuerza. Active a los <b>Actores del Cuadrante de Enlace (actores bisagra)</b> para negociar salvaguardas ambientales o compensaciones que muevan la balanza hacia el terreno positivo.</li>
+            <li>&bull; <b>Si hay Oposición Dominante:</b> Identifique en el platillo rojo cuáles son los actores específicos con mayor <span class="font-mono">r_i</span>. Debe rediseñar el objetivo abordando sus objeciones puntuales para reducir su nivel de oposición (de -4 a -1 o neutralizarlo a 0).</li>
+            <li>&bull; <b>Aproveche a los Neutros:</b> Diseñe incentivos específicos para convencer a los actores neutros que tengan mayor fuerza sistémica, convirtiéndolos en aliados del objetivo.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 shrink-0">
+        <span>Método MACTOR &bull; Laboratoire d'Investigation en Prospective, Stratégie et Organisation (LIPSOR)</span>
+        <button id="btn-close-balance-footer"
+          class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-1.5 rounded-lg transition-all cursor-pointer">
+          Entendido / Cerrar
         </button>
       </div>
 

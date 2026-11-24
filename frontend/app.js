@@ -348,6 +348,36 @@ function setupEventListeners() {
     });
   }
 
+  // Balance scale guide modal
+  const btnOpenBalanceGuide = document.getElementById("btn-open-balance-guide");
+  if (btnOpenBalanceGuide) {
+    btnOpenBalanceGuide.addEventListener("click", () => {
+      const m = document.getElementById("modal-balance-guide");
+      if (m) m.classList.remove("hidden");
+    });
+  }
+  const btnOpenBalanceFromDetails = document.getElementById("btn-open-balance-guide-from-details");
+  if (btnOpenBalanceFromDetails) {
+    btnOpenBalanceFromDetails.addEventListener("click", () => {
+      const m = document.getElementById("modal-balance-guide");
+      if (m) m.classList.remove("hidden");
+    });
+  }
+  const btnCloseBalanceModal = document.getElementById("btn-close-balance-modal");
+  if (btnCloseBalanceModal) {
+    btnCloseBalanceModal.addEventListener("click", () => {
+      const m = document.getElementById("modal-balance-guide");
+      if (m) m.classList.add("hidden");
+    });
+  }
+  const btnCloseBalanceFooter = document.getElementById("btn-close-balance-footer");
+  if (btnCloseBalanceFooter) {
+    btnCloseBalanceFooter.addEventListener("click", () => {
+      const m = document.getElementById("modal-balance-guide");
+      if (m) m.classList.add("hidden");
+    });
+  }
+
   // Actor modal close
   const btnCloseActor = document.getElementById("btn-close-actor-modal");
   if (btnCloseActor) {
@@ -364,6 +394,8 @@ function setupEventListeners() {
     if (e.target === mActor) mActor.classList.add("hidden");
     const mInterp = document.getElementById("modal-method-interpretation");
     if (e.target === mInterp) mInterp.classList.add("hidden");
+    const mBalance = document.getElementById("modal-balance-guide");
+    if (e.target === mBalance) mBalance.classList.add("hidden");
   });
 
   // Run simulation
@@ -2642,6 +2674,24 @@ function renderExecutiveReport() {
         <p class="text-xs text-slate-500 mb-2">Inclinación de la balanza de actores a favor (+) vs oposición (-) ponderada por la relación de fuerza r_i y competitividad valorada.</p>
         <div class="border border-slate-200 rounded-xl p-3 bg-white flex justify-center overflow-x-auto shadow-2xs">
           ${generateSingleBalanceSvg(state.balanceScale.objIndex || 0, true, 800, 500, false)}
+        </div>
+        
+        <!-- Quick Guidance Card under Report Balance -->
+        <div class="mt-3 p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-indigo-950 flex items-center space-x-1.5">
+              <i class="fa-solid fa-graduation-cap text-indigo-600"></i>
+              <span>¿Cómo interpretar este pulso de fuerzas?</span>
+            </span>
+            <button onclick="document.getElementById('modal-balance-guide').classList.remove('hidden')" class="text-[11px] text-indigo-700 hover:text-indigo-900 font-semibold underline cursor-pointer">
+              Ver Guía Metodológica Completa
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-700 leading-relaxed">
+            Cada actor pesa en su respectivo platillo según su postura nominal ponderada por su fuerza relativa (<b>r_i × 2MAO</b>). 
+            La inclinación visual no es una votación de mayoría simple, sino el resultado del equilibrio físico de poder.
+            El platillo <b>verde</b> agrupa el respaldo favorable (viabilidad política), el <b>rojo</b> agrupa el rechazo y veto, y los actores fuera de la balanza son <b>neutros disputables</b>.
+          </p>
         </div>
       </div>
 
