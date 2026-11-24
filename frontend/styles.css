@@ -30,16 +30,17 @@ body {
   background: #94a3b8;
 }
 
-/* Matrix cell inputs - Proporciones ergonómicas legibles */
+/* Matrix cell inputs - Proporciones compactas y legibles */
 .matrix-input {
-  width: 44px;
-  height: 38px;
+  width: 38px;
+  height: 28px;
   text-align: center;
   font-weight: 700;
-  font-size: 13px;
-  border-radius: 6px;
+  font-size: 12px;
+  border-radius: 5px;
   transition: all 0.15s ease-in-out;
   border: 1px solid #cbd5e1;
+  padding: 0;
 }
 
 .matrix-input:focus {
@@ -49,11 +50,12 @@ body {
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
-/* Matrix Table Styling - Estructura balanceada */
+/* Matrix Table Styling - Compacto para evitar filas altas */
 .table-matrix th, .table-matrix td {
-  padding: 6px 8px;
+  padding: 4px 5px;
   text-align: center;
   vertical-align: middle;
+  line-height: 1.2;
 }
 
 /* Quadrant Card */

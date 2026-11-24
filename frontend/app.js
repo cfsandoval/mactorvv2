@@ -1153,12 +1153,12 @@ function renderMidTable() {
   const container = document.getElementById("mid-table-container");
   const N = state.actors.length;
 
-  let html = `<table class="w-full text-xs border border-slate-200 rounded-lg overflow-hidden table-matrix">
+  let html = `<table class="w-full text-[11px] border border-slate-200 rounded-lg overflow-hidden table-matrix">
     <thead class="bg-slate-800 text-white font-bold">
       <tr>
-        <th class="p-2 border border-slate-700 bg-slate-900">Actores (Influencia \\ Dep.)</th>
-        ${state.actors.map(a => `<th class="p-2 border border-slate-700" title="${a.name}">${a.id || a.short_name}</th>`).join("")}
-        <th class="p-2 border border-slate-700 bg-blue-900">Total Inf. (I_i)</th>
+        <th class="py-1.5 px-2 border border-slate-700 bg-slate-900 text-left whitespace-nowrap">Actores (Inf. \\ Dep.)</th>
+        ${state.actors.map((a, idx) => `<th class="py-1.5 px-1.5 border border-slate-700 whitespace-nowrap" title="${a.name}">${a.id || 'A' + (idx + 1)}</th>`).join("")}
+        <th class="py-1.5 px-2 border border-slate-700 bg-blue-900 whitespace-nowrap" title="Influencia Directa Total">Inf. (I_i)</th>
       </tr>
     </thead>
     <tbody>`;
@@ -1166,33 +1166,39 @@ function renderMidTable() {
   for (let i = 0; i < N; i++) {
     const actRow = state.actors[i];
     const rowSum = state.results ? state.results.mid_metrics.influence[i] : state.mid[i].reduce((a, b) => a + b, 0);
-    html += `<tr>
-      <td class="p-2 font-bold bg-slate-100 border border-slate-200 text-left">${actRow.id || 'A' + (i + 1)} - ${actRow.name}</td>`;
+    const shortLbl = actRow.short_name || actRow.name;
+    html += `<tr class="hover:bg-slate-50/70 transition-colors">
+      <td class="py-1 px-2 font-bold bg-slate-100 border border-slate-200 text-left whitespace-nowrap max-w-[180px] truncate" title="${actRow.name}">
+        <span class="text-blue-700 mr-1">${actRow.id || 'A' + (i + 1)}</span>${escapeHtml(shortLbl)}
+      </td>`;
 
     for (let j = 0; j < N; j++) {
       if (i === j) {
-        html += `<td class="p-1 border border-slate-200 bg-slate-200 font-bold text-slate-400">0</td>`;
+        html += `<td class="p-1 border border-slate-200 bg-slate-200/80 font-bold text-slate-400 text-[11px]">0</td>`;
       } else {
         const val = state.mid[i][j];
-        const bgClass = val === 4 ? "bg-blue-200 text-blue-900" : (val === 3 ? "bg-blue-100" : (val === 0 ? "bg-slate-50 text-slate-400" : "bg-white"));
-        html += `<td class="p-1 border border-slate-200">
+        const bgClass = val === 4 ? "bg-blue-600 text-white border-blue-700" :
+                        (val === 3 ? "bg-blue-200 text-blue-900 border-blue-300" :
+                        (val === 2 ? "bg-blue-50 text-blue-800 border-blue-200" :
+                        (val === 0 ? "bg-slate-50 text-slate-400" : "bg-white text-slate-800")));
+        html += `<td class="p-0.5 border border-slate-200">
           <input type="number" min="0" max="4" value="${val}" data-row="${i}" data-col="${j}" class="mid-cell matrix-input ${bgClass}" onchange="onMidCellChange(${i}, ${j}, this.value)">
         </td>`;
       }
     }
 
-    html += `<td class="p-2 font-bold bg-blue-50 text-blue-800 border border-slate-200">${rowSum}</td>
+    html += `<td class="py-1 px-2 font-bold bg-blue-50 text-blue-900 border border-slate-200 whitespace-nowrap">${rowSum}</td>
     </tr>`;
   }
 
   // Footer Row: Dependences (D_i)
   html += `<tr class="bg-blue-900 text-white font-bold">
-    <td class="p-2 border border-slate-700 text-left">Total Dep. (D_i)</td>
+    <td class="py-1.5 px-2 border border-slate-700 text-left whitespace-nowrap">Total Dep. (D_i)</td>
     ${state.actors.map((_, j) => {
     const colSum = state.results ? state.results.mid_metrics.dependence[j] : 0;
-    return `<td class="p-2 border border-slate-700">${colSum}</td>`;
+    return `<td class="py-1.5 px-1.5 border border-slate-700">${colSum}</td>`;
   }).join("")}
-    <td class="p-2 border border-slate-700 bg-blue-950">${state.results ? state.results.mid_metrics.total_influence : 0}</td>
+    <td class="py-1.5 px-2 border border-slate-700 bg-blue-950">${state.results ? state.results.mid_metrics.total_influence : 0}</td>
   </tr>
   </tbody></table>`;
 
@@ -1211,23 +1217,27 @@ function renderMidiTable() {
   const midi = state.results.midi;
   const force = state.results.force_metrics;
 
-  let html = `<table class="w-full text-xs border border-slate-200 rounded-lg overflow-hidden table-matrix">
+  let html = `<table class="w-full text-[11px] border border-slate-200 rounded-lg overflow-hidden table-matrix">
     <thead class="bg-slate-700 text-white font-bold">
       <tr>
-        <th class="p-2 border border-slate-600">Actores</th>
-        ${state.actors.map(a => `<th class="p-2 border border-slate-600">${a.id || a.short_name}</th>`).join("")}
-        <th class="p-2 border border-slate-600 bg-amber-700">Relación Fuerza (r_i)</th>
+        <th class="py-1.5 px-2 border border-slate-600 text-left whitespace-nowrap">Actores</th>
+        ${state.actors.map((a, idx) => `<th class="py-1.5 px-1.5 border border-slate-600 whitespace-nowrap" title="${a.name}">${a.id || 'A' + (idx + 1)}</th>`).join("")}
+        <th class="py-1.5 px-2 border border-slate-600 bg-amber-700 whitespace-nowrap">Fuerza (r_i)</th>
       </tr>
     </thead>
     <tbody>`;
 
   for (let i = 0; i < N; i++) {
-    html += `<tr>
-      <td class="p-2 font-bold bg-slate-50 border border-slate-200 text-left">${state.actors[i].id} - ${state.actors[i].name}</td>`;
+    const act = state.actors[i];
+    const shortLbl = act.short_name || act.name;
+    html += `<tr class="hover:bg-slate-50/70">
+      <td class="py-1 px-2 font-bold bg-slate-50 border border-slate-200 text-left whitespace-nowrap max-w-[180px] truncate" title="${act.name}">
+        <span class="text-slate-600 mr-1">${act.id || 'A' + (i + 1)}</span>${escapeHtml(shortLbl)}
+      </td>`;
     for (let j = 0; j < N; j++) {
-      html += `<td class="p-2 border border-slate-200 ${i === j ? 'bg-slate-100 text-slate-400' : ''}">${midi[i][j]}</td>`;
+      html += `<td class="py-1 px-1.5 border border-slate-200 ${i === j ? 'bg-slate-100 text-slate-400' : ''}">${midi[i][j]}</td>`;
     }
-    html += `<td class="p-2 font-bold bg-amber-50 text-amber-900 border border-slate-200">${force.r_i[i].toFixed(2)}</td>
+    html += `<td class="py-1 px-2 font-bold bg-amber-50 text-amber-900 border border-slate-200 whitespace-nowrap">${force.r_i[i].toFixed(2)}</td>
     </tr>`;
   }
   html += `</tbody></table>`;
