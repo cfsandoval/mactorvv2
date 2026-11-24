@@ -180,6 +180,10 @@
         </button>
       </div>
     </nav>
+    <!-- Process Progress Bar -->
+    <div class="w-full h-1 bg-slate-800 overflow-hidden">
+      <div id="process-progress-bar" class="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500 transition-all duration-300" style="width: 11.1%"></div>
+    </div>
   </header>
 
   <!-- Main Container -->
@@ -210,6 +214,80 @@
           <i class="fa-solid fa-trophy text-amber-500 text-xs mr-0.5"></i>
           <span>CQ - Carolina (50.6)</span>
         </span>
+      </div>
+    </div>
+
+    <!-- Guided Process Step Banner (Muestra claramente en qué parte del proceso estás y qué hacer) -->
+    <div id="process-step-banner" class="mb-5 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white px-5 py-3.5 rounded-2xl shadow-md border border-slate-700/80 space-y-3">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div class="flex items-start space-x-3">
+          <div id="step-banner-number" class="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow">1</div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="step-banner-phase" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                Fase I &bull; Preparación y Mapeo
+              </span>
+              <span id="step-banner-counter" class="text-[11px] text-slate-400 font-semibold">Paso 1 de 9</span>
+            </div>
+            <h2 id="step-banner-title" class="text-sm font-bold text-white mt-1">1. Inteligencia Territorial: Selecciona o rastrea un caso</h2>
+            <p id="step-banner-instruction" class="text-xs text-slate-300 mt-0.5 leading-relaxed">
+              <b>Qué hacer aquí:</b> Carga uno de los 11 casos preconfigurados o ingresa un territorio y sector para extraer actores y evidencias en vivo.
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Process Navigation Controls -->
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button id="btn-toggle-process-map"
+            class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-[11px] font-semibold flex items-center space-x-1.5 transition-all cursor-pointer"
+            title="Ver el mapa completo del flujo metodológico MACTOR">
+            <i class="fa-solid fa-route text-amber-400"></i>
+            <span>Ver Flujo (4 Fases)</span>
+          </button>
+          <button id="btn-step-prev-top"
+            class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 border border-slate-600 text-xs font-semibold flex items-center space-x-1 transition-all cursor-pointer">
+            <i class="fa-solid fa-arrow-left text-[10px]"></i>
+            <span>Anterior</span>
+          </button>
+          <button id="btn-step-next-top"
+            class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow transition-all cursor-pointer">
+            <span id="btn-step-next-top-label">Siguiente: Actores &amp; Objetivos</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsible 4-Phase Process Overview Map -->
+      <div id="process-map-drawer" class="hidden pt-3 border-t border-slate-700/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-[11px]">
+        <div class="p-2.5 rounded-xl bg-slate-800/70 border border-blue-500/30 space-y-1">
+          <span class="font-bold text-blue-300 block uppercase text-[10px]">Fase I &bull; Preparación</span>
+          <div class="space-y-0.5 text-slate-300">
+            <button onclick="navigateToStep('tab-territory')" class="block w-full text-left hover:text-white cursor-pointer">1. Inteligencia Territorial</button>
+            <button onclick="navigateToStep('tab-config')" class="block w-full text-left hover:text-white cursor-pointer">2. Actores &amp; Objetivos</button>
+          </div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/70 border border-emerald-500/30 space-y-1">
+          <span class="font-bold text-emerald-300 block uppercase text-[10px]">Fase II &bull; Modelación de Poder</span>
+          <div class="space-y-0.5 text-slate-300">
+            <button onclick="navigateToStep('tab-mid')" class="block w-full text-left hover:text-white cursor-pointer">3. Matriz MID &amp; Cuadrantes</button>
+            <button onclick="navigateToStep('tab-mao')" class="block w-full text-left hover:text-white cursor-pointer">4. Posiciones &amp; Balanzas LIPSOR</button>
+          </div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/70 border border-purple-500/30 space-y-1">
+          <span class="font-bold text-purple-300 block uppercase text-[10px]">Fase III &bull; Alianzas y Simulación</span>
+          <div class="space-y-0.5 text-slate-300">
+            <button onclick="navigateToStep('tab-alliances')" class="block w-full text-left hover:text-white cursor-pointer">5. Red de Alianzas &amp; Conflictos</button>
+            <button onclick="navigateToStep('tab-trees')" class="block w-full text-left hover:text-white cursor-pointer">6. Árboles de Convergencia</button>
+            <button onclick="navigateToStep('tab-mobilization')" class="block w-full text-left hover:text-white cursor-pointer">7. Movilización Objetivos</button>
+            <button onclick="navigateToStep('tab-scenarios')" class="block w-full text-left hover:text-white cursor-pointer">8. Simulación "¿Qué pasa si...?"</button>
+          </div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/70 border border-amber-500/30 space-y-1">
+          <span class="font-bold text-amber-300 block uppercase text-[10px]">Fase IV &bull; Decisión y Entrega</span>
+          <div class="space-y-0.5 text-slate-300">
+            <button onclick="navigateToStep('tab-report')" class="block w-full text-left hover:text-white cursor-pointer">9. Informe Ejecutivo &amp; Word/Excel</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1369,6 +1447,27 @@
 
       </div>
     </section>
+
+    <!-- Sequential Process Bottom Navigation Bar -->
+    <div id="process-footer-nav"
+      class="mt-8 bg-white px-5 py-3.5 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
+      <button id="btn-step-prev-bottom"
+        class="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-semibold flex items-center justify-center space-x-2 transition-all cursor-pointer">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+        <span id="btn-step-prev-bottom-label">Paso Anterior</span>
+      </button>
+
+      <div class="flex flex-col items-center">
+        <span id="footer-step-indicator" class="text-xs font-bold text-slate-800">Paso 1 de 9 &bull; Fase I: Preparación</span>
+        <span class="text-[11px] text-slate-400">Flujo Secuencial MACTOR</span>
+      </div>
+
+      <button id="btn-step-next-bottom"
+        class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer">
+        <span id="btn-step-next-bottom-label">Continuar al Paso 2: Actores &amp; Objetivos</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </button>
+    </div>
 
   </main>
 

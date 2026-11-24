@@ -36,43 +36,241 @@ document.addEventListener("DOMContentLoaded", () => {
   loadCase("manual_caballos_monteria"); // Default benchmark from attached manual
 });
 
-// Setup tab switches
+// Guided Process Metadata (9 Steps across 4 Prospective Phases)
+const PROCESS_STEPS = [
+  {
+    id: "tab-territory",
+    num: 1,
+    phase: "Fase I • Preparación y Mapeo",
+    shortPhase: "Fase I: Preparación",
+    title: "1. Inteligencia Territorial: Selecciona o rastrea un caso",
+    shortTitle: "Inteligencia Territorial",
+    instruction: "<b>Qué hacer aquí:</b> Elige uno de los 11 casos preconfigurados o ingresa un territorio y sector para extraer actores reales y evidencias desde 9 canales de fuentes."
+  },
+  {
+    id: "tab-config",
+    num: 2,
+    phase: "Fase I • Preparación y Mapeo",
+    shortPhase: "Fase I: Preparación",
+    title: "2. Actores y Objetivos: Valida el tablero del sistema",
+    shortTitle: "Actores & Objetivos",
+    instruction: "<b>Qué hacer aquí:</b> Revisa, edita o agrega actores estratégicos y ajusta los pesos de los objetivos (deben sumar 100%)."
+  },
+  {
+    id: "tab-mid",
+    num: 3,
+    phase: "Fase II • Modelación de Poder",
+    shortPhase: "Fase II: Modelación",
+    title: "3. Matriz MID & Cuadrantes: Califica quién influye sobre quién",
+    shortTitle: "Matriz MID & Cuadrantes",
+    instruction: "<b>Qué hacer aquí:</b> Asigna la influencia directa entre actores (escala 0 a 4) y observa en el gráfico qué actores son Dominantes, de Enlace o Dominados."
+  },
+  {
+    id: "tab-mao",
+    num: 4,
+    phase: "Fase II • Modelación de Poder",
+    shortPhase: "Fase II: Modelación",
+    title: "4. Posiciones & Balanzas LIPSOR: Mide el pulso de fuerzas",
+    shortTitle: "Posiciones & Balanzas",
+    instruction: "<b>Qué hacer aquí:</b> Registra la postura de cada actor (-4 a +4) frente a cada objetivo y revisa hacia qué platillo se inclina la Balanza de Poder."
+  },
+  {
+    id: "tab-alliances",
+    num: 5,
+    phase: "Fase III • Alianzas y Simulación",
+    shortPhase: "Fase III: Alianzas",
+    title: "5. Red de Alianzas & Conflictos: Identifica aliados y rivales",
+    shortTitle: "Alianzas & Conflictos",
+    instruction: "<b>Qué hacer aquí:</b> Analiza el grafo de relaciones y las matrices de Convergencia (CAA3) y Divergencia (DAA3) para detectar coaliciones naturales y tensiones."
+  },
+  {
+    id: "tab-trees",
+    num: 6,
+    phase: "Fase III • Alianzas y Simulación",
+    shortPhase: "Fase III: Alianzas",
+    title: "6. Árboles de Convergencia: Agrupa bloques por afinidad",
+    shortTitle: "Árboles de Convergencia",
+    instruction: "<b>Qué hacer aquí:</b> Explora los dendrogramas jerárquicos para visualizar qué grupos de actores forman bloques homogéneos."
+  },
+  {
+    id: "tab-mobilization",
+    num: 7,
+    phase: "Fase III • Alianzas y Simulación",
+    shortPhase: "Fase III: Alianzas",
+    title: "7. Movilización de Objetivos: Evalúa viabilidad y bloqueos",
+    shortTitle: "Movilización Objetivos",
+    instruction: "<b>Qué hacer aquí:</b> Compara el nivel de movilización, balance neto e índice de disputa para priorizar qué objetivos son viables o requieren mediación."
+  },
+  {
+    id: "tab-scenarios",
+    num: 8,
+    phase: "Fase III • Alianzas y Simulación",
+    shortPhase: "Fase III: Alianzas",
+    title: "8. Simulación \"¿Qué pasa si...?\": Prueba escenarios tácticos",
+    shortTitle: "Simulación Escenarios",
+    instruction: "<b>Qué hacer aquí:</b> Modifica hipotéticamente el poder o la postura de un actor clave para anticipar si cambia el actor hegemónico o se destraba un conflicto."
+  },
+  {
+    id: "tab-report",
+    num: 9,
+    phase: "Fase IV • Decisión y Entrega",
+    shortPhase: "Fase IV: Entrega",
+    title: "9. Informe Ejecutivo: Revisa conclusiones y descarga Word/Excel",
+    shortTitle: "Informe Ejecutivo",
+    instruction: "<b>Qué hacer aquí:</b> Revisa el resumen estratégico completo y descarga el <b>Informe Integral en Word (.docx)</b> o el libro de <b>Excel (.xlsx)</b>."
+  }
+];
+
+let currentStepIndex = 0;
+
+function navigateToStep(targetPaneId, shouldScroll = true) {
+  const stepIdx = PROCESS_STEPS.findIndex(s => s.id === targetPaneId);
+  if (stepIdx === -1) return;
+  currentStepIndex = stepIdx;
+  const step = PROCESS_STEPS[stepIdx];
+
+  // Update top nav tabs
+  const tabs = document.querySelectorAll(".nav-tab");
+  tabs.forEach(t => {
+    if (t.getAttribute("data-tab") === targetPaneId) {
+      t.classList.add("active");
+    } else {
+      t.classList.remove("active");
+    }
+  });
+
+  // Hide all panes & show target
+  document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.add("hidden"));
+  const targetPane = document.getElementById(targetPaneId);
+  if (targetPane) targetPane.classList.remove("hidden");
+
+  // Update progress bar
+  const progressEl = document.getElementById("process-progress-bar");
+  if (progressEl) {
+    const pct = ((stepIdx + 1) / PROCESS_STEPS.length) * 100;
+    progressEl.style.width = `${pct.toFixed(1)}%`;
+  }
+
+  // Update Top Guidance Banner
+  const numEl = document.getElementById("step-banner-number");
+  const phaseEl = document.getElementById("step-banner-phase");
+  const countEl = document.getElementById("step-banner-counter");
+  const titleEl = document.getElementById("step-banner-title");
+  const instEl = document.getElementById("step-banner-instruction");
+
+  if (numEl) numEl.textContent = step.num;
+  if (phaseEl) phaseEl.textContent = step.phase;
+  if (countEl) countEl.textContent = `Paso ${step.num} de ${PROCESS_STEPS.length}`;
+  if (titleEl) titleEl.textContent = step.title;
+  if (instEl) instEl.innerHTML = step.instruction;
+
+  // Update Top & Bottom Prev/Next Buttons
+  const prevStep = stepIdx > 0 ? PROCESS_STEPS[stepIdx - 1] : null;
+  const nextStep = stepIdx < PROCESS_STEPS.length - 1 ? PROCESS_STEPS[stepIdx + 1] : null;
+
+  const btnPrevTop = document.getElementById("btn-step-prev-top");
+  const btnNextTop = document.getElementById("btn-step-next-top");
+  const lblNextTop = document.getElementById("btn-step-next-top-label");
+  const btnPrevBot = document.getElementById("btn-step-prev-bottom");
+  const lblPrevBot = document.getElementById("btn-step-prev-bottom-label");
+  const btnNextBot = document.getElementById("btn-step-next-bottom");
+  const lblNextBot = document.getElementById("btn-step-next-bottom-label");
+  const footerInd = document.getElementById("footer-step-indicator");
+
+  if (btnPrevTop) btnPrevTop.disabled = !prevStep;
+  if (btnPrevBot) btnPrevBot.disabled = !prevStep;
+  if (lblPrevBot) lblPrevBot.textContent = prevStep ? `Anterior: ${prevStep.shortTitle}` : "Inicio del Proceso";
+
+  if (nextStep) {
+    if (btnNextTop) {
+      btnNextTop.disabled = false;
+      btnNextTop.className = "px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow transition-all cursor-pointer";
+    }
+    if (lblNextTop) lblNextTop.textContent = `Siguiente: ${nextStep.shortTitle}`;
+    if (btnNextBot) {
+      btnNextBot.className = "w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer";
+    }
+    if (lblNextBot) lblNextBot.textContent = `Continuar al Paso ${nextStep.num}: ${nextStep.shortTitle}`;
+  } else {
+    // Step 9: Final Delivery Action
+    if (btnNextTop) {
+      btnNextTop.disabled = false;
+      btnNextTop.className = "px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow transition-all cursor-pointer";
+    }
+    if (lblNextTop) lblNextTop.textContent = "Descargar Informe Word (.docx)";
+    if (btnNextBot) {
+      btnNextBot.className = "w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer";
+    }
+    if (lblNextBot) lblNextBot.textContent = "Descargar Informe Completo en Word (.docx)";
+  }
+
+  if (footerInd) {
+    footerInd.textContent = `Paso ${step.num} de ${PROCESS_STEPS.length} • ${step.shortPhase}`;
+  }
+
+  // Re-render charts or networks if tab became visible
+  if (targetPaneId === "tab-mid" && state.results) {
+    renderQuadrantChart();
+  } else if (targetPaneId === "tab-mao") {
+    populateBalanceDropdowns();
+    renderBalanceScaleView();
+  } else if (targetPaneId === "tab-alliances" && state.results) {
+    renderAllianceNetwork();
+  } else if (targetPaneId === "tab-trees" && state.results) {
+    renderDendrogram(state.treeMode);
+  } else if (targetPaneId === "tab-mobilization" && state.results) {
+    renderMobilizationChart();
+  } else if (targetPaneId === "tab-report" && state.results) {
+    renderExecutiveReport();
+  }
+
+  if (shouldScroll) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+// Setup tab switches & process step navigation
 function setupTabNavigation() {
   const tabs = document.querySelectorAll(".nav-tab");
   tabs.forEach(tab => {
     tab.addEventListener("click", () => {
       const targetPaneId = tab.getAttribute("data-tab");
-
-      // Update tab active classes
-      tabs.forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-
-      // Hide all panes
-      document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.add("hidden"));
-
-      // Show target pane
-      const targetPane = document.getElementById(targetPaneId);
-      if (targetPane) {
-        targetPane.classList.remove("hidden");
-      }
-
-      // Re-render charts or networks if tab became visible
-      if (targetPaneId === "tab-mid" && state.results) {
-        renderQuadrantChart();
-      } else if (targetPaneId === "tab-mao") {
-        populateBalanceDropdowns();
-        renderBalanceScaleView();
-      } else if (targetPaneId === "tab-alliances" && state.results) {
-        renderAllianceNetwork();
-      } else if (targetPaneId === "tab-trees" && state.results) {
-        renderDendrogram(state.treeMode);
-      } else if (targetPaneId === "tab-mobilization" && state.results) {
-        renderMobilizationChart();
-      } else if (targetPaneId === "tab-report" && state.results) {
-        renderExecutiveReport();
-      }
+      navigateToStep(targetPaneId, false);
     });
   });
+
+  const goPrev = () => {
+    if (currentStepIndex > 0) {
+      navigateToStep(PROCESS_STEPS[currentStepIndex - 1].id, true);
+    }
+  };
+  const goNext = () => {
+    if (currentStepIndex < PROCESS_STEPS.length - 1) {
+      navigateToStep(PROCESS_STEPS[currentStepIndex + 1].id, true);
+    } else {
+      exportWordDocx();
+    }
+  };
+
+  const btnPrevTop = document.getElementById("btn-step-prev-top");
+  const btnNextTop = document.getElementById("btn-step-next-top");
+  const btnPrevBot = document.getElementById("btn-step-prev-bottom");
+  const btnNextBot = document.getElementById("btn-step-next-bottom");
+  const btnToggleMap = document.getElementById("btn-toggle-process-map");
+  const mapDrawer = document.getElementById("process-map-drawer");
+
+  if (btnPrevTop) btnPrevTop.addEventListener("click", goPrev);
+  if (btnNextTop) btnNextTop.addEventListener("click", goNext);
+  if (btnPrevBot) btnPrevBot.addEventListener("click", goPrev);
+  if (btnNextBot) btnNextBot.addEventListener("click", goNext);
+  if (btnToggleMap && mapDrawer) {
+    btnToggleMap.addEventListener("click", () => {
+      mapDrawer.classList.toggle("hidden");
+    });
+  }
+
+  // Initialize banner on step 1
+  navigateToStep("tab-territory", false);
 }
 
 // Real-time two-way synchronization: Territory & Sector inputs <--> Top Active Context Bar (Global Scope)
