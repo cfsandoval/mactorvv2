@@ -1169,7 +1169,7 @@ function renderMidTable() {
     const shortLbl = actRow.short_name || actRow.name;
     html += `<tr class="hover:bg-slate-50/70 transition-colors">
       <td class="py-1 px-2 font-bold bg-slate-100 border border-slate-200 text-left whitespace-nowrap max-w-[180px] truncate" title="${actRow.name}">
-        <span class="text-blue-700 mr-1">${actRow.id || 'A' + (i + 1)}</span>${escapeHtml(shortLbl)}
+        <span class="text-blue-700 mr-1">${actRow.id || 'A' + (i + 1)}</span>${escapeXml(shortLbl)}
       </td>`;
 
     for (let j = 0; j < N; j++) {
@@ -1232,7 +1232,7 @@ function renderMidiTable() {
     const shortLbl = act.short_name || act.name;
     html += `<tr class="hover:bg-slate-50/70">
       <td class="py-1 px-2 font-bold bg-slate-50 border border-slate-200 text-left whitespace-nowrap max-w-[180px] truncate" title="${act.name}">
-        <span class="text-slate-600 mr-1">${act.id || 'A' + (i + 1)}</span>${escapeHtml(shortLbl)}
+        <span class="text-slate-600 mr-1">${act.id || 'A' + (i + 1)}</span>${escapeXml(shortLbl)}
       </td>`;
     for (let j = 0; j < N; j++) {
       html += `<td class="py-1 px-1.5 border border-slate-200 ${i === j ? 'bg-slate-100 text-slate-400' : ''}">${midi[i][j]}</td>`;
