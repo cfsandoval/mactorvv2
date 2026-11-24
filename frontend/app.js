@@ -2367,16 +2367,100 @@ function renderQuadrantChart() {
   const meanInf = infValues.reduce((a, b) => a + b, 0) / (infValues.length || 1);
   const meanDep = depValues.reduce((a, b) => a + b, 0) / (depValues.length || 1);
 
+  // Encuadre dinámico centrado alrededor de las medias para evitar concentración en una esquina
+  // (100% fiel metodológicamente a LIPSOR: los cuadrantes dependen de las medias, no del origen 0,0)
+  const minDep = Math.min(...depValues, meanDep);
+  const maxDep = Math.max(...depValues, meanDep);
+  const minInf = Math.min(...infValues, meanInf);
+  const maxInf = Math.max(...infValues, meanInf);
+
+  const halfSpanX = Math.max(meanDep - minDep, maxDep - meanDep, 1.5) * 1.28;
+  const halfSpanY = Math.max(meanInf - minInf, maxInf - meanInf, 1.5) * 1.28;
+
+  const xMin = Math.max(0, Number((meanDep - halfSpanX).toFixed(1)));
+  const xMax = Number((meanDep + halfSpanX).toFixed(1));
+  const yMin = Math.max(0, Number((meanInf - halfSpanY).toFixed(1)));
+  const yMax = Number((meanInf + halfSpanY).toFixed(1));
+
   const dataPoints = quads.map(q => ({
     x: q.dependence,
     y: q.influence,
+    id: q.id,
+    shortLabel: `${q.id}`,
     label: `${q.id}: ${q.name}`,
-    quadrant: q.quadrant
+    quadrant: q.quadrant,
+    color: q.color || '#2563eb'
   }));
 
   if (state.quadrantChart) {
     state.quadrantChart.destroy();
   }
+
+  // Plugin para dibujar cuadrantes de Godet, líneas medias y etiquetas de actores
+  const godetQuadrantsPlugin = {
+    id: 'godetQuadrants',
+    beforeDraw(chart) {
+      const { ctx: c, chartArea: area, scales: { x, y } } = chart;
+      if (!area) return;
+      const midX = x.getPixelForValue(meanDep);
+      const midY = y.getPixelForValue(meanInf);
+
+      c.save();
+      // Fondos de los 4 cuadrantes
+      // Top-Left: Dominantes
+      c.fillStyle = 'rgba(254, 243, 199, 0.35)';
+      c.fillRect(area.left, area.top, Math.max(0, midX - area.left), Math.max(0, midY - area.top));
+      // Top-Right: Enlace / Clave
+      c.fillStyle = 'rgba(254, 226, 226, 0.35)';
+      c.fillRect(midX, area.top, Math.max(0, area.right - midX), Math.max(0, midY - area.top));
+      // Bottom-Right: Dominados
+      c.fillStyle = 'rgba(219, 234, 254, 0.35)';
+      c.fillRect(midX, midY, Math.max(0, area.right - midX), Math.max(0, area.bottom - midY));
+      // Bottom-Left: Autónomos
+      c.fillStyle = 'rgba(241, 245, 249, 0.45)';
+      c.fillRect(area.left, midY, Math.max(0, midX - area.left), Math.max(0, area.bottom - midY));
+
+      // Líneas medias discontinuas
+      c.strokeStyle = '#64748b';
+      c.lineWidth = 1.2;
+      c.setLineDash([5, 4]);
+      c.beginPath();
+      c.moveTo(midX, area.top);
+      c.lineTo(midX, area.bottom);
+      c.moveTo(area.left, midY);
+      c.lineTo(area.right, midY);
+      c.stroke();
+
+      // Etiquetas de cuadrantes en las esquinas
+      c.setLineDash([]);
+      c.font = 'bold 9px Segoe UI, sans-serif';
+      c.fillStyle = '#b45309';
+      c.fillText('DOMINANTES', area.left + 6, area.top + 13);
+      c.fillStyle = '#b91c1c';
+      c.textAlign = 'right';
+      c.fillText('ENLACE / CLAVE', area.right - 6, area.top + 13);
+      c.fillStyle = '#1d4ed8';
+      c.fillText('DOMINADOS', area.right - 6, area.bottom - 6);
+      c.textAlign = 'left';
+      c.fillStyle = '#475569';
+      c.fillText('AUTÓNOMOS', area.left + 6, area.bottom - 6);
+      c.restore();
+    },
+    afterDatasetsDraw(chart) {
+      const { ctx: c, data } = chart;
+      const meta = chart.getDatasetMeta(0);
+      c.save();
+      c.font = 'bold 10px Segoe UI, sans-serif';
+      c.fillStyle = '#0f172a';
+      meta.data.forEach((pt, i) => {
+        const p = data.datasets[0].data[i];
+        const offsetY = (i % 2 === 0) ? -11 : 16;
+        c.textAlign = 'center';
+        c.fillText(p.shortLabel, pt.x, pt.y + offsetY);
+      });
+      c.restore();
+    }
+  };
 
   state.quadrantChart = new Chart(ctx, {
     type: 'scatter',
@@ -2384,10 +2468,11 @@ function renderQuadrantChart() {
       datasets: [{
         label: 'Actores',
         data: dataPoints,
-        backgroundColor: '#2563eb',
-        borderColor: '#1d4ed8',
-        pointRadius: 8,
-        pointHoverRadius: 11
+        backgroundColor: dataPoints.map(p => p.color),
+        borderColor: '#0f172a',
+        borderWidth: 1.5,
+        pointRadius: 7,
+        pointHoverRadius: 10
       }]
     },
     options: {
@@ -2395,14 +2480,18 @@ function renderQuadrantChart() {
       maintainAspectRatio: true,
       aspectRatio: 1,
       layout: {
-        padding: 10
+        padding: 12
       },
       scales: {
         x: {
+          min: xMin,
+          max: xMax,
           title: { display: true, text: 'Dependencia Directa (D_i)', font: { weight: 'bold', size: 11 } },
           grid: { color: '#e2e8f0' }
         },
         y: {
+          min: yMin,
+          max: yMax,
           title: { display: true, text: 'Influencia Directa (I_i)', font: { weight: 'bold', size: 11 } },
           grid: { color: '#e2e8f0' }
         }
@@ -2418,7 +2507,8 @@ function renderQuadrantChart() {
         },
         legend: { display: false }
       }
-    }
+    },
+    plugins: [godetQuadrantsPlugin]
   });
 
   // Renderizar también las métricas de red y centralización

@@ -257,31 +257,44 @@ def generate_quadrant_scatter_image(quadrants: List[Dict[str, Any]], actors: Lis
     mean_inf = float(np.mean(inf)) if inf else 1.0
     mean_dep = float(np.mean(dep)) if dep else 1.0
 
-    max_dep = max(dep + [mean_dep * 1.5]) + 1.0
-    max_inf = max(inf + [mean_inf * 1.5]) + 1.0
+    min_dep, max_dep_val = min(dep + [mean_dep]), max(dep + [mean_dep])
+    min_inf, max_inf_val = min(inf + [mean_inf]), max(inf + [mean_inf])
+    half_x = max(mean_dep - min_dep, max_dep_val - mean_dep, 1.5) * 1.28
+    half_y = max(mean_inf - min_inf, max_inf_val - mean_inf, 1.5) * 1.28
 
-    ax.axhspan(mean_inf, max_inf, 0, mean_dep / max_dep, facecolor='#fef3c7', alpha=0.35)
-    ax.axhspan(mean_inf, max_inf, mean_dep / max_dep, 1.0, facecolor='#fee2e2', alpha=0.35)
-    ax.axhspan(0, mean_inf, mean_dep / max_dep, 1.0, facecolor='#dbeafe', alpha=0.35)
-    ax.axhspan(0, mean_inf, 0, mean_dep / max_dep, facecolor='#f1f5f9', alpha=0.35)
+    x_min = max(0.0, mean_dep - half_x)
+    x_max = mean_dep + half_x
+    y_min = max(0.0, mean_inf - half_y)
+    y_max = mean_inf + half_y
+
+    span_x = max(0.1, x_max - x_min)
+    mid_frac_x = (mean_dep - x_min) / span_x
+
+    ax.axhspan(mean_inf, y_max, 0, mid_frac_x, facecolor='#fef3c7', alpha=0.35)
+    ax.axhspan(mean_inf, y_max, mid_frac_x, 1.0, facecolor='#fee2e2', alpha=0.35)
+    ax.axhspan(y_min, mean_inf, mid_frac_x, 1.0, facecolor='#dbeafe', alpha=0.35)
+    ax.axhspan(y_min, mean_inf, 0, mid_frac_x, facecolor='#f1f5f9', alpha=0.35)
 
     ax.axhline(mean_inf, color='#475569', linestyle='--', linewidth=1.2, alpha=0.8, label=f'Media Influencia ({mean_inf:.1f})')
     ax.axvline(mean_dep, color='#475569', linestyle='--', linewidth=1.2, alpha=0.8, label=f'Media Dependencia ({mean_dep:.1f})')
 
-    ax.text(0.02 * max_dep, max_inf * 0.94, 'CUADRANTE I: DOMINANTES', fontsize=7.5, fontweight='bold', color='#b45309')
-    ax.text(mean_dep * 1.04, max_inf * 0.94, 'CUADRANTE II: ENLACE / CLAVE', fontsize=7.5, fontweight='bold', color='#b91c1c')
-    ax.text(mean_dep * 1.04, max_inf * 0.05, 'CUADRANTE III: DOMINADOS', fontsize=7.5, fontweight='bold', color='#1d4ed8')
-    ax.text(0.02 * max_dep, max_inf * 0.05, 'CUADRANTE IV: AUTÓNOMOS', fontsize=7.5, fontweight='bold', color='#475569')
+    span_y = max(0.1, y_max - y_min)
+    ax.text(x_min + 0.02 * span_x, y_max - 0.06 * span_y, 'CUADRANTE I: DOMINANTES', fontsize=7.5, fontweight='bold', color='#b45309')
+    ax.text(mean_dep + 0.02 * span_x, y_max - 0.06 * span_y, 'CUADRANTE II: ENLACE / CLAVE', fontsize=7.5, fontweight='bold', color='#b91c1c')
+    ax.text(mean_dep + 0.02 * span_x, y_min + 0.03 * span_y, 'CUADRANTE III: DOMINADOS', fontsize=7.5, fontweight='bold', color='#1d4ed8')
+    ax.text(x_min + 0.02 * span_x, y_min + 0.03 * span_y, 'CUADRANTE IV: AUTÓNOMOS', fontsize=7.5, fontweight='bold', color='#475569')
 
+    offsets = [(6, 6), (6, -11), (-18, 7), (-18, -12)]
     for idx, q in enumerate(quadrants):
         color = q.get("color") or "#1e3a8a"
         x, y = q.get("dependence", 0), q.get("influence", 0)
         ax.scatter(x, y, s=260, color=color, edgecolors='#0f172a', linewidth=1.5, zorder=6)
         label = f"{q.get('id', f'A{idx+1}')} - {q.get('name', '')[:14]}"
-        ax.annotate(label, (x, y), xytext=(6, 6), textcoords='offset points', fontsize=8, fontweight='bold', color='#0f172a', zorder=7)
+        ox, oy = offsets[idx % len(offsets)]
+        ax.annotate(label, (x, y), xytext=(ox, oy), textcoords='offset points', fontsize=8, fontweight='bold', color='#0f172a', zorder=7)
 
-    ax.set_xlim(-0.2, max_dep)
-    ax.set_ylim(-0.2, max_inf)
+    ax.set_xlim(x_min, x_max)
+    ax.set_ylim(y_min, y_max)
     ax.set_xlabel('Dependencia de Actores (D_i)', fontsize=9, fontweight='bold', color='#1e293b')
     ax.set_ylabel('Influencia de Actores (I_i)', fontsize=9, fontweight='bold', color='#1e293b')
     ax.set_title('PLANO ESTRATÉGICO DE INFLUENCIA VS. DEPENDENCIA (GODET)', fontsize=11, fontweight='bold', pad=12, color='#1e3a8a')
