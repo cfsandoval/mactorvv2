@@ -25,6 +25,12 @@ from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx.oxml import parse_xml, OxmlElement
 from docx.oxml.ns import nsdecls, qn
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+
 # Paleta cromática corporativa / institucional
 COLOR_NAVY_HEX = "1E3A8A"        # Azul oscuro institucional
 COLOR_TEAL_HEX = "0F766E"        # Verde azulado estratégico
@@ -142,6 +148,211 @@ def add_styled_heading(doc: docx.Document, text: str, level: int = 1):
         run.font.size = Pt(11)
         run.font.color.rgb = RGB_DARK
     return p
+
+
+def add_centered_picture(doc: docx.Document, img_stream: io.BytesIO, width_inches: float = 6.0, caption: Optional[str] = None):
+    """Inserta una imagen centrada en el documento con leyenda opcional."""
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.paragraph_format.space_before = Pt(8)
+    p.paragraph_format.space_after = Pt(2)
+    run = p.add_run()
+    run.add_picture(img_stream, width=Inches(width_inches))
+    if caption:
+        p_cap = doc.add_paragraph()
+        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_cap.paragraph_format.space_before = Pt(0)
+        p_cap.paragraph_format.space_after = Pt(8)
+        r_c = p_cap.add_run(caption)
+        r_c.font.name = "Calibri"
+        r_c.font.size = Pt(8.5)
+        r_c.italic = True
+        r_c.font.color.rgb = RGB_MUTED
+
+
+def generate_actor_network_graph_image(actors: List[Dict[str, Any]], mid: List[List[float]], quadrants: List[Dict[str, Any]], ri_list: List[float]) -> io.BytesIO:
+    """Genera el gráfico de la red de influencias directas entre actores (Grafo Dirigido MACTOR)."""
+    fig, ax = plt.subplots(figsize=(7.5, 5.5), dpi=180)
+    fig.patch.set_facecolor('#ffffff')
+    ax.set_facecolor('#f8fafc')
+
+    G = nx.DiGraph()
+    names = [a.get("short_name", a["name"])[:14] for a in actors]
+    
+    quad_color_map = {
+        "dominante": "#d97706",    # Ámbar oscuro
+        "enlace": "#dc2626",       # Rojo
+        "clave": "#dc2626",
+        "dominado": "#2563eb",     # Azul
+        "dependiente": "#2563eb",
+        "autonomo": "#64748b"      # Pizarra
+    }
+
+    node_colors = []
+    node_sizes = []
+
+    for idx, act in enumerate(actors):
+        G.add_node(names[idx])
+        q_name = quadrants[idx].get("quadrant", "").lower() if idx < len(quadrants) else ""
+        c = "#64748b"
+        for k, col in quad_color_map.items():
+            if k in q_name:
+                c = col
+                break
+        node_colors.append(c)
+        ri = ri_list[idx] if idx < len(ri_list) else 1.0
+        node_sizes.append(1100 + ri * 650)
+
+    n_act = len(actors)
+    for i in range(n_act):
+        for j in range(n_act):
+            if i != j and mid[i][j] > 0:
+                G.add_edge(names[i], names[j], weight=mid[i][j])
+
+    if n_act <= 6:
+        pos = nx.circular_layout(G)
+    else:
+        pos = nx.spring_layout(G, seed=42, k=1.4)
+
+    nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=node_sizes, ax=ax, edgecolors='#0f172a', linewidths=1.8)
+    nx.draw_networkx_labels(G, pos, font_size=8, font_weight='bold', font_color='white', font_family='sans-serif', ax=ax)
+
+    edges = list(G.edges())
+    if edges:
+        weights = [G[u][v]['weight'] for u, v in edges]
+        widths = [max(0.8, w * 0.9) for w in weights]
+        nx.draw_networkx_edges(
+            G, pos, edgelist=edges, width=widths, edge_color='#64748b',
+            alpha=0.65, arrows=True, arrowsize=13, connectionstyle='arc3,rad=0.12', ax=ax
+        )
+
+    from matplotlib.lines import Line2D
+    legend_elements = [
+        Line2D([0], [0], marker='o', color='w', label='Dominante (Alta I, Baja D)', markerfacecolor='#d97706', markersize=9),
+        Line2D([0], [0], marker='o', color='w', label='Enlace/Clave (Alta I, Alta D)', markerfacecolor='#dc2626', markersize=9),
+        Line2D([0], [0], marker='o', color='w', label='Dominado (Baja I, Alta D)', markerfacecolor='#2563eb', markersize=9),
+        Line2D([0], [0], marker='o', color='w', label='Autónomo (Baja I, Baja D)', markerfacecolor='#64748b', markersize=9),
+        Line2D([0], [0], color='#64748b', lw=2, label='Influencia Directa (MID)')
+    ]
+    ax.legend(handles=legend_elements, loc='lower center', bbox_to_anchor=(0.5, -0.15), ncol=3, fontsize=7.5, frameon=True, facecolor='#ffffff')
+
+    ax.set_title("RED DE INFLUENCIAS DIRECTAS ENTRE ACTORES (MÉTODO MACTOR)", fontsize=11, fontweight='bold', pad=12, color='#1e3a8a')
+    ax.axis('off')
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=200)
+    plt.close(fig)
+    buf.seek(0)
+    return buf
+
+
+def generate_quadrant_scatter_image(quadrants: List[Dict[str, Any]], actors: List[Dict[str, Any]]) -> io.BytesIO:
+    """Genera el gráfico bidimensional de Cuadrantes Estratégicos de Michel Godet."""
+    fig, ax = plt.subplots(figsize=(7.0, 5.0), dpi=180)
+    fig.patch.set_facecolor('#ffffff')
+    ax.set_facecolor('#ffffff')
+
+    inf = [q.get("influence", 0) for q in quadrants]
+    dep = [q.get("dependence", 0) for q in quadrants]
+    mean_inf = float(np.mean(inf)) if inf else 1.0
+    mean_dep = float(np.mean(dep)) if dep else 1.0
+
+    max_dep = max(dep + [mean_dep * 1.5]) + 1.0
+    max_inf = max(inf + [mean_inf * 1.5]) + 1.0
+
+    ax.axhspan(mean_inf, max_inf, 0, mean_dep / max_dep, facecolor='#fef3c7', alpha=0.35)
+    ax.axhspan(mean_inf, max_inf, mean_dep / max_dep, 1.0, facecolor='#fee2e2', alpha=0.35)
+    ax.axhspan(0, mean_inf, mean_dep / max_dep, 1.0, facecolor='#dbeafe', alpha=0.35)
+    ax.axhspan(0, mean_inf, 0, mean_dep / max_dep, facecolor='#f1f5f9', alpha=0.35)
+
+    ax.axhline(mean_inf, color='#475569', linestyle='--', linewidth=1.2, alpha=0.8, label=f'Media Influencia ({mean_inf:.1f})')
+    ax.axvline(mean_dep, color='#475569', linestyle='--', linewidth=1.2, alpha=0.8, label=f'Media Dependencia ({mean_dep:.1f})')
+
+    ax.text(0.02 * max_dep, max_inf * 0.94, 'CUADRANTE I: DOMINANTES', fontsize=7.5, fontweight='bold', color='#b45309')
+    ax.text(mean_dep * 1.04, max_inf * 0.94, 'CUADRANTE II: ENLACE / CLAVE', fontsize=7.5, fontweight='bold', color='#b91c1c')
+    ax.text(mean_dep * 1.04, max_inf * 0.05, 'CUADRANTE III: DOMINADOS', fontsize=7.5, fontweight='bold', color='#1d4ed8')
+    ax.text(0.02 * max_dep, max_inf * 0.05, 'CUADRANTE IV: AUTÓNOMOS', fontsize=7.5, fontweight='bold', color='#475569')
+
+    for idx, q in enumerate(quadrants):
+        color = q.get("color") or "#1e3a8a"
+        x, y = q.get("dependence", 0), q.get("influence", 0)
+        ax.scatter(x, y, s=260, color=color, edgecolors='#0f172a', linewidth=1.5, zorder=6)
+        label = f"{q.get('id', f'A{idx+1}')} - {q.get('name', '')[:14]}"
+        ax.annotate(label, (x, y), xytext=(6, 6), textcoords='offset points', fontsize=8, fontweight='bold', color='#0f172a', zorder=7)
+
+    ax.set_xlim(-0.2, max_dep)
+    ax.set_ylim(-0.2, max_inf)
+    ax.set_xlabel('Dependencia de Actores (D_i)', fontsize=9, fontweight='bold', color='#1e293b')
+    ax.set_ylabel('Influencia de Actores (I_i)', fontsize=9, fontweight='bold', color='#1e293b')
+    ax.set_title('PLANO ESTRATÉGICO DE INFLUENCIA VS. DEPENDENCIA (GODET)', fontsize=11, fontweight='bold', pad=12, color='#1e3a8a')
+    ax.grid(True, linestyle=':', alpha=0.6, color='#94a3b8')
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=200)
+    plt.close(fig)
+    buf.seek(0)
+    return buf
+
+
+def generate_alliances_conflicts_network_image(actors: List[Dict[str, Any]], caa3: List[List[float]], daa3: List[List[float]]) -> io.BytesIO:
+    """Genera el grafo de alianzas (convergencias) y conflictos (divergencias) estratégicas."""
+    fig, ax = plt.subplots(figsize=(7.5, 5.5), dpi=180)
+    fig.patch.set_facecolor('#ffffff')
+    ax.set_facecolor('#f8fafc')
+
+    G = nx.Graph()
+    names = [a.get("short_name", a["name"])[:14] for a in actors]
+    for n in names:
+        G.add_node(n)
+
+    n_act = len(actors)
+    green_edges = []
+    red_edges = []
+    green_weights = []
+    red_weights = []
+
+    all_c = [caa3[i][j] for i in range(n_act) for j in range(i+1, n_act)] if caa3 else []
+    all_d = [daa3[i][j] for i in range(n_act) for j in range(i+1, n_act)] if daa3 else []
+    med_c = float(np.median(all_c)) if all_c else 0
+    med_d = float(np.median(all_d)) if all_d else 0
+
+    for i in range(n_act):
+        for j in range(i + 1, n_act):
+            sc = caa3[i][j] if i < len(caa3) and j < len(caa3[i]) else 0
+            sd = daa3[i][j] if i < len(daa3) and j < len(daa3[i]) else 0
+            if sc > med_c and sc > 0:
+                green_edges.append((names[i], names[j]))
+                green_weights.append(max(1.0, sc * 0.4))
+            if sd > med_d and sd > 0:
+                red_edges.append((names[i], names[j]))
+                red_weights.append(max(1.0, sd * 0.4))
+
+    pos = nx.circular_layout(G) if n_act <= 6 else nx.spring_layout(G, seed=42, k=1.3)
+
+    nx.draw_networkx_nodes(G, pos, node_color='#1e3a8a', node_size=1200, ax=ax, edgecolors='#0f172a', linewidths=1.8)
+    nx.draw_networkx_labels(G, pos, font_size=8, font_weight='bold', font_color='white', font_family='sans-serif', ax=ax)
+
+    if green_edges:
+        nx.draw_networkx_edges(G, pos, edgelist=green_edges, width=green_weights, edge_color='#16a34a', alpha=0.7, ax=ax)
+
+    if red_edges:
+        nx.draw_networkx_edges(G, pos, edgelist=red_edges, width=red_weights, edge_color='#dc2626', style='dashed', alpha=0.7, ax=ax)
+
+    from matplotlib.lines import Line2D
+    legend_elements = [
+        Line2D([0], [0], color='#16a34a', lw=2.5, label='Alianza Estratégica (Convergencia CAA3)'),
+        Line2D([0], [0], color='#dc2626', lw=2.0, linestyle='dashed', label='Conflicto / Oposición (Divergencia DAA3)')
+    ]
+    ax.legend(handles=legend_elements, loc='lower center', bbox_to_anchor=(0.5, -0.12), ncol=2, fontsize=8, frameon=True, facecolor='#ffffff')
+
+    ax.set_title("RED DE ALIANZAS Y CONFLICTOS ESTRATÉGICOS ENTRE ACTORES", fontsize=11, fontweight='bold', pad=12, color='#1e3a8a')
+    ax.axis('off')
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=200)
+    plt.close(fig)
+    buf.seek(0)
+    return buf
 
 
 def format_table_header(row, col_titles: List[str]):
@@ -772,6 +983,30 @@ def generate_comprehensive_mactor_word(
             title="Tabla 4.2: Matriz de Influencias Directas e Indirectas de Segundo Orden (MIDI = MID + MID²)"
         )
 
+    # Gráfico de la Red de Actores e Influencias Directas
+    add_styled_heading(doc, "Grafo de la Red de Influencias Directas entre Actores", level=2)
+    p_net_desc = doc.add_paragraph()
+    p_net_desc.paragraph_format.line_spacing = 1.15
+    p_net_desc.paragraph_format.space_after = Pt(4)
+    p_net_desc.add_run(
+        "El siguiente grafo visualiza la estructura relacional del sistema territorial. El tamaño de cada nodo "
+        "es proporcional a su coeficiente de relación de fuerza (r_i), el color indica su cuadrante "
+        "estratégico de Godet, y las aristas dirigidas reflejan la dirección e intensidad de la influencia directa (MID):"
+    )
+
+    force_metrics = res.get("force_metrics", {})
+    ri_list = force_metrics.get("r_i", [1.0]*len(actors))
+
+    try:
+        net_img = generate_actor_network_graph_image(actors, mid_data, res.get("quadrants", []), ri_list)
+        add_centered_picture(
+            doc, net_img, width_inches=6.2,
+            caption="Figura 4.1: Red de Influencias Directas entre Actores (Método LIPSOR MACTOR). "
+                    "Nodos coloreados por cuadrante estratégico y aristas proporcionales al nivel de influencia (0 a 4)."
+        )
+    except Exception as e:
+        print(f"[!] Error generando gráfico de red de actores: {e}")
+
     # Diagnóstico por Cuadrantes Estratégicos de Godet
     add_styled_heading(doc, "Diagnóstico por Cuadrantes Estratégicos (Plano Influencia-Dependencia de Godet)", level=2)
     
@@ -872,6 +1107,16 @@ def generate_comprehensive_mactor_word(
         "con baja capacidad de respuesta autónoma. Requieren mecanismos de articulación institucional o protección.\n"
         "• Actores Autónomos (Baja Influencia, Baja Dependencia): Actores desconectados o periféricos con agendas sectoriales independientes."
     )
+
+    try:
+        quad_img = generate_quadrant_scatter_image(res.get("quadrants", []), actors)
+        add_centered_picture(
+            doc, quad_img, width_inches=5.8,
+            caption="Figura 4.2: Plano de Posicionamiento Estratégico de Actores de Michel Godet (Influencia vs. Dependencia). "
+                    "Líneas discontinuas delimitan los cuatro cuadrantes según los valores medios del sistema."
+        )
+    except Exception as e:
+        print(f"[!] Error generando gráfico de cuadrantes: {e}")
 
     # Métricas de Redes Sociales (SNA - Social Network Analysis)
     add_styled_heading(doc, "Métricas de Centralidad y Análisis de Redes Sociales (SNA)", level=2)
@@ -1154,6 +1399,16 @@ def generate_comprehensive_mactor_word(
         r3.bold = True
         r3.font.name = "Calibri"
         r3.font.size = Pt(8.5)
+
+    try:
+        all_img = generate_alliances_conflicts_network_image(actors, caa3_data, daa3_data)
+        add_centered_picture(
+            doc, all_img, width_inches=6.2,
+            caption="Figura 6.1: Red de Alianzas Estratégicas y Conflictos entre Actores. "
+                    "Verde continuo = Alianzas de alta convergencia (CAA3), Rojo discontinuo = Conflictos y divergencias agudas (DAA3)."
+        )
+    except Exception as e:
+        print(f"[!] Error generando gráfico de alianzas: {e}")
 
     doc.add_paragraph().paragraph_format.space_after = Pt(8)
 

@@ -34,5 +34,5 @@ if __name__ == "__main__":
     # Launch browser automatically
     threading.Thread(target=open_browser, daemon=True).start()
     
-    # Run with reload and app_dir on 0.0.0.0 so both localhost and 127.0.0.1 work
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True, app_dir=str(backend_dir), log_level="info")
+    # Run stable production server without stdin reloader signal
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
