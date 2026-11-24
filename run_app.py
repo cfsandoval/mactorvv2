@@ -28,11 +28,11 @@ if __name__ == "__main__":
     print("   Metodología Michel Godet (LIPSOR) & Variante SoftProsp")
     print("   Replicación del Manual: Villabona, Oyola & Franco (2018)")
     print("=" * 70)
-    print("[*] Servidor iniciado en http://127.0.0.1:8000")
+    print("[*] Servidor iniciado en http://localhost:8000 (y http://127.0.0.1:8000)")
     print("[*] Presione CTRL + C para detener el servidor.\n")
     
     # Launch browser automatically
     threading.Thread(target=open_browser, daemon=True).start()
     
-    # Run with reload
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True, reload_dirs=[str(backend_dir)], log_level="info")
+    # Run with reload and app_dir on 0.0.0.0 so both localhost and 127.0.0.1 work
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True, app_dir=str(backend_dir), log_level="info")
