@@ -30,6 +30,90 @@ from mactor_engine import MactorEngine
 from territory_miner import fetch_multi_angle_news, extract_detailed_actors_and_postures
 from cases_data import PRELOADED_CASES
 
+# In-memory cache for case territory analysis to keep requests ultra-fast
+_CASES_ANALYSIS_CACHE: Dict[str, Dict[str, Any]] = {}
+
+def build_case_territory_analysis(case_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Builds and enriches real-time news sources and territory analysis for a preloaded case,
+    preserving the exact predefined actors, objectives, MID and 2MAO matrices.
+    """
+    case_id = case_data.get("id", "")
+    if case_id in _CASES_ANALYSIS_CACHE:
+        return _CASES_ANALYSIS_CACHE[case_id]
+
+    territory = case_data.get("territory", "").strip()
+    country = case_data.get("country", "Colombia")
+    sector = case_data.get("sector", "").strip()
+
+    try:
+        news_items = fetch_multi_angle_news(territory, sector=sector, country=country)
+    except Exception as e:
+        print(f"[!] Error fetching news for preloaded case {case_id}: {e}")
+        news_items = []
+
+    # Channel counts
+    channel_counts = {
+        "all": len(news_items),
+        "newsdata": sum(1 for n in news_items if n.get("channel") == "newsdata"),
+        "official": sum(1 for n in news_items if n.get("channel") == "official"),
+        "social": sum(1 for n in news_items if n.get("channel") == "social"),
+        "press": sum(1 for n in news_items if n.get("channel") == "press"),
+        "academic": sum(1 for n in news_items if n.get("channel") == "academic")
+    }
+
+    # Social pulse
+    social_pulse = {
+        "status": "Monitoreo Activo" if channel_counts["social"] > 0 or channel_counts["all"] > 0 else "Estable",
+        "summary": f"Se han indexado {len(news_items)} fuentes periodísticas, oficiales y comunitarias sobre {territory} ({sector or 'Sector Estratégico'})."
+    }
+
+    # Deep copy actors and objectives from the preloaded benchmark
+    actors = [dict(a) for a in case_data.get("actors", [])]
+    objectives = [dict(o) for o in case_data.get("objectives", [])]
+
+    # Map actors to real collected news if available
+    for idx, act in enumerate(actors):
+        act_name_lower = act["name"].lower()
+        act_short_lower = act.get("short_name", "").lower()
+        matched = [
+            n for n in news_items
+            if any(term in n["title"].lower() or term in n["summary"].lower() 
+                   for term in [act_name_lower, act_short_lower, act.get("category", "").lower()] if len(term) > 3)
+        ]
+        if matched:
+            act["evidence_headline"] = matched[0]["title"]
+            act["evidence_link"] = matched[0]["link"]
+            act["evidence_source"] = matched[0]["source"]
+        elif not act.get("evidence_headline"):
+            act["evidence_headline"] = act.get("evidence") or f"Actor estratégico documentado en el territorio de {territory}."
+            act["evidence_source"] = case_data.get("source") or "Fuente Documental de Referencia"
+
+        if not act.get("explicit_objective"):
+            act["explicit_objective"] = act.get("evidence") or "Cumplimiento de objetivos estratégicos e institucionales."
+        if not act.get("implicit_objective"):
+            act["implicit_objective"] = "Mitigación de riesgos y preservación de posicionamiento territorial."
+        if not act.get("power_rationale"):
+            act["power_rationale"] = f"Nivel de Poder Godet: {act.get('base_power', 3)} de 4 en la matriz MID."
+
+    analysis = {
+        "territory": territory,
+        "country": country,
+        "sector": sector,
+        "news_count": len(news_items),
+        "channel_counts": channel_counts,
+        "social_pulse": social_pulse,
+        "news_sources": news_items,
+        "sources": news_items, # backward compatibility
+        "actors": actors,
+        "objectives": objectives,
+        "mid": case_data.get("mid", []),
+        "mao2": case_data.get("mao2", [])
+    }
+
+    _CASES_ANALYSIS_CACHE[case_id] = analysis
+    return analysis
+
 app = FastAPI(
     title="Plataforma Prospectiva MACTOR & Variantes Avanzadas",
     description="Sistema web para análisis de juegos de actores prospectivos, inteligencia territorial y simulación estratégica",
@@ -147,10 +231,13 @@ def list_cases():
 
 @app.get("/api/mactor/cases/{case_id}")
 def get_case(case_id: str):
-    """Returns full dataset for a specific preloaded case."""
+    """Returns full dataset for a specific preloaded case, enriched with real-time news and territorial intelligence."""
     if case_id not in PRELOADED_CASES:
         raise HTTPException(status_code=404, detail="Caso de estudio no encontrado.")
-    return {"case": PRELOADED_CASES[case_id]}
+    case_data = dict(PRELOADED_CASES[case_id])
+    analysis = build_case_territory_analysis(case_data)
+    case_data["territory_analysis"] = analysis
+    return {"case": case_data}
 
 @app.post("/api/mactor/simulate")
 def simulate_scenario(req: ScenarioSimRequest):

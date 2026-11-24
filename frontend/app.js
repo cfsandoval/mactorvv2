@@ -490,6 +490,41 @@ async function loadCase(caseId) {
     // Populate sim dropdowns
     populateSimulationDropdowns();
 
+    // If case has enriched territory intelligence & news sources, render them directly
+    if (c.territory_analysis) {
+      state.territoryAnalysis = c.territory_analysis;
+      renderTerritoryAnalysisResults(c.territory_analysis);
+
+      // Update Search Dock status for preloaded case
+      const dock = document.getElementById("live-search-dock");
+      const dockTicker = document.getElementById("search-dock-ticker");
+      const dockActions = document.getElementById("search-dock-actions");
+      const dockProgress = document.getElementById("search-dock-progress-bar");
+      const dockPercent = document.getElementById("search-dock-percent");
+      const dockStatus = document.getElementById("search-dock-status-text");
+      const tickerText = document.getElementById("search-dock-ticker-text");
+      const dockBadge = document.getElementById("search-dock-sources-badge");
+      
+      const allSrcs = c.territory_analysis.news_sources || c.territory_analysis.sources || [];
+      if (dock) dock.classList.remove("hidden");
+      if (dockProgress) {
+        dockProgress.style.width = "100%";
+        dockProgress.className = "bg-gradient-to-r from-emerald-500 via-blue-500 to-indigo-500 h-2 rounded-full";
+      }
+      if (dockPercent) dockPercent.textContent = "100%";
+      if (dockStatus) {
+        dockStatus.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i><span class="text-emerald-300 font-bold">Fuentes de "${c.territory}" cargadas con éxito (${allSrcs.length} despachos)</span>`;
+      }
+      if (dockTicker) dockTicker.classList.remove("hidden");
+      if (dockActions) dockActions.classList.remove("hidden");
+      if (tickerText && allSrcs.length > 0) {
+        tickerText.textContent = `📰 Fuente: "${allSrcs[0].title}"`;
+      }
+      if (dockBadge) {
+        dockBadge.textContent = `${allSrcs.length} fuentes`;
+      }
+    }
+
     // Calculate MACTOR
     await calculateMactor();
 
@@ -676,15 +711,16 @@ async function analyzeTerritoryLive() {
       dockStatus.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i><span class="text-emerald-300 font-bold">¡Rastreo de fuentes completado con éxito!</span>`;
     }
 
-    addDockLog(`✅ <strong>Éxito:</strong> Se indexaron ${json.data.sources ? json.data.sources.length : 0} fuentes y se extrajeron ${json.data.actors ? json.data.actors.length : 0} actores específicos.`, "text-emerald-300 font-bold");
+    addDockLog(`✅ <strong>Éxito:</strong> Se indexaron ${(json.data.news_sources || json.data.sources || []).length} fuentes y se extrajeron ${json.data.actors ? json.data.actors.length : 0} actores específicos.`, "text-emerald-300 font-bold");
 
     if (dockTicker) {
       dockTicker.classList.remove("hidden");
-      const sampleHeadline = (json.data.sources && json.data.sources.length > 0) ? json.data.sources[0].title : `Noticias recopiladas para ${territory}`;
+      const allSrcs = json.data.news_sources || json.data.sources || [];
+      const sampleHeadline = (allSrcs.length > 0) ? allSrcs[0].title : `Noticias recopiladas para ${territory}`;
       const tickerText = document.getElementById("search-dock-ticker-text");
       if (tickerText) tickerText.textContent = `📰 Fuente: "${sampleHeadline}"`;
       const badge = document.getElementById("search-dock-sources-badge");
-      if (badge) badge.textContent = `${json.data.sources ? json.data.sources.length : 0} fuentes`;
+      if (badge) badge.textContent = `${allSrcs.length} fuentes`;
     }
 
     if (dockActions) {
@@ -2196,7 +2232,6 @@ function renderNetworkCentralityMetrics() {
   }).join("");
 
   tbody.innerHTML = rowsHtml;
-}
 }
 
 // Vis.js: Interactive Network Graph
