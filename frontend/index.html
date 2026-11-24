@@ -488,10 +488,9 @@
                 <div>
                   <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center space-x-1.5">
                     <i class="fa-solid fa-satellite-dish text-blue-600"></i>
-                    <span>Ecosistema de Fuentes Rastreadas (Google Global + Redes Sociales + Gacetas Estatales)</span>
+                    <span>Ecosistema Ampliado de Fuentes Rastreadas (Prensa Multi-País + NewsData.io + Cortes + ONU/CEPAL + ONGs + Gacetas + Redes)</span>
                   </h4>
-                  <p class="text-[11px] text-slate-500">Filtrado en tiempo real por canal de información y pulso de
-                    opinión.</p>
+                  <p class="text-[11px] text-slate-500">Filtrado en tiempo real por canal de inteligencia territorial, jurisprudencia, organismos multilaterales y pulso de opinión.</p>
                 </div>
 
                 <!-- Channel Filter Pills -->
@@ -503,9 +502,33 @@
                   </button>
                   <button
                     class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                    data-channel="newsdata">
+                    <i class="fa-solid fa-bolt text-emerald-600 mr-1"></i>NewsData.io (<span
+                      id="count-newsdata-sources">0</span>)
+                  </button>
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
                     data-channel="bhrrc">
                     <i class="fa-solid fa-hand-holding-heart text-amber-600 mr-1"></i>Empresas & DDHH BHRRC (<span
                       id="count-bhrrc-sources">0</span>)
+                  </button>
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                    data-channel="legal">
+                    <i class="fa-solid fa-gavel text-rose-600 mr-1"></i>Cortes & Licencias (<span
+                      id="count-legal-sources">0</span>)
+                  </button>
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                    data-channel="multilateral">
+                    <i class="fa-solid fa-earth-americas text-cyan-600 mr-1"></i>ONU / Multilaterales (<span
+                      id="count-multilateral-sources">0</span>)
+                  </button>
+                  <button
+                    class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                    data-channel="ngo">
+                    <i class="fa-solid fa-people-group text-teal-600 mr-1"></i>ONGs & Sindicatos (<span
+                      id="count-ngo-sources">0</span>)
                   </button>
                   <button
                     class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
@@ -522,7 +545,7 @@
                   <button
                     class="channel-filter-btn px-2.5 py-1 rounded-md font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
                     data-channel="press">
-                    <i class="fa-regular fa-newspaper text-emerald-600 mr-1"></i>Prensa CL (<span
+                    <i class="fa-regular fa-newspaper text-emerald-600 mr-1"></i>Prensa Regional (<span
                       id="count-press-sources">0</span>)
                   </button>
                   <button

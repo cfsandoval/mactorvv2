@@ -57,6 +57,10 @@ def build_case_territory_analysis(case_data: Dict[str, Any]) -> Dict[str, Any]:
     channel_counts = {
         "all": len(news_items),
         "newsdata": sum(1 for n in news_items if n.get("channel") == "newsdata"),
+        "bhrrc": sum(1 for n in news_items if n.get("channel") == "bhrrc"),
+        "legal": sum(1 for n in news_items if n.get("channel") == "legal"),
+        "multilateral": sum(1 for n in news_items if n.get("channel") == "multilateral"),
+        "ngo": sum(1 for n in news_items if n.get("channel") == "ngo"),
         "official": sum(1 for n in news_items if n.get("channel") == "official"),
         "social": sum(1 for n in news_items if n.get("channel") == "social"),
         "press": sum(1 for n in news_items if n.get("channel") == "press"),

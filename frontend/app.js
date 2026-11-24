@@ -861,26 +861,18 @@ function renderTerritoryAnalysisResults(data) {
 
   // Update channel counter badges
   const allNews = data.news_sources || data.sources || [];
-  const bhrrcCount = allNews.filter(n => n.channel === 'bhrrc').length;
-  if (document.getElementById("count-bhrrc-sources")) {
-    document.getElementById("count-bhrrc-sources").textContent = bhrrcCount;
-  }
-
-  if (document.getElementById("count-all-sources")) {
-    document.getElementById("count-all-sources").textContent = (data.channel_counts && data.channel_counts.all) || allNews.length;
-  }
-  if (document.getElementById("count-social-sources")) {
-    document.getElementById("count-social-sources").textContent = (data.channel_counts && data.channel_counts.social) || 0;
-  }
-  if (document.getElementById("count-official-sources")) {
-    document.getElementById("count-official-sources").textContent = (data.channel_counts && data.channel_counts.official) || 0;
-  }
-  if (document.getElementById("count-press-sources")) {
-    document.getElementById("count-press-sources").textContent = (data.channel_counts && data.channel_counts.press) || 0;
-  }
-  if (document.getElementById("count-academic-sources")) {
-    document.getElementById("count-academic-sources").textContent = (data.channel_counts && data.channel_counts.academic) || 0;
-  }
+  const counts = data.channel_counts || {};
+  const countIds = ["all", "newsdata", "bhrrc", "legal", "multilateral", "ngo", "social", "official", "press", "academic"];
+  countIds.forEach(ch => {
+    const el = document.getElementById(`count-${ch}-sources`);
+    if (el) {
+      if (ch === "all") {
+        el.textContent = counts.all || allNews.length;
+      } else {
+        el.textContent = counts[ch] !== undefined ? counts[ch] : allNews.filter(n => n.channel === ch).length;
+      }
+    }
+  });
 
   // Social Pulse Banner
   const pulseBanner = document.getElementById("social-pulse-banner");

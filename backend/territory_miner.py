@@ -20,6 +20,7 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 import re
 import json
+import concurrent.futures
 from typing import List, Dict, Any, Tuple
 from bs4 import BeautifulSoup
 
@@ -79,22 +80,60 @@ def classify_source_channel(title: str, summary: str, source: str, link: str) ->
             "bg-sky-100 text-sky-800 border-sky-300"
         )
 
-    # 3. Social Media
+    # 3. Social Media & Video
     if any(k in combined for k in [
         "twitter", "x.com", "redes sociales", "trino", "trinó", "tweet", "youtube", "tiktok",
-        "video viral", "instagram", "facebook", "hilo de x", "tendencia en redes", "denuncia ciudadana"
+        "video viral", "instagram", "facebook", "hilo de x", "tendencia en redes", "denuncia ciudadana", "reddit"
     ]):
         return (
             "social",
-            "Redes Sociales (X / YouTube)",
+            "Redes Sociales (X / YouTube / TikTok)",
             "fa-brands fa-x-twitter",
             "bg-purple-100 text-purple-800 border-purple-200"
         )
-        
-    # 4. Official Government & Public Gazettes
+
+    # 4. Cortes, Licencias Ambientales y Jurisprudencia (Legal)
     if any(k in combined for k in [
-        ".gov", ".gob", "alcaldía", "alcalde", "gobernación", "gobernador", "ministerio",
-        "secretaría", "decreto", "gaceta", "resolución", "plan de desarrollo", "concejo",
+        "corte constitucional", "consejo de estado", "tribunal", "sentencia", "tutela", "amparo",
+        "anla", "licencia ambiental", "sea ", "semarnat", "procuraduría", "contraloría", "fiscalía",
+        "fallo judicial", "demanda judicial", "juez ", "arbitraje", "tjue", "suprema corte"
+    ]):
+        return (
+            "legal",
+            "Cortes, Licencias & Jurídico",
+            "fa-solid fa-gavel",
+            "bg-rose-100 text-rose-900 border-rose-300"
+        )
+
+    # 5. Organismos Multilaterales, ONU, CEPAL, OIT, BID
+    if any(k in combined for k in [
+        "naciones unidas", "onu ", "cepal", "unesco", "pnud", "oit ", "convenio 169", "banco mundial",
+        "ocde", "fao", "acnur", "cidh", "oecd", "unep", "bid ", "banco interamericano"
+    ]):
+        return (
+            "multilateral",
+            "ONU, CEPAL & Multilaterales",
+            "fa-solid fa-earth-americas",
+            "bg-cyan-100 text-cyan-900 border-cyan-300"
+        )
+
+    # 6. ONGs, Veedurías, Sindicatos y Sociedad Civil
+    if any(k in combined for k in [
+        "ong ", "greenpeace", "wwf", "dejusticia", "indepaz", "veeduría", "sindicato", "confederación",
+        "movimiento social", "organización indígena", "defensoría", "human rights watch", "amnistía",
+        "farn", "observatorio ciudadano", "colectivo ambiental", "asociación campesina"
+    ]):
+        return (
+            "ngo",
+            "ONGs, Sindicatos & Sociedad Civil",
+            "fa-solid fa-people-group",
+            "bg-teal-100 text-teal-900 border-teal-300"
+        )
+
+    # 7. Official Government & Public Gazettes
+    if any(k in combined for k in [
+        ".gov", ".gob", "boe.es", "diariooficial", "alcaldía", "alcalde", "gobernación", "gobernador",
+        "ministerio", "secretaría", "decreto", "gaceta", "resolución", "plan de desarrollo", "concejo",
         "asamblea departamental", "presidencia", "dian", "policía", "ejército", "documento público"
     ]):
         return (
@@ -104,22 +143,22 @@ def classify_source_channel(title: str, summary: str, source: str, link: str) ->
             "bg-blue-100 text-blue-800 border-blue-200"
         )
 
-    # 5. Academic & Observatories
+    # 8. Academic & Observatories
     if any(k in combined for k in [
-        "universidad", "instituto", "observatorio", "centro de estudios", "cepal", "bid",
-        "fedesarrollo", "investigación", "tesis", "informe técnico", "científicos", "estudio"
+        "universidad", "instituto", "observatorio", "centro de estudios", "scielo", "redalyc",
+        "fedesarrollo", "investigación", "tesis", "informe técnico", "científicos", "estudio académico"
     ]):
         return (
             "academic",
-            "Academia & Informes Técnicos",
+            "Academia & Think Tanks",
             "fa-solid fa-graduation-cap",
             "bg-orange-100 text-orange-800 border-orange-200"
         )
 
-    # 6. Press & Investigative Media
+    # 9. Press & Investigative Media
     return (
         "press",
-        "Prensa & Medios (Google News CL)",
+        "Prensa Nacional & Regional",
         "fa-regular fa-newspaper",
         "bg-emerald-100 text-emerald-800 border-emerald-200"
     )
@@ -299,123 +338,183 @@ def fetch_newsapi_articles(territory: str, sector: str = "", api_key: str = "") 
 
 def fetch_multi_angle_news(territory: str, sector: str = "", country: str = "", newsapi_key: str = "", newsdata_key: str = None) -> List[Dict[str, Any]]:
     """
-    Captures the full spectrum of information:
-    1. NewsData.io (API Segura en backend sin exponer credenciales)
-    2. Google News CL & LatAm (https://news.google.com/home?hl=es-419&gl=CL&ceid=CL:es-419)
-    3. Business & Human Rights Resource Centre (https://www.business-humanrights.org/es/feeds/latest-news/3/)
-    4. Official government gazettes (.gov/.gob) and Social Networks (X/Twitter/YouTube)
+    Captures the full expanded ecosystem of intelligence sources in parallel:
+    1. NewsData.io (Secure backend API)
+    2. Business & Human Rights Resource Centre (BHRRC)
+    3. NewsAPI (Optional)
+    4. Multi-Country Google News Locales (CO, CL, AR, PE, MX, ES, LatAm)
+    5. Redes Sociales & Video (X, YouTube, TikTok)
+    6. Fuentes Oficiales & Gacetas (.gov, .gob, boe.es)
+    7. Cortes, Licencias Ambientales & Jurisprudencia (legal)
+    8. Organismos Multilaterales, ONU, CEPAL, OIT & BID (multilateral)
+    9. ONGs, Veedurías, Sindicatos & Movimientos Sociales (ngo)
+    10. Academia & Think Tanks (academic)
     """
     clean_terr = territory.strip().title()
     clean_sector = sector.strip()
 
-    all_items = []
-    seen_titles = set()
-
-    # 1. Fetch from NewsData.io (Secure Server-Side API)
-    newsdata_items = fetch_newsdata_articles(clean_terr, clean_sector, country=country, api_key=newsdata_key)
-    for it in newsdata_items:
-        if it["title"] not in seen_titles:
-            seen_titles.add(it["title"])
-            all_items.append(it)
-
-    # 2. Fetch from Business & Human Rights Resource Centre (BHRRC)
-    bhrrc_items = fetch_bhrrc_feed(clean_terr, clean_sector)
-    for it in bhrrc_items:
-        if it["title"] not in seen_titles:
-            seen_titles.add(it["title"])
-            all_items.append(it)
-
-    # 3. Fetch from NewsAPI if optional key provided
-    if newsapi_key:
-        napi_items = fetch_newsapi_articles(clean_terr, clean_sector, newsapi_key)
-        for it in napi_items:
-            if it["title"] not in seen_titles:
-                seen_titles.add(it["title"])
-                all_items.append(it)
-
-    # 3. Google News CL Locale (hl=es-419&gl=CL&ceid=CL:es-419) multi-query suite
+    country_locale_map = {
+        "colombia": ("CO", "es-419"),
+        "chile": ("CL", "es-419"),
+        "argentina": ("AR", "es-419"),
+        "peru": ("PE", "es-419"),
+        "perú": ("PE", "es-419"),
+        "mexico": ("MX", "es-419"),
+        "méxico": ("MX", "es-419"),
+        "espana": ("ES", "es"),
+        "españa": ("ES", "es"),
+        "ecuador": ("EC", "es-419"),
+        "bolivia": ("BO", "es-419"),
+        "uruguay": ("UY", "es-419"),
+        "paraguay": ("PY", "es-419"),
+    }
+    gl_code, hl_code = country_locale_map.get((country or "").strip().lower(), ("CL", "es-419"))
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+
     search_bundles = [
-        # Google News CL / Prensa Regional y Nacional
+        # 1. Prensa Nacional & Regional (Locale del país + Pan-LatAm)
         {
             "channel_hint": "press",
+            "gl": gl_code,
+            "hl": hl_code,
             "queries": [
                 f"{clean_terr} {clean_sector} empresas proyectos inversiones comunidades",
                 f"{clean_terr} conflicto ambiental comunidades indigenas sindicato paro obras"
             ]
         },
-        # Redes Sociales & Pulso de Opinión (X / Twitter / YouTube)
+        # 2. Redes Sociales & Pulso Ciudadano
         {
             "channel_hint": "social",
+            "gl": gl_code,
+            "hl": hl_code,
             "queries": [
-                f"{clean_terr} (twitter OR \"x.com\" OR \"redes sociales\" OR trino OR video) (alcalde OR comunidad OR denuncia)",
+                f"{clean_terr} (twitter OR \"x.com\" OR \"redes sociales\" OR trino OR tiktok OR video) (alcalde OR comunidad OR denuncia)",
                 f"{clean_terr} (youtube OR debate OR entrevista) ({clean_sector or 'proyectos'} crisis OR reclamo)"
             ]
         },
-        # Fuentes Oficiales & Gacetas Estatales
+        # 3. Fuentes Oficiales & Gacetas Estatales
         {
             "channel_hint": "official",
+            "gl": gl_code,
+            "hl": hl_code,
             "queries": [
-                f"{clean_terr} (alcaldia OR gobernacion OR ministerio) (decreto OR gaceta OR \"plan de desarrollo\")",
-                f"{clean_terr} site:gov.co OR site:gob.cl OR site:gob (proyectos OR licencias OR resolucion)"
+                f"{clean_terr} (alcaldia OR gobernacion OR ministerio OR boletin) (decreto OR gaceta OR \"plan de desarrollo\")",
+                f"{clean_terr} (site:gov.co OR site:gob.cl OR site:gob.ar OR site:gob.pe OR site:gob.mx OR site:boe.es) (proyectos OR licencias OR resolucion)"
             ]
         },
-        # Academia & Informes Técnicos
+        # 4. Cortes, Licencias & Jurisprudencia (Legal)
+        {
+            "channel_hint": "legal",
+            "gl": gl_code,
+            "hl": hl_code,
+            "queries": [
+                f"{clean_terr} (sentencia OR tutela OR amparo OR \"corte constitucional\" OR \"consejo de estado\" OR tribunal) {clean_sector}",
+                f"{clean_terr} (\"licencia ambiental\" OR ANLA OR SEA OR SEMARNAT OR procuraduria OR contraloria) (sancion OR suspension OR fallo)"
+            ]
+        },
+        # 5. Organismos Multilaterales, ONU, CEPAL & BID
+        {
+            "channel_hint": "multilateral",
+            "gl": "US",
+            "hl": "es-419",
+            "queries": [
+                f"{clean_terr} (ONU OR CEPAL OR UNESCO OR OIT OR \"Convenio 169\" OR PNUD OR \"Banco Mundial\" OR BID) {clean_sector}"
+            ]
+        },
+        # 6. ONGs, Veedurías & Sindicatos
+        {
+            "channel_hint": "ngo",
+            "gl": gl_code,
+            "hl": hl_code,
+            "queries": [
+                f"{clean_terr} (ONG OR Greenpeace OR WWF OR veeduria OR sindicato OR \"movimiento social\" OR defensores) {clean_sector}"
+            ]
+        },
+        # 7. Academia & Think Tanks
         {
             "channel_hint": "academic",
+            "gl": gl_code,
+            "hl": hl_code,
             "queries": [
-                f"{clean_terr} universidad observatorio \"informe socioeconomico\" cuenca ambiental"
+                f"{clean_terr} (universidad OR observatorio OR scielo OR \"informe socioeconomico\" OR \"centro de estudios\") cuenca ambiental"
             ]
         }
     ]
 
-    for bundle in search_bundles:
-        for q in bundle["queries"]:
-            # Query with exact Google News CL locale
-            url = f"https://news.google.com/rss/search?q={urllib.parse.quote(q)}&hl=es-419&gl=CL&ceid=CL:es-419"
+    def _fetch_google_rss(bundle_hint: str, gl: str, hl: str, q: str) -> List[Dict[str, Any]]:
+        results = []
+        url = f"https://news.google.com/rss/search?q={urllib.parse.quote(q)}&hl={hl}&gl={gl}&ceid={gl}:{hl}"
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                root = ET.fromstring(resp.read())
+                for item in root.findall(".//item")[:10]:
+                    title = clean_html(item.find("title").text if item.find("title") is not None else "")
+                    link = item.find("link").text if item.find("link") is not None else ""
+                    pub_date = item.find("pubDate").text if item.find("pubDate") is not None else ""
+                    desc = clean_html(item.find("description").text if item.find("description") is not None else "")
+                    source_elem = item.find("source")
+                    source_name = source_elem.text if source_elem is not None else f"Google News ({gl})"
+
+                    norm_title = re.sub(r'\s+', ' ', title).strip()
+                    if not norm_title:
+                        continue
+
+                    channel, channel_lbl, icon, badge_cls = classify_source_channel(norm_title, desc, source_name, link)
+
+                    if channel == "press" and bundle_hint in ["social", "official", "academic", "legal", "multilateral", "ngo"]:
+                        channel = bundle_hint
+                        if channel == "social":
+                            channel_lbl, icon, badge_cls = "Redes Sociales (X / YouTube / TikTok)", "fa-brands fa-x-twitter", "bg-purple-100 text-purple-800 border-purple-200"
+                        elif channel == "official":
+                            channel_lbl, icon, badge_cls = "Fuente Oficial & Gaceta (.gov/.gob)", "fa-solid fa-building-columns", "bg-blue-100 text-blue-800 border-blue-200"
+                        elif channel == "academic":
+                            channel_lbl, icon, badge_cls = "Academia & Think Tanks", "fa-solid fa-graduation-cap", "bg-orange-100 text-orange-800 border-orange-200"
+                        elif channel == "legal":
+                            channel_lbl, icon, badge_cls = "Cortes, Licencias & Jurídico", "fa-solid fa-gavel", "bg-rose-100 text-rose-900 border-rose-300"
+                        elif channel == "multilateral":
+                            channel_lbl, icon, badge_cls = "ONU, CEPAL & Multilaterales", "fa-solid fa-earth-americas", "bg-cyan-100 text-cyan-900 border-cyan-300"
+                        elif channel == "ngo":
+                            channel_lbl, icon, badge_cls = "ONGs, Sindicatos & Sociedad Civil", "fa-solid fa-people-group", "bg-teal-100 text-teal-900 border-teal-300"
+
+                    results.append({
+                        "title": norm_title,
+                        "summary": desc,
+                        "link": link,
+                        "date": pub_date,
+                        "source": source_name,
+                        "channel": channel,
+                        "channel_label": channel_lbl,
+                        "channel_icon": icon,
+                        "channel_badge_class": badge_cls
+                    })
+        except Exception:
+            pass
+        return results
+
+    all_items = []
+    seen_titles = set()
+
+    # Run all feeds concurrently using ThreadPoolExecutor
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = []
+        futures.append(executor.submit(fetch_newsdata_articles, clean_terr, clean_sector, country, newsdata_key))
+        futures.append(executor.submit(fetch_bhrrc_feed, clean_terr, clean_sector))
+        if newsapi_key:
+            futures.append(executor.submit(fetch_newsapi_articles, clean_terr, clean_sector, newsapi_key))
+
+        for b in search_bundles:
+            for q in b["queries"]:
+                futures.append(executor.submit(_fetch_google_rss, b["channel_hint"], b["gl"], b["hl"], q))
+
+        for fut in concurrent.futures.as_completed(futures, timeout=12):
             try:
-                req = urllib.request.Request(url, headers=headers)
-                with urllib.request.urlopen(req, timeout=5) as resp:
-                    root = ET.fromstring(resp.read())
-                    for item in root.findall(".//item"):
-                        title = clean_html(item.find("title").text if item.find("title") is not None else "")
-                        link = item.find("link").text if item.find("link") is not None else ""
-                        pub_date = item.find("pubDate").text if item.find("pubDate") is not None else ""
-                        desc = clean_html(item.find("description").text if item.find("description") is not None else "")
-                        source_elem = item.find("source")
-                        source_name = source_elem.text if source_elem is not None else "Google News CL"
-
-                        norm_title = re.sub(r'\s+', ' ', title).strip()
-                        if norm_title and norm_title not in seen_titles:
-                            seen_titles.add(norm_title)
-                            channel, channel_lbl, icon, badge_cls = classify_source_channel(norm_title, desc, source_name, link)
-
-                            if channel == "press" and bundle["channel_hint"] in ["social", "official", "academic"]:
-                                channel = bundle["channel_hint"]
-                                if channel == "social":
-                                    channel_lbl = "Redes Sociales (X / YouTube)"
-                                    icon = "fa-brands fa-x-twitter"
-                                    badge_cls = "bg-purple-100 text-purple-800 border-purple-200"
-                                elif channel == "official":
-                                    channel_lbl = "Fuente Oficial & Gaceta (.gov/.gob)"
-                                    icon = "fa-solid fa-building-columns"
-                                    badge_cls = "bg-blue-100 text-blue-800 border-blue-200"
-                                elif channel == "academic":
-                                    channel_lbl = "Academia & Informes Técnicos"
-                                    icon = "fa-solid fa-graduation-cap"
-                                    badge_cls = "bg-orange-100 text-orange-800 border-orange-200"
-
-                            all_items.append({
-                                "title": norm_title,
-                                "summary": desc,
-                                "link": link,
-                                "date": pub_date,
-                                "source": source_name,
-                                "channel": channel,
-                                "channel_label": channel_lbl,
-                                "channel_icon": icon,
-                                "channel_badge_class": badge_cls
-                            })
+                batch = fut.result()
+                for it in batch:
+                    t = it.get("title", "")
+                    if t and t not in seen_titles:
+                        seen_titles.add(t)
+                        all_items.append(it)
             except Exception:
                 continue
 
@@ -1020,6 +1119,10 @@ def extract_detailed_actors_and_postures(territory: str, news_items: List[Dict[s
     channel_counts = {
         "all": len(news_items),
         "newsdata": sum(1 for n in news_items if n.get("channel") == "newsdata"),
+        "bhrrc": sum(1 for n in news_items if n.get("channel") == "bhrrc"),
+        "legal": sum(1 for n in news_items if n.get("channel") == "legal"),
+        "multilateral": sum(1 for n in news_items if n.get("channel") == "multilateral"),
+        "ngo": sum(1 for n in news_items if n.get("channel") == "ngo"),
         "official": sum(1 for n in news_items if n.get("channel") == "official"),
         "social": sum(1 for n in news_items if n.get("channel") == "social"),
         "press": sum(1 for n in news_items if n.get("channel") == "press"),
